@@ -52,6 +52,7 @@ new_tiger_acs <- function(filepath = NULL, code = NULL) {
   metadata$u_s_citizen <- ""
   metadata$u_s_citizen_spec <- ""
   metadata$residence <- ""
+  metadata$residence_spec <- ""
   metadata$birth <- ""
   metadata$birth_spec <- ""
   metadata$place_of_birth <- ""
@@ -59,34 +60,34 @@ new_tiger_acs <- function(filepath = NULL, code = NULL) {
   metadata$languages <- ""
   metadata$english <- ""
   metadata$studies <- ""
-  metadata$activity <- ""
-  metadata$activity_spec <- ""
-  metadata$workplace <- ""
+  metadata$studies_spec <- ""
   metadata$disability <- ""
-  metadata$householder <- ""
-  metadata$households <- ""
-  metadata$population_age <- ""
-  metadata$population <- ""
 
   # how
+  metadata$activity <- ""
+  metadata$activity_spec <- ""
+  metadata$activity_spec2 <- ""
+  metadata$workplace <- ""
+  metadata$household <- ""
+  metadata$household_spec <- ""
+  metadata$household_spec2 <- ""
   metadata$condition <- ""
   metadata$condition_spec <- ""
   metadata$condition_spec2 <- ""
   metadata$income <- ""
+  metadata$income_spec <- ""
   metadata$money <- ""
-  metadata$situation <- ""
   metadata$vehicles <- ""
+  metadata$vehicles_spec <- ""
   metadata$insurance_coverage <- ""
+  metadata$insurance_coverage_spec <- ""
   metadata$transportation_to_work <- ""
+  metadata$transportation_to_work_spec <- ""
   metadata$housing <- ""
   metadata$housing_units <- ""
   metadata$computers <- ""
 
   metadata$rest <- ""
-
-  metadata$who <- ""
-  metadata$how <- ""
-  metadata$whow <- ""
 
   # select only a code
   if (!is.null(code)) {
@@ -147,7 +148,7 @@ transform_metadata.tiger_acs <- function(ta) {
   for (i in seq_along(ta$metadata[[1]])) {
     ta$metadata[i,] <- transform_code(ta$metadata[i,])
 
-    values <- strsplit(ta$metadata$Full_Name[i], ":")[[1]]
+    values <- strsplit(ta$metadata$Full_Name[i], ": ")[[1]]
     values <- stringr::str_trim(values, side = "both")
     ta$metadata[i,] <- transform_values(ta$metadata[i,], values)
   }
@@ -211,7 +212,6 @@ transform_values <- function(mdr, values) {
     }
   }
 
-  mdr$whow <- paste(values[2:length(val)], collapse = ": ")
   for (j in 2:length(val)) {
     mdr <- read_b01(mdr, val[j], values[j])
   }
@@ -224,15 +224,9 @@ transform_values <- function(mdr, values) {
 read_b01 <- function(mdr, val, value) {
   if (val %in% c("male", "female")) {
     mdr$sex <- add_value(mdr$sex, value)
-    mdr$who <- add_value(mdr$who, value)
-  } else if (grepl("married_couple", val, fixed = TRUE) |
-             grepl("male_householder", val, fixed = TRUE) |
-             val %in% c("in_other_families")) {
-    mdr$householder <- add_value(mdr$householder, value)
-    mdr$who <- add_value(mdr$who, value)
   } else if (val %in% c("total")) {
     mdr$total <- add_value(mdr$total, value)
-  } else if (val %in% c("total_population", "total_groups_tallied") |
+  } else if (val %in% c("total_population", "total_groups_tallied", "total_dollars") |
              grepl("total_population_in", val, fixed = TRUE)) {
     mdr$total_population <-  add_value(mdr$total_population, value)
   } else if (grepl("black_or_african", val, fixed = TRUE) |
@@ -255,28 +249,23 @@ read_b01 <- function(mdr, val, value) {
              grepl("central_american", val, fixed = TRUE) |
              grepl("south_american", val, fixed = TRUE)) {
     mdr <- add_value_spec(mdr, "human_group", value, double = TRUE)
-    mdr$who <- add_value(mdr$who, value)
   } else if (mdr$inf_code %in% c("B02", "B03")) {
     mdr <- add_value_spec(mdr, "human_group", value, double = TRUE)
-    mdr$who <- add_value(mdr$who, value)
   } else if (mdr$inf_code %in% c("B11", "B22")) {
     mdr <- add_value_spec(mdr, "condition", value, double = TRUE)
-    mdr$how <- add_value(mdr$how, value)
   } else if (grepl("single_ancestry", val, fixed = TRUE) |
              grepl("multiple_ancestr", val, fixed = TRUE) |
              grepl("ancestry_specified", val, fixed = TRUE) |
              grepl("ancestry_not", val, fixed = TRUE) |
              grepl("ancestry_un", val, fixed = TRUE)) {
     mdr <- add_value_spec(mdr, "ancestry", value, double = TRUE)
-    mdr$who <- add_value(mdr$who, value)
   } else if (mdr$inf_code %in% c("B04")) {
     mdr <- add_value_spec(mdr, "ancestry", value, second = TRUE)
-    mdr$who <- add_value(mdr$who, value)
   } else if (grepl("u_s_citizen", val, fixed = TRUE) |
              grepl("naturalized", val, fixed = TRUE) |
-             grepl("noncitizen", val, fixed = TRUE)) {
+             grepl("noncitizen", val, fixed = TRUE) |
+             grepl("not_a_citizen", val, fixed = TRUE)) {
     mdr <- add_value_spec(mdr, "u_s_citizen", value)
-    mdr$who <- add_value(mdr$who, value)
   } else if ((
     grepl("born_in", val, fixed = TRUE) |
     grepl("born_outside", val, fixed = TRUE) |
@@ -287,7 +276,20 @@ read_b01 <- function(mdr, val, value) {
     )
   ) & (!mdr$inf_code %in% c("B15"))) {
     mdr <- add_value_spec(mdr, "birth", value)
-    mdr$who <- add_value(mdr$who, value)
+  } else if ((grepl("married_couple", val, fixed = TRUE) |
+             grepl("male_householder", val, fixed = TRUE) |
+             grepl("famil", val, fixed = TRUE) |
+             grepl("other_living", val, fixed = TRUE) |
+             grepl("living_a", val, fixed = TRUE) |
+             grepl("relatives", val, fixed = TRUE) |
+             grepl("spouse", val, fixed = TRUE) |
+             grepl("husband", val, fixed = TRUE) |
+             grepl("child", val, fixed = TRUE) |
+             grepl("male_householder", val, fixed = TRUE) |
+             grepl("household", val, fixed = TRUE)) &
+             (!grepl("_worker", val, fixed = TRUE)) &
+             (!grepl("income", val, fixed = TRUE))) {
+    mdr <- add_value_spec(mdr, "household", value, double = TRUE)
   } else if ((grepl("entered_", val, fixed = TRUE) &
               (
                 grepl("_to_", val, fixed = TRUE) |
@@ -305,12 +307,11 @@ read_b01 <- function(mdr, val, value) {
               )) |
              grepl("own_children_", val, fixed = TRUE) |
              grepl("_years_and_over_in_", val, fixed = TRUE) |
-             grepl("_poverty", val, fixed = TRUE) |
+             (grepl("_poverty", val, fixed = TRUE) & (!grepl("income", val, fixed = TRUE))) |
              grepl("some_other_race_population_in_puerto_rico", val, fixed = TRUE) |
              (mdr$inf_code %in% c("B13") &
               substr(val, 1, 6) == "women_")) {
     mdr <- add_value_spec(mdr, "condition", value, double = TRUE)
-    mdr$how <- add_value(mdr$how, value)
   } else if (((
     grepl("under_", val, fixed = TRUE) |
     grepl("_to_", val, fixed = TRUE) |
@@ -330,30 +331,15 @@ read_b01 <- function(mdr, val, value) {
   ) |
   val %in% c("20_years", "21_years", "5_years", "15_years")) {
     mdr$age <- add_value(mdr$age, value)
-    mdr$who <- add_value(mdr$who, value)
-  } else if ((
-    grepl("population_", val, fixed = TRUE) |
-    grepl("workers_", val, fixed = TRUE) &
-    grepl("citizens_", val, fixed = TRUE)
-  ) &
-  grepl("_year", val, fixed = TRUE)) {
-    mdr$population_age <- add_value(mdr$population_age, value)
-    mdr$who <- add_value(mdr$who, value)
-  } else if (grepl("population", val, fixed = TRUE)) {
-    mdr$population <- add_value(mdr$population, value)
-    mdr$who <- add_value(mdr$who, value)
-  } else if (grepl("household", val, fixed = TRUE)) {
-    mdr$households <- add_value(mdr$households, value)
-    mdr$who <- add_value(mdr$who, value)
-  } else if (mdr$inf_code %in% c("B17", "B23")) {
+  } else if (grepl("population_", val, fixed = TRUE) |
+             grepl("citizens_", val, fixed = TRUE)) {
     mdr <- add_value_spec(mdr, "condition", value, double = TRUE)
-    mdr$how <- add_value(mdr$how, value)
+  } else if (mdr$inf_code %in% c("B23")) {
+    mdr <- add_value_spec(mdr, "condition", value, double = TRUE)
   } else if (mdr$inf_code %in% c("B05")) {
     mdr <- add_value_spec(mdr, "place_of_birth", value)
-    mdr$who <- add_value(mdr$who, value)
   } else if (grepl("income", val, fixed = TRUE)) {
-    mdr$income <- add_value(mdr$income, value)
-    mdr$how <- add_value(mdr$how, value)
+    mdr <- add_value_spec(mdr, "income", value)
   } else if (grepl("_000_or_more", val, fixed = TRUE) |
              grepl("_000_to_", val, fixed = TRUE) |
              grepl("1_to_9_999_", val, fixed = TRUE) |
@@ -362,7 +348,6 @@ read_b01 <- function(mdr, val, value) {
              grepl("less_than_10_000", val, fixed = TRUE) |
              grepl("$", value, fixed = TRUE)) {
     mdr$money <- add_value(mdr$money, value)
-    mdr$how <- add_value(mdr$how, value)
   } else if ((!mdr$inf_code %in% c("B09")) &
              (
                grepl("divorced", val, fixed = TRUE) |
@@ -371,27 +356,20 @@ read_b01 <- function(mdr, val, value) {
                grepl("widowed", val, fixed = TRUE)
              )) {
     mdr <- add_value_spec(mdr, "marital_status", value)
-    mdr$who <- add_value(mdr$who, value)
   } else if (grepl("speak_only_", val, fixed = TRUE) |
              grepl("speak_other_", val, fixed = TRUE) |
              grepl("speak_spanish", val, fixed = TRUE) |
              grepl("speak_language", val, fixed = TRUE)) {
     mdr$languages <- add_value(mdr$languages, value)
-    mdr$who <- add_value(mdr$who, value)
   } else if (substr(val, 1, 14) == "speak_english_") {
     mdr$english <- add_value(mdr$english, value)
-    mdr$who <- add_value(mdr$who, value)
   } else if (grepl("_degree", val, fixed = TRUE) |
              grepl("_graduate", val, fixed = TRUE) |
              grepl("graduate_", val, fixed = TRUE) |
              grepl("_th_grade", val, fixed = TRUE) |
              grepl("enrolled_in_", val, fixed = TRUE) |
              grepl("_school", val, fixed = TRUE)) {
-    mdr$studies <- add_value(mdr$studies, value)
-    mdr$who <- add_value(mdr$who, value)
-  } else if (mdr$inf_code %in% c("B07")) {
-    mdr$situation <- add_value(mdr$situation, value)
-    mdr$who <- add_value(mdr$who, value)
+    mdr <- add_value_spec(mdr, "studies", value)
   } else if ((
     grepl("agriculture", val, fixed = TRUE) |
     grepl("construction", val, fixed = TRUE) |
@@ -406,36 +384,32 @@ read_b01 <- function(mdr, val, value) {
     grepl("other_services", val, fixed = TRUE) |
     grepl("_occupations", val, fixed = TRUE) |
     grepl("public_administration", val, fixed = TRUE) |
-    grepl("_workers", val, fixed = TRUE) |
+    grepl("_worker", val, fixed = TRUE) |
+    grepl("worked_", val, fixed = TRUE) |
     grepl("_labor_force", val, fixed = TRUE) |
     grepl("employed", val, fixed = TRUE) |
     grepl("did_not_work", val, fixed = TRUE) |
-    grepl("worked_", val, fixed = TRUE) |
     grepl("veteran", val, fixed = TRUE) |
     grepl("armed_forces", val, fixed = TRUE)
   ) &
   (!mdr$inf_code %in% c("B15", "B24", "B25", "B99", "C15", "C24"))) {
-    mdr$activity <- add_value(mdr$activity, value)
-    mdr$who <- add_value(mdr$who, value)
+    mdr <- add_value_spec(mdr, "activity", value, double = TRUE)
   } else if (grepl("worked_in_", val, fixed = TRUE) |
              grepl("worked_outside_", val, fixed = TRUE) |
              grepl("worked_at_", val, fixed = TRUE) |
              grepl("work_at_", val, fixed = TRUE)) {
     mdr$workplace <- add_value(mdr$workplace, value)
-    mdr$who <- add_value(mdr$who, value)
-  } else if (grepl("living_", val, fixed = TRUE)) {
-    mdr$residence <- add_value(mdr$residence, value)
-    mdr$who <- add_value(mdr$who, value)
+  } else if (grepl("living_", val, fixed = TRUE) &
+             (!mdr$inf_code %in% c("B07", "B17", "B18"))) {
+    mdr <- add_value_spec(mdr, "residence", value)
   } else if (grepl("_vehicle_available", val, fixed = TRUE) |
              grepl("_vehicles_available", val, fixed = TRUE) |
              grepl("_vehicles_available", val, fixed = TRUE) |
              grepl("car_truck_or_van", val, fixed = TRUE)) {
-    mdr$vehicles <- add_value(mdr$vehicles, value)
-    mdr$how <- add_value(mdr$how, value)
+    mdr <- add_value_spec(mdr, "vehicles", value, double = TRUE)
   } else if (grepl("_difficulty", val, fixed = TRUE) |
              grepl("_disability", val, fixed = TRUE)) {
     mdr$disability <- add_value(mdr$disability, value)
-    mdr$who <- add_value(mdr$who, value)
   } else if (grepl("_insurance_coverage", val, fixed = TRUE) |
              grepl("_health_coverage", val, fixed = TRUE) |
              grepl("_health_insurance", val, fixed = TRUE) |
@@ -445,25 +419,19 @@ read_b01 <- function(mdr, val, value) {
              grepl("_purchase_coverage", val, fixed = TRUE) |
              grepl("_coverage_combinations", val, fixed = TRUE) |
              grepl("_only_combinations", val, fixed = TRUE)) {
-    mdr$insurance_coverage <- add_value(mdr$insurance_coverage, value)
-    mdr$how <- add_value(mdr$how, value)
+    mdr <- add_value_spec(mdr, "insurance_coverage", value)
   } else if (mdr$inf_code %in% c("B08")) {
-    mdr$transportation_to_work <-
-      add_value(mdr$transportation_to_work, value)
-    mdr$how <- add_value(mdr$how, value)
+    mdr <- add_value_spec(mdr, "transportation_to_work", value)
   } else if (mdr$inf_code %in% c("B24", "C24")) {
-    if (mdr$activity == "") {
-      mdr$activity <- value
-    } else {
-      mdr$activity_spec <- add_value(mdr$activity_spec, value)
-    }
-    mdr$who <- add_value(mdr$who, value)
+    mdr <- add_value_spec(mdr, "activity", value, double = TRUE)
   } else if (mdr$inf_code %in% c(
+    "B07",
     "B09",
     "B10",
     "B12",
     "B13",
     "B14",
+    "B17",
     "B18",
     "B19",
     "B20",
@@ -474,13 +442,10 @@ read_b01 <- function(mdr, val, value) {
     "C23"
   )) {
     mdr <- add_value_spec(mdr, "condition", value, double = TRUE)
-    mdr$how <- add_value(mdr$how, value)
   } else if (mdr$inf_code %in% c("B15", "C15")) {
-    mdr$studies <- add_value(mdr$studies, value)
-    mdr$who <- add_value(mdr$who, value)
+    mdr <- add_value_spec(mdr, "studies", value)
   } else if (mdr$inf_code %in% c("B16", "C16")) {
     mdr$languages <- add_value(mdr$languages, value)
-    mdr$who <- add_value(mdr$who, value)
   } else if (mdr$inf_code %in% c("B00", "B25", "B98", "B99")) {
     if (grepl("housing_unit", val, fixed = TRUE)) {
       mdr$housing_units <- add_value(mdr$housing_units, value)
@@ -489,10 +454,8 @@ read_b01 <- function(mdr, val, value) {
     } else {
       mdr$housing <- add_value(mdr$housing, value)
     }
-    mdr$how <- add_value(mdr$how, value)
   } else if (mdr$inf_code %in% c("B28")) {
     mdr$computers <- add_value(mdr$computers, value)
-    mdr$how <- add_value(mdr$how, value)
   } else {
     mdr$rest <- add_value(mdr$rest, val)
   }
@@ -508,27 +471,32 @@ add_value <- function(field, value, sep = ": ") {
   field
 }
 
-add_value_spec <- function(mdr, field, value, double = FALSE, second = FALSE, sep = ": ") {
-  if (second) {
-    double = TRUE
-  }
-  field_spec <- sprintf("%s_spec", field)
-  if (mdr[, field] == "" & (!second)) {
-    mdr[, field] <- value
-  } else if (mdr[, field_spec] == "") {
-    mdr[, field_spec] <- value
-  } else {
-    if (double) {
-      field_spec2 <- sprintf("%s_spec2", field)
-      if (mdr[, field_spec2] == "") {
-        mdr[, field_spec2] <- value
-      } else {
-        mdr[, field_spec2] <- paste(mdr[, field_spec2], value, sep = sep)
-      }
-    } else {
-      mdr[, field_spec] <- paste(mdr[, field_spec], value, sep = sep)
+add_value_spec <-
+  function(mdr,
+           field,
+           value,
+           double = FALSE,
+           second = FALSE,
+           sep = ": ") {
+    if (second) {
+      double = TRUE
     }
+    field_spec <- sprintf("%s_spec", field)
+    if (mdr[, field] == ""  & (!second)) {
+      mdr[, field] <- value
+    } else if (mdr[, field_spec] == "") {
+      mdr[, field_spec] <- value
+    } else {
+      if (double) {
+        field_spec2 <- sprintf("%s_spec2", field)
+        if (mdr[, field_spec2] == "") {
+          mdr[, field_spec2] <- value
+        } else {
+          mdr[, field_spec2] <- paste(mdr[, field_spec2], value, sep = sep)
+        }
+      } else {
+        mdr[, field_spec] <- paste(mdr[, field_spec], value, sep = sep)
+      }
+    }
+    mdr
   }
-  mdr
-}
-
