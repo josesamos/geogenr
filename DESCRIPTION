@@ -1,0 +1,40 @@
+Package: geogenr
+Type: Package
+Title: Generating geomultistar Objects
+Version: 0.0.0.9000
+Authors@R: 
+    person(given = "Jose",
+           family = "Samos",
+           role = c("aut", "cre", "cph"),
+           email = "jsamos@ugr.es",
+           comment = c(ORCID = "0000-0002-4457-3439"))
+Description: Multidimensional systems allow complex queries to be 
+    carried out in an easy way. Generating geomultistar Objects.
+License: MIT + file LICENSE
+Encoding: UTF-8
+Language: en-GB
+LazyData: true
+Roxygen: list(markdown = TRUE)
+RoxygenNote: 7.1.1
+Imports: 
+    dplyr,
+    readr,
+    tibble,
+    tidyr,
+    tidyselect,
+    starschemar,
+    generics,
+    purrr,
+    sf,
+    magrittr,
+    rlang,
+    pander,
+    stringr,
+    snakecase
+Suggests: 
+    testthat,
+    knitr,
+    rmarkdown
+VignetteBuilder: knitr
+Depends: 
+    R (>= 2.10)

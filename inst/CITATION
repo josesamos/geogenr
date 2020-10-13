@@ -1,0 +1,14 @@
+citHeader("To cite geogenr in publications use:")
+
+citEntry(entry = "Manual",
+  title        = "{geogenr}: Generating geomultistar Objects",
+  author       = personList(as.person("Jose Samos")),
+  year         = "2020",
+  note         = "R package version 1.0.0",
+  url          = "https://CRAN.R-project.org/package=geogenr",
+
+  textVersion  =
+  paste("Jose Samos (2020).",
+        "geogenr: Generating geomultistar Objects.",
+        "https://CRAN.R-project.org/package=geogenr.")
+)
