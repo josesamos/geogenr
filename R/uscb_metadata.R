@@ -12,7 +12,7 @@
 #' @return A `uscb_metadata` object.
 #'
 #' @keywords internal
-new_uscb_metadata <- function(filepath = NULL, code = NULL) {
+new_uscb_metadata <- function(filepath = NULL, code = NULL, group_code = NULL) {
   # Use `st_layers' to list all layer names and their type in a data source.
   # Set the `layer' argument in `st_read' to read a particular layer.
   layers <- sf::st_layers(dsn = filepath)
@@ -74,23 +74,26 @@ new_uscb_metadata <- function(filepath = NULL, code = NULL) {
     "demographic_race",
     "demographic_relationship_to_householder",
     "demographic_total_population",
+    "demographic_family",
     "rest"
   )
 
   metadata$inf_code <- ""
-  metadata$group_code <- ""
-  metadata$subgroup_code <- ""
   metadata$type_code <- ""
   metadata$spec_code <- ""
 
   metadata$type <- ""
+
   metadata$group <- ""
   metadata$subgroup <- ""
+  metadata$group_code <- ""
+  metadata$subgroup_code <- ""
 
   for (var in var_name) {
     metadata[var] <- ""
     metadata[sprintf("%s_spec", var)] <- ""
-    metadata[sprintf("%s_spec2", var)] <- ""
+    metadata[sprintf("%s_spec_2", var)] <- ""
+    metadata[sprintf("%s_spec_3", var)] <- ""
   }
 
   # select only a code
@@ -98,9 +101,14 @@ new_uscb_metadata <- function(filepath = NULL, code = NULL) {
     for (i in seq_along(metadata[[1]])) {
       short <- strsplit(metadata$Short_Name[i], "")[[1]]
       metadata$inf_code[i] <- paste(short[1:3], collapse = "")
+      metadata$group_code[i] <- paste(short[4:6], collapse = "")
     }
     print(sort(unique(metadata$inf_code)))
     metadata <- metadata[metadata$inf_code == code, ]
+    if (!is.null(group_code)) {
+      print(sort(unique(metadata$group_code)))
+      metadata <- metadata[metadata$group_code == group_code, ]
+    }
   }
 
   acs <-
@@ -125,8 +133,8 @@ new_uscb_metadata <- function(filepath = NULL, code = NULL) {
 #'
 #' @export
 uscb_metadata <-
-  function(filepath = NULL, code = NULL) {
-    new_uscb_metadata(filepath, code)
+  function(filepath = NULL, code = NULL, group_code = NULL) {
+    new_uscb_metadata(filepath, code, group_code)
   }
 
 
