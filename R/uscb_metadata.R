@@ -75,6 +75,7 @@ new_uscb_metadata <- function(filepath = NULL, code = NULL, group_code = NULL) {
     "demographic_relationship_to_householder",
     "demographic_total_population",
     "demographic_family",
+    "demographic_household",
     "rest"
   )
 
@@ -94,6 +95,7 @@ new_uscb_metadata <- function(filepath = NULL, code = NULL, group_code = NULL) {
     metadata[sprintf("%s_spec", var)] <- ""
     metadata[sprintf("%s_spec_2", var)] <- ""
     metadata[sprintf("%s_spec_3", var)] <- ""
+    metadata[sprintf("%s_spec_4", var)] <- ""
   }
 
   # select only a code
