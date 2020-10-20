@@ -116,6 +116,7 @@ new_uscb_metadata <- function(filepath = NULL, code = NULL, group_code = NULL) {
   acs <-
     list(
       layers = layer_names,
+      variables = var_name,
       metadata = metadata
     )
 
