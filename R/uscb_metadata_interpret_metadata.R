@@ -103,19 +103,23 @@ interpret_general <- function(mdr, vals, values) {
       switch(
         inf_code,
         "B00" = {
-          res <- interpret_as(mdr, field = "demographic_total_population", vals[j], values[j])
+          res <-
+            interpret_as(mdr, field = "demographic_total_population", vals[j], values[j])
         },
         "B01" = {
           res <- interpret_as_demographic_race(mdr, vals[j], values[j])
         },
         "B02" = {
-          res <-   interpret_as(mdr, field = "demographic_race", vals[j], values[j])
+          res <-
+            interpret_as(mdr, field = "demographic_race", vals[j], values[j])
         },
         "B03" = {
-          res <- interpret_as(mdr, field = "demographic_hispanic_or_latino_origin", vals[j], values[j])
+          res <-
+            interpret_as(mdr, field = "demographic_hispanic_or_latino_origin", vals[j], values[j])
         },
         "B04" = {
-          res <- interpret_as(mdr, field = "social_ancestry", vals[j], values[j])
+          res <-
+            interpret_as(mdr, field = "social_ancestry", vals[j], values[j])
         },
         "B05" = {
           res <- interpret_as_demographic_race(mdr, vals[j], values[j])
@@ -136,26 +140,38 @@ interpret_general <- function(mdr, vals, values) {
         "B09" = {
           res <- interpret_as_demographic_household(mdr, vals[j], values[j])
           if (!res$result) {
-            res <- interpret_as_social_grandparents_as_caregivers(mdr, vals[j], values[j])
+            res <-
+              interpret_as_social_grandparents_as_caregivers(mdr, vals[j], values[j])
           }
         },
         "B10" = {
-          res <- interpret_as_demographic_household(mdr, vals[j], values[j])
-          if (!res$result) {
-            res <- interpret_as_social_grandparents_as_caregivers(mdr, vals[j], values[j])
-            if (!res$result) {
-              res <- interpret_as_demographic_race(mdr, vals[j], values[j])
-            }
-          }
+          res <- interpret_b10(mdr, vals[j], values[j])
+        },
+        "B11" = {
+          res <- interpret_b11(mdr, vals[j], values[j])
+        },
+        "B12" = {
+          res <- interpret_b12(mdr, vals[j], values[j])
+        },
+        "B13" = {
+          res <- interpret_b13(mdr, vals[j], values[j])
+        },
+        "B14" = {
+          res <- interpret_b14(mdr, vals[j], values[j])
+        },
+        "B15" = {
+          res <-
+            interpret_as_social_educational_attainment(mdr, vals[j], values[j])
+        },
+        "B16" = {
+          res <- interpret_b16(mdr, vals[j], values[j])
         }
       )
     }
     if (!res$result) {
-      mdr <- add_value(mdr, "rest", values[j])
+      res <- interpret_as(mdr, field = "rest", vals[j], values[j])
     }
-    else {
-      mdr <- res$mdr
-    }
+    mdr <- res$mdr
   }
   mdr
 }
@@ -166,9 +182,8 @@ interpret_general <- function(mdr, vals, values) {
 #'
 interpret_b05 <-
   function(mdr, val, value) {
-    result <- TRUE
     if (substr(val, 1, 6) == "total_") {
-      mdr <- add_value(mdr, "demographic_total_population", value)
+      res <- interpret_as(mdr, field = "demographic_total_population", val, value)
     } else {
       res <- interpret_as_social_citizenship_status(mdr, val, value)
       if (!res$result) {
@@ -179,24 +194,17 @@ interpret_b05 <-
             res <- interpret_as_economic_poverty_status(mdr, val, value)
             if (!res$result) {
               res <- interpret_as_social_year_of_entry(mdr, val, value)
+              if (!res$result) {
+                if (mdr$group_code %in% c("002", "006", "007", "008")) {
+                  res <- interpret_as(mdr, field = "social_place_of_birth", val, value)
+                }
+              }
             }
           }
         }
       }
-
-      if (!res$result) {
-        if (mdr$group_code %in% c("002", "006", "007", "008")) {
-          mdr <- add_value(mdr, "social_place_of_birth", value)
-        } else {
-          result <- FALSE
-        }
-      } else {
-        mdr <- res$mdr
-      }
     }
-
-    list(mdr = mdr,
-         result = result)
+    res
   }
 
 
@@ -298,6 +306,235 @@ interpret_b08 <- function(mdr, val, value) {
 }
 
 
+#' interpret_b10
+#'
+interpret_b10 <- function(mdr, val, value) {
+  res <- interpret_as_demographic_household(mdr, val, value)
+  if (!res$result) {
+    res <- interpret_as_social_grandparents_as_caregivers(mdr, val, value)
+    if (!res$result) {
+      res <- interpret_as_demographic_race(mdr, val, value)
+      if (!res$result) {
+        res <- interpret_as_social_disability_status(mdr, val, value)
+        if (!res$result) {
+          res <- interpret_as_social_place_of_birth(mdr, val, value)
+          if (!res$result) {
+            res <- interpret_as_social_language_spoken_at_home(mdr, val, value)
+            if (!res$result) {
+              res <- interpret_as_social_marital_status(mdr, val, value)
+              if (!res$result) {
+                res <- interpret_as_economic_work_status_last_year(mdr, val, value)
+                if (!res$result) {
+                  res <-
+                    interpret_as_economic_poverty_status(mdr, val, value)
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+  res
+}
+
+
+#' interpret_b11
+#'
+interpret_b11 <- function(mdr, val, value) {
+  if (mdr$group_code %in% c("014")) {
+    res <- interpret_as_housing_units_in_structure(mdr, val, value)
+  } else {
+    res <- interpret_as_demographic_household(mdr, val, value)
+  }
+  if (!res$result) {
+    res <- interpret_as_demographic_race(mdr, val, value)
+    if (!res$result) {
+      res <- interpret_as_demographic_family(mdr, val, value)
+      if (!res$result) {
+        res <- interpret_as_housing_units_in_structure(mdr, val, value)
+      }
+    }
+  }
+  res
+}
+
+
+#' interpret_b12
+#'
+interpret_b12 <- function(mdr, val, value) {
+  res <- interpret_as_social_marital_status(mdr, val, value)
+  if (!res$result) {
+    res <- interpret_as_demographic_race(mdr, val, value)
+    if (!res$result) {
+      res <- interpret_as_economic_work_status_last_year(mdr, val, value)
+    }
+  }
+  res
+}
+
+#' interpret_b13
+#'
+interpret_b13 <- function(mdr, val, value) {
+  res <- interpret_as_social_marital_status(mdr, val, value)
+  if (!res$result) {
+    res <- interpret_as_economic_work_status_last_year(mdr, val, value)
+    if (!res$result) {
+      res <- interpret_as_demographic_race(mdr, val, value)
+      if (!res$result) {
+        res <- interpret_as_social_educational_attainment(mdr, val, value)
+        if (!res$result) {
+          res <- interpret_as_economic_poverty_status(mdr, val, value)
+          if (!res$result) {
+            res <- interpret_as_social_place_of_birth(mdr, val, value)
+            if (!res$result) {
+              res <- interpret_as_social_fertility(mdr, val, value)
+              if (!res$result) {
+                res <- interpret_as_demographic_household(mdr, val, value)
+                if (!res$result) {
+                  res <- interpret_as_economic_poverty_status(mdr, val, value)
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+  res
+}
+
+
+#' interpret_b14
+#'
+interpret_b14 <- function(mdr, val, value) {
+  res <- interpret_as_social_school_enrollment(mdr, val, value)
+  if (!res$result) {
+    res <- interpret_as_economic_work_status_last_year(mdr, val, value)
+    if (!res$result) {
+      res <- interpret_as_demographic_race(mdr, val, value)
+      if (!res$result) {
+        res <- interpret_as_economic_poverty_status(mdr, val, value)
+        if (!res$result) {
+          res <- interpret_as_social_educational_attainment(mdr, val, value)
+          if (!res$result) {
+            res <- interpret_as_economic_poverty_status(mdr, val, value)
+            if (!res$result) {
+              res <- interpret_as_demographic_race(mdr, val, value)
+            }
+          }
+        }
+      }
+    }
+  }
+  res
+}
+
+
+#' interpret_b16
+#'
+interpret_b16 <- function(mdr, val, value) {
+  res <- interpret_as_social_language_spoken_at_home(mdr, val, value)
+  if (!res$result) {
+    if (mdr$group_code %in% c("001")) {
+      res <- interpret_as(mdr, field = "social_language_spoken_at_home", val, value)
+    }
+  }
+  res
+}
+
+
+#' interpret_as_social_school_enrollment
+#'
+interpret_as_social_school_enrollment <-
+  function(mdr, val, value) {
+    val_set <- c(
+      "enrolled_in_college_undergraduate_years",
+      "enrolled_in_grade_1_to_grade_4",
+      "enrolled_in_grade_5_to_grade_8",
+      "enrolled_in_grade_9_to_grade_12",
+      "enrolled_in_kindergarten",
+      "enrolled_in_nursery_school_preschool",
+      "graduate_or_professional_school",
+      "not_enrolled_in_school",
+      "enrolled_in_school",
+      "enrolled_in_graduate_or_professional_school",
+      "private_school",
+      "public_school",
+      "enrolled_in_grade_1",
+      "enrolled_in_grade_10",
+      "enrolled_in_grade_11",
+      "enrolled_in_grade_12",
+      "enrolled_in_grade_2",
+      "enrolled_in_grade_3",
+      "enrolled_in_grade_4",
+      "enrolled_in_grade_5",
+      "enrolled_in_grade_6",
+      "enrolled_in_grade_7",
+      "enrolled_in_grade_8",
+      "enrolled_in_grade_9",
+      "enrolled_in_private_college_or_graduate_school",
+      "enrolled_in_private_school",
+      "enrolled_in_public_college_or_graduate_school",
+      "enrolled_in_public_school",
+      "not_enrolled_in_college_or_graduate_school"
+    )
+    interpret_as(mdr, field = "social_school_enrollment", val_set, val, value)
+  }
+
+
+#' interpret_as_social_fertility
+#'
+interpret_as_social_fertility <-
+  function(mdr, val, value) {
+    val_set <- c(
+      "women_who_did_not_have_a_birth_in_the_past_12_months",
+      "women_who_had_a_birth_in_the_past_12_months"
+    )
+    interpret_as(mdr, field = "social_fertility", val_set, val, value)
+  }
+
+
+#' interpret_as_housing_units_in_structure
+#'
+interpret_as_housing_units_in_structure <-
+  function(mdr, val, value) {
+    val_set <- c(
+      "1_unit_structures",
+      "2_or_more_unit_structures",
+      "mobile_homes_and_all_other_types_of_units"
+    )
+    interpret_as(mdr, field = "housing_units_in_structure", val_set, val, value)
+  }
+
+
+
+#' interpret_as_economic_work_status_last_year
+#'
+interpret_as_economic_work_status_last_year <-
+  function(mdr, val, value) {
+    val_set <- c(
+      "in_labor_force",
+      "not_in_labor_force",
+      "employed_or_in_armed_forces",
+      "unemployed",
+      "employed"
+    )
+    interpret_as(mdr, field = "economic_work_status_last_year", val_set, val, value)
+  }
+
+
+#' interpret_as_social_disability_status
+#'
+interpret_as_social_disability_status <-
+  function(mdr, val, value) {
+    val_set <- c(
+      "no_disability",
+      "with_any_disability"
+    )
+    interpret_as(mdr, field = "social_disability_status", val_set, val, value)
+  }
+
 
 #' interpret_as_social_grandparents_as_caregivers
 #'
@@ -320,7 +557,11 @@ interpret_as_social_grandparents_as_caregivers <-
       "grandparent_responsible_less_than_6_months",
       "not_living_with_own_grandchildren_under_18_years",
       "householder_or_spouse_with_no_parent_of_grandchildren_present",
-      "other_grandparents"
+      "other_grandparents",
+      "household_with_grandparent_responsible_for_own_grandchildren_under_18_years",
+      "household_with_grandparents_living_with_grandchildren",
+      "household_with_grandparent_not_responsible_for_own_grandchildren_under_18_years",
+      "household_without_grandparents_living_with_grandchildren"
     )
     interpret_as(mdr, field = "social_grandparents_as_caregivers", val_set, val, value)
   }
@@ -380,11 +621,44 @@ interpret_as_demographic_household <-
       "child_of_householder",
       "householder_living_with_spouse_or_spouse_of_householder",
       "householder_living_with_unmarried_partner_or_unmarried_partner_of_householder",
-      "lives_alone"
+      "lives_alone",
+      "family_households",
+      "nonfamily_households",
+      "other_family",
+      "householder_living_alone",
+      "householder_not_living_alone",
+      "married_couple_family",
+      "relatives",
+      "female_householder",
+      "households_with_no_people_under_18_years",
+      "households_with_one_or_more_people_under_18_years",
+      "male_householder",
+      "households_with_no_people_60_years_and_over",
+      "households_with_one_or_more_people_60_years_and_over",
+      "2_or_more_person_household",
+      "households_with_no_people_65_years_and_over",
+      "households_with_one_or_more_people_65_years_and_over",
+      "1_person_households",
+      "unmarried_partner_households",
+      "all_other_households",
+      "female_householder_and_female_partner",
+      "female_householder_and_male_partner",
+      "male_householder_and_female_partner",
+      "male_householder_and_male_partner",
+      "householder_15_to_64_years",
+      "householder_65_years_and_over",
+      "households_with_no_nonrelatives",
+      "households_with_one_or_more_nonrelatives",
+      "4_person_household",
+      "5_person_household",
+      "6_person_household",
+      "7_or_more_person_household",
+      "multigenerational_households",
+      "not_an_unmarried_partner",
+      "partner_in_an_unmarried_partner_household"
     )
     interpret_as(mdr, field = "demographic_household", val_set, val, value)
   }
-
 
 #' interpret_as_economic_industry_and_occupation
 #'
@@ -647,7 +921,54 @@ interpret_as_social_educational_attainment <-
       "graduate_or_professional_degree",
       "high_school_graduate_includes_equivalency",
       "less_than_high_school_graduate",
-      "some_college_or_associate_s_degree"
+      "some_college_or_associate_s_degree",
+      "not_high_school_graduate",
+      "9_th_to_12_th_grade_no_diploma",
+      "associate_s_degree",
+      "less_than_9_th_grade",
+      "some_college_no_degree",
+      "10_th_grade",
+      "11_th_grade",
+      "12_th_grade_no_diploma",
+      "5_th_and_6_th_grade",
+      "7_th_and_8_th_grade",
+      "9_th_grade",
+      "doctorate_degree",
+      "master_s_degree",
+      "no_schooling_completed",
+      "nursery_to_4_th_grade",
+      "professional_school_degree",
+      "some_college_1_or_more_years_no_degree",
+      "some_college_less_than_1_year",
+      "1_st_grade",
+      "2_nd_grade",
+      "3_rd_grade",
+      "4_th_grade",
+      "5_th_grade",
+      "6_th_grade",
+      "7_th_grade",
+      "8_th_grade",
+      "ged_or_alternative_credential",
+      "kindergarten",
+      "nursery_school",
+      "regular_high_school_diploma",
+      "arts_humanities_and_other",
+      "business",
+      "education",
+      "science_and_engineering",
+      "science_and_engineering_related_fields",
+      "biological_agricultural_and_environmental_sciences",
+      "communications",
+      "computers_mathematics_and_statistics",
+      "engineering",
+      "liberal_arts_and_history",
+      "literature_and_languages",
+      "multidisciplinary_studies",
+      "other",
+      "physical_and_related_sciences",
+      "psychology",
+      "social_sciences",
+      "visual_and_performing_arts"
     )
     interpret_as(mdr, field = "social_educational_attainment", val_set, val, value)
   }
@@ -661,7 +982,23 @@ interpret_as_social_marital_status <- function(mdr, val, value) {
     "never_married",
     "now_married_except_separated",
     "separated",
-    "widowed"
+    "widowed",
+    "now_married_including_separated_and_spouse_absent",
+    "unmarried_never_married_widowed_and_divorced",
+    "ever_married",
+    "married_spouse_absent",
+    "now_married",
+    "divorced_last_year",
+    "married_last_year",
+    "married_spouse_present",
+    "not_divorced_last_year",
+    "not_married_last_year",
+    "not_widowed_last_year",
+    "widowed_last_year",
+    "other",
+    "once",
+    "three_or_more_times",
+    "two_times"
   )
   interpret_as(mdr, field = "social_marital_status", val_set, val, value)
 }
@@ -676,7 +1013,8 @@ interpret_as_social_language_spoken_at_home <-
       "speak_other_languages",
       "speak_spanish",
       "speak_english_very_well",
-      "speak_english_less_than_very_well"
+      "speak_english_less_than_very_well",
+      "speak_other_language"
     )
     interpret_as(mdr, field = "social_language_spoken_at_home", val_set, val, value)
   }
@@ -692,7 +1030,16 @@ interpret_as_economic_poverty_status <- function(mdr, val, value) {
     "2_00_and_over",
     "100_to_149_percent_of_the_poverty_level",
     "at_or_above_150_percent_of_the_poverty_level",
-    "below_100_percent_of_the_poverty_level"
+    "below_100_percent_of_the_poverty_level",
+    "income_in_the_past_12_months_at_or_above_poverty_level",
+    "income_in_the_past_12_months_below_poverty_level",
+    "100_to_199_percent_of_poverty_level_in_the_past_12_months",
+    "200_percent_or_more_of_poverty_level_in_the_past_12_months",
+    "below_100_percent_of_poverty_level_in_the_past_12_months",
+    "did_not_receive_public_assistance_income",
+    "received_public_assistance_income",
+    "income_in_the_past_12_months_at_or_above_the_poverty_level",
+    "income_in_the_past_12_months_below_the_poverty_level"
   )
   interpret_as(mdr, field = "economic_poverty_status", val_set, val, value)
 }
@@ -705,7 +1052,26 @@ interpret_as_demographic_family <- function(mdr, val, value) {
     "living_with_one_parent",
     "living_with_two_parents",
     "own_children_under_18_years_living_in_families_or_subfamilies",
-    "own_children_under_18_years_living_in_families_or_subfamilies_for_whom_poverty_status_is_determined"
+    "own_children_under_18_years_living_in_families_or_subfamilies_for_whom_poverty_status_is_determined",
+    "with_own_children_of_the_householder_under_18_years",
+    "6_to_17_years_only",
+    "no_own_children_of_the_householder_under_18_years",
+    "under_6_years_and_6_to_17_years",
+    "under_6_years_only",
+    "with_related_children_of_the_householder_under_18_years",
+    "no_related_children_of_the_householder_under_18_years",
+    "married_couple_subfamily",
+    "father_child_subfamily",
+    "mother_child_subfamily",
+    "no_own_children_under_18_years",
+    "with_own_children_under_18_years",
+    "in_father_child_subfamilies",
+    "in_married_couple_subfamilies",
+    "in_mother_child_subfamilies",
+    "husband_wife_in_a_childless_subfamily",
+    "husband_wife_in_a_subfamily_with_children",
+    "child", # also in household
+    "parent" # also in household
   )
   interpret_as(mdr, field = "demographic_family", val_set, val, value)
 }
@@ -857,7 +1223,61 @@ interpret_as_demographic_race <- function(mdr, val, value) {
     "grandparents_some_other_race_alone_living_with_own_grandchildren_under_18_years",
     "grandparents_two_or_more_races_living_with_own_grandchildren_under_18_years",
     "grandparents_white_alone_living_with_own_grandchildren_under_18_years",
-    "grandparents_white_alone_not_hispanic_or_latino_living_with_own_grandchildren_under_18_years"
+    "grandparents_white_alone_not_hispanic_or_latino_living_with_own_grandchildren_under_18_years",
+    "households_with_a_householder_who_is_american_indian_and_alaska_native_alone",
+    "households_with_a_householder_who_is_asian_alone",
+    "households_with_a_householder_who_is_black_or_african_american_alone",
+    "households_with_a_householder_who_is_hispanic_or_latino",
+    "households_with_a_householder_who_is_native_hawaiian_and_other_pacific_islander_alone",
+    "households_with_a_householder_who_is_some_other_race_alone",
+    "households_with_a_householder_who_is_two_or_more_races",
+    "households_with_a_householder_who_is_white_alone",
+    "households_with_a_householder_who_is_white_alone_not_hispanic_or_latino",
+    "population_in_households_with_a_householder_who_is_american_indian_and_alaska_native_alone",
+    "population_in_households_with_a_householder_who_is_asian_alone",
+    "population_in_households_with_a_householder_who_is_black_or_african_american_alone",
+    "population_in_households_with_a_householder_who_is_hispanic_or_latino",
+    "population_in_households_with_a_householder_who_is_native_hawaiian_and_other_pacific_islander_alone",
+    "population_in_households_with_a_householder_who_is_some_other_race_alone",
+    "population_in_households_with_a_householder_who_is_two_or_more_races",
+    "population_in_households_with_a_householder_who_is_white_alone",
+    "population_in_households_with_a_householder_who_is_white_alone_not_hispanic_or_latino",
+    "american_indian_and_alaska_native_alone_population_15_to_54_years",
+    "asian_alone_population_15_to_54_years",
+    "black_or_african_american_alone_population_15_to_54_years",
+    "hispanic_or_latino_population_15_to_54_years",
+    "native_hawaiian_and_other_pacific_islander_alone_population_15_to_54_years",
+    "some_other_race_alone_population_15_to_54_years",
+    "two_or_more_races_population_15_to_54_years",
+    "white_alone_population_15_to_54_years",
+    "white_alone_not_hispanic_or_latino_population_15_to_54_years",
+    "american_indian_and_alaska_native_alone_population_15_years_and_over",
+    "asian_alone_population_15_years_and_over",
+    "black_or_african_american_alone_population_15_years_and_over",
+    "hispanic_or_latino_population_15_years_and_over",
+    "native_hawaiian_and_other_pacific_islander_alone_population_15_years_and_over",
+    "some_other_race_alone_population_15_years_and_over",
+    "two_or_more_races_population_15_years_and_over",
+    "white_alone_population_15_years_and_over",
+    "white_alone_not_hispanic_or_latino_population_15_years_and_over",
+    "black_or_african_american_alone_women_15_to_50_years",
+    "hispanic_or_latino_women_15_to_50_years",
+    "native_hawaiian_and_other_pacific_islander_alone_women_15_to_50_years",
+    "some_other_race_alone_women_15_to_50_years",
+    "two_or_more_races_women_15_to_50_years",
+    "white_alone_women_15_to_50_years",
+    "white_alone_not_hispanic_or_latino_women_15_to_50_years",
+    "american_indian_and_alaska_native_alone_women_15_to_50_years",
+    "asian_alone_women_15_to_50_years",
+    "american_indian_and_alaska_native_alone_population_3_years_and_over",
+    "asian_alone_population_3_years_and_over",
+    "black_or_african_american_alone_population_3_years_and_over",
+    "hispanic_or_latino_population_3_years_and_over",
+    "native_hawaiian_and_other_pacific_islander_alone_population_3_years_and_over",
+    "some_other_race_alone_population_3_years_and_over",
+    "two_or_more_races_population_3_years_and_over",
+    "white_alone_population_3_years_and_over",
+    "white_alone_not_hispanic_or_latino_population_3_years_and_over"
   )
   interpret_as(mdr, field = "demographic_race", val_set, val, value)
 }
@@ -918,15 +1338,36 @@ interpret_as_demographic <- function(mdr, val, value) {
     "grandchildren_under_18_living_with_grandparent_householder",
     "families_with_grandparent_householders_and_or_spouses_living_with_grandchildren",
     "population_30_years_and_over",
-    "grandparents_living_with_own_grandchildren_under_18_years"
+    "grandparents_living_with_own_grandchildren_under_18_years",
+    "civilian_grandparents_living_with_own_grandchildren_under_18_years",
+    "grandparents_living_with_own_grandchildren_under_18_years_for_whom_poverty_status_is_determined",
+    "population_in_households",
+    "families",
+    "subfamilies",
+    "population_in_subfamilies",
+    "total_households",
+    "population_16_years_and_over",
+    "population_15_years_and_over_who_are_now_married_or_separated",
+    "population_15_to_54_years",
+    "women_15_to_50_years",
+    "women_15_to_50_years_in_households",
+    "women_16_to_50_years",
+    "women_15_to_50_years_for_whom_poverty_status_is_determined",
+    "population_3_years_and_over",
+    "population_16_to_19_years",
+    "population_3_years_and_over_for_whom_poverty_status_is_determined",
+    "population_18_years_and_over",
+    "population_25_years_and_over_with_a_bachelor_s_degree_or_higher_attainment",
+    "total_bachelor_s_degree_majors_tallied_for_people_25_years_and_over_with_a_bachelor_s_degree_or_higher_attainment",
+    "population_5_years_and_over"
   )
-  res <- interpret_as(mdr, field = "demographic_total_population", val_set, val, value)
+  res <-
+    interpret_as(mdr, field = "demographic_total_population", val_set, val, value)
   if (!res$result) {
-    val_set <- c(
-      "male",
-      "female"
-    )
-    res <- interpret_as(mdr, field = "demographic_sex", val_set, val, value)
+    val_set <- c("male",
+                 "female")
+    res <-
+      interpret_as(mdr, field = "demographic_sex", val_set, val, value)
     if (!res$result) {
       if (!res$result) {
         val_set <- c(
@@ -996,9 +1437,23 @@ interpret_as_demographic <- function(mdr, val, value) {
           "grandchildren_6_to_11_years",
           "grandchildren_under_6_years",
           "30_to_59_years",
-          "60_years_and_over"
+          "60_years_and_over",
+          "15_to_19_years_old",
+          "20_to_24_years_old",
+          "25_to_29_years_old",
+          "30_to_34_years_old",
+          "35_to_39_years_old",
+          "40_to_44_years_old",
+          "45_to_50_years_old",
+          "20_to_34_years_old",
+          "35_to_50_years_old",
+          "35_years_and_over",
+          "45_to_64_years",
+          "25_to_39_years",
+          "40_to_64_years"
         )
-        res <- interpret_as(mdr, field = "demographic_age", val_set, val, value)
+        res <-
+          interpret_as(mdr, field = "demographic_age", val_set, val, value)
       }
     }
   }
@@ -1057,7 +1512,12 @@ assign_level <- function(mdr, field) {
               if (!all(mdr[x, f[i]] == "")) {
                 scroll <- TRUE
                 mdr <-
-                  scroll_level( mdr, fields = f, field_index = i, values_indices = x)
+                  scroll_level(
+                    mdr,
+                    fields = f,
+                    field_index = i,
+                    values_indices = x
+                  )
               }
               mdr[x, f[i]] <- v
               mdr[x, f[j]] <- ""
@@ -1073,9 +1533,10 @@ assign_level <- function(mdr, field) {
 
 #' scroll_level
 #'
-scroll_level<- function(mdr, fields, field_index, values_indices) {
+scroll_level <- function(mdr, fields, field_index, values_indices) {
   if (all(mdr[values_indices, fields[field_index + 1]] == "")) {
-    mdr[values_indices, fields[field_index + 1]] <- mdr[values_indices, fields[field_index]]
+    mdr[values_indices, fields[field_index + 1]] <-
+      mdr[values_indices, fields[field_index]]
     mdr[values_indices, fields[field_index]] <- ""
   } else {
     mdr <- scroll_level(mdr, fields, field_index + 1, values_indices)
@@ -1099,4 +1560,3 @@ interpret_as <- function(mdr, field, val_set = NULL, val, value) {
   list(mdr = mdr,
        result = result)
 }
-
