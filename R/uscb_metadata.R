@@ -76,6 +76,7 @@ new_uscb_metadata <- function(filepath = NULL, code = NULL, group_code = NULL) {
     "demographic_total_population",
     "demographic_family",
     "demographic_household",
+    "survey",
     "rest"
   )
 
@@ -96,20 +97,20 @@ new_uscb_metadata <- function(filepath = NULL, code = NULL, group_code = NULL) {
     metadata[sprintf("%s_spec_2", var)] <- ""
     metadata[sprintf("%s_spec_3", var)] <- ""
     metadata[sprintf("%s_spec_4", var)] <- ""
-  }
+   }
 
+  for (i in seq_along(metadata[[1]])) {
+    short <- strsplit(metadata$Short_Name[i], "")[[1]]
+    metadata$inf_code[i] <- paste(short[1:3], collapse = "")
+    metadata$group_code[i] <- paste(short[4:6], collapse = "")
+  }
   # select only a code
   if (!is.null(code)) {
-    for (i in seq_along(metadata[[1]])) {
-      short <- strsplit(metadata$Short_Name[i], "")[[1]]
-      metadata$inf_code[i] <- paste(short[1:3], collapse = "")
-      metadata$group_code[i] <- paste(short[4:6], collapse = "")
-    }
     print(sort(unique(metadata$inf_code)))
     metadata <- metadata[metadata$inf_code == code, ]
     if (!is.null(group_code)) {
       print(sort(unique(metadata$group_code)))
-      metadata <- metadata[metadata$group_code == group_code, ]
+      metadata <- metadata[metadata$group_code %in% group_code, ]
     }
   }
 
