@@ -4,12 +4,14 @@
 \alias{uscb_metadata}
 \title{\code{uscb_metadata} S3 class}
 \usage{
-uscb_metadata(filepath = NULL, code = NULL)
+uscb_metadata(filepath = NULL, code = NULL, group_code = NULL)
 }
 \arguments{
 \item{filepath}{A string, path to gbd file.}
 
 \item{code}{A string.}
+
+\item{group_code}{A string.}
 }
 \value{
 A \code{uscb_metadata} object.

@@ -131,6 +131,7 @@ new_uscb_metadata <- function(filepath = NULL, code = NULL, group_code = NULL) {
 #'
 #' @param filepath A string, path to gbd file.
 #' @param code A string.
+#' @param group_code A string.
 #'
 #' @return A `uscb_metadata` object.
 #'

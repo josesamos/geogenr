@@ -13,6 +13,6 @@ interpret_code(mdr)
 A \code{tibble} row.
 }
 \description{
-interpret code
+Interprets the values of the code included in the metadata for a row.
 }
 \keyword{internal}

@@ -64,16 +64,6 @@ interpret_metadata.uscb_metadata <- function(um) {
       print(i)
     }
   }
-  inf_codes <- unique(um$metadata$inf_code)
-  for (code in inf_codes) {
-    for (v in um$variables) {
-      um$metadata[um$metadata$inf_code == code, ] <- assign_level(um$metadata[um$metadata$inf_code == code, ], field = v)
-    }
-    print(code)
-  }
-  # delete empty columns
-  um$metadata <- Filter(function(x)
-    (!all(x == "")), um$metadata)
   um
 }
 

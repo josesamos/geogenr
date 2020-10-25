@@ -5,17 +5,17 @@
 \alias{interpret_metadata.uscb_metadata}
 \title{Interpret metadata}
 \usage{
-interpret_metadata(ta)
+interpret_metadata(um)
 
-\method{interpret_metadata}{uscb_metadata}(ta)
+\method{interpret_metadata}{uscb_metadata}(um)
 }
 \arguments{
-\item{ta}{A string.}
+\item{um}{A string.}
 }
 \value{
 A \code{uscb_metadata} object.
 }
 \description{
-Interpret metadata
+Interpret the metadata to distribute it in columns according to its topic.
 }
 \keyword{internal}
