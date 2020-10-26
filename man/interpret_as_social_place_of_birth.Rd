@@ -4,7 +4,7 @@
 \alias{interpret_as_social_place_of_birth}
 \title{interpret_as_social_place_of_birth}
 \usage{
-interpret_as_social_place_of_birth(mdr, val, value)
+interpret_as_social_place_of_birth(mdr, val, value, field_values = NULL)
 }
 \arguments{
 \item{mdr}{A \code{tibble} row.}
@@ -12,6 +12,9 @@ interpret_as_social_place_of_birth(mdr, val, value)
 \item{val}{A transformed value.}
 
 \item{value}{A value.}
+
+\item{field_values}{A data frame to store associations between fields and
+values.}
 }
 \value{
 A result structure.

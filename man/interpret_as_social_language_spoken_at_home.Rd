@@ -4,7 +4,12 @@
 \alias{interpret_as_social_language_spoken_at_home}
 \title{interpret_as_social_language_spoken_at_home}
 \usage{
-interpret_as_social_language_spoken_at_home(mdr, val, value)
+interpret_as_social_language_spoken_at_home(
+  mdr,
+  val,
+  value,
+  field_values = NULL
+)
 }
 \arguments{
 \item{mdr}{A \code{tibble} row.}
@@ -12,6 +17,9 @@ interpret_as_social_language_spoken_at_home(mdr, val, value)
 \item{val}{A transformed value.}
 
 \item{value}{A value.}
+
+\item{field_values}{A data frame to store associations between fields and
+values.}
 }
 \value{
 A result structure.

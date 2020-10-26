@@ -10,5 +10,5 @@
 #' @format A `uscb_metadata`.
 #' @source
 #'   \url{https://www.census.gov/programs-surveys/acs/guidance/subjects.html}
-#"uscb_acs_metadata"
+"uscb_acs_metadata"
 

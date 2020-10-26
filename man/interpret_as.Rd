@@ -4,7 +4,7 @@
 \alias{interpret_as}
 \title{interpret_as}
 \usage{
-interpret_as(mdr, field, val, value, val_set = NULL)
+interpret_as(mdr, field, val, value, val_set = NULL, field_values = NULL)
 }
 \arguments{
 \item{mdr}{A \code{tibble} row.}
@@ -16,6 +16,9 @@ interpret_as(mdr, field, val, value, val_set = NULL)
 \item{value}{A value.}
 
 \item{val_set}{Set of possible values for the field.}
+
+\item{field_values}{A data frame to store associations between fields and
+values.}
 }
 \value{
 A result structure.

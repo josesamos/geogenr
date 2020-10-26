@@ -4,7 +4,12 @@
 \alias{interpret_as_housing_computer_and_internet_use}
 \title{interpret_as_housing_computer_and_internet_use}
 \usage{
-interpret_as_housing_computer_and_internet_use(mdr, val, value)
+interpret_as_housing_computer_and_internet_use(
+  mdr,
+  val,
+  value,
+  field_values = NULL
+)
 }
 \arguments{
 \item{mdr}{A \code{tibble} row.}
@@ -12,6 +17,9 @@ interpret_as_housing_computer_and_internet_use(mdr, val, value)
 \item{val}{A transformed value.}
 
 \item{value}{A value.}
+
+\item{field_values}{A data frame to store associations between fields and
+values.}
 }
 \value{
 A result structure.

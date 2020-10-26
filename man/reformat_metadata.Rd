@@ -10,7 +10,7 @@ reformat_metadata(um)
 \method{reformat_metadata}{uscb_metadata}(um)
 }
 \arguments{
-\item{um}{A string.}
+\item{um}{A \code{uscb_metadata} object.}
 }
 \value{
 A \code{uscb_metadata} object.

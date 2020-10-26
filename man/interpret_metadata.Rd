@@ -10,7 +10,7 @@ interpret_metadata(um)
 \method{interpret_metadata}{uscb_metadata}(um)
 }
 \arguments{
-\item{um}{A string.}
+\item{um}{A \code{uscb_metadata} object.}
 }
 \value{
 A \code{uscb_metadata} object.

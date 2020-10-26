@@ -5,7 +5,7 @@
 #'
 #' Interpret the metadata to distribute it in columns according to its topic.
 #'
-#' @param um A string.
+#' @param um A `uscb_metadata` object.
 #'
 #' @return A `uscb_metadata` object.
 #'
@@ -19,35 +19,6 @@ interpret_metadata <- function(um) {
 #' @export
 #' @keywords internal
 interpret_metadata.uscb_metadata <- function(um) {
-  interpret <- c(
-    interpret_as_demographic,
-    interpret_as_economic_food_stamps_snap,
-    interpret_as_social_veteran_status_military_service,
-    interpret_as_social_school_enrollment,
-    interpret_as_social_fertility,
-    interpret_as_economic_health_insurance_coverage,
-    interpret_as_economic_income_and_earnings,
-    interpret_as_housing_units_in_structure,
-    interpret_as_economic_work_status_last_year,
-    interpret_as_social_disability_status,
-    interpret_as_social_grandparents_as_caregivers,
-    interpret_as_demographic_household,
-    interpret_as_demographic_group_quarters_population,
-    interpret_as_economic_journey_and_place_of_work,
-    interpret_as_housing_tenure_owner_renter,
-    interpret_as_housing_computer_and_internet_use,
-    interpret_as_social_migration_residence_1_year_ago,
-    interpret_as_social_educational_attainment,
-    interpret_as_social_marital_status,
-    interpret_as_social_language_spoken_at_home,
-    interpret_as_economic_poverty_status,
-    interpret_as_social_year_of_entry,
-    interpret_as_social_citizenship_status,
-    interpret_as_demographic_race,
-    interpret_as_social_place_of_birth,
-    interpret_as_economic_industry_and_occupation,
-    interpret_as_survey
-  )
   other_field <- ""
   for (i in seq_along(um$metadata[[1]])) {
     um$metadata[i,] <- interpret_code(um$metadata[i,])
@@ -55,7 +26,7 @@ interpret_metadata.uscb_metadata <- function(um) {
     values <- strsplit(um$metadata$Full_Name[i], ": ")[[1]]
     values <- stringr::str_trim(values, side = "both")
 
-    res <- interpret_values(um$metadata[i,], values, interpret, other_field)
+    res <- interpret_values(um$metadata[i,], values, um$interpret, other_field)
     um$metadata[i,] <- res$mdr[1, ]
     if (res$other_field != "") {
       other_field <- res$other_field
@@ -191,11 +162,13 @@ interpret_all <- function(mdr, val, value, interpret, other_field) {
 #' @param val A transformed value.
 #' @param value A value.
 #' @param val_set Set of possible values for the field.
+#' @param field_values A data frame to store associations between fields and
+#'   values.
 #'
 #' @return A result structure.
 #'
 #' @keywords internal
-interpret_as <- function(mdr, field, val, value, val_set = NULL) {
+interpret_as <- function(mdr, field, val, value, val_set = NULL, field_values = NULL) {
   result <- TRUE
   if (is.null(val_set)) {
     mdr <- add_value(mdr, field, value)
@@ -203,6 +176,13 @@ interpret_as <- function(mdr, field, val, value, val_set = NULL) {
     mdr <- add_value(mdr, field, value)
   } else {
     result <- FALSE
+  }
+
+  if (!is.null(field_values)) {
+    if (!is.null(val_set) & !(field %in% unique(field_values$field))) {
+      df <- data.frame(field = field, val_set = val_set)
+      field_values <- rbind(field_values, df)
+    }
   }
 
   if (field %in% c(
@@ -218,6 +198,7 @@ interpret_as <- function(mdr, field, val, value, val_set = NULL) {
 
   list(mdr = mdr,
        other_field = other_field,
+       field_values = field_values,
        result = result)
 }
 
@@ -261,89 +242,138 @@ add_value <-
   }
 
 
-#' assign_level
-#'
-#' Structures the field values in levels so that a value is only in one level.
-#'
-#' @param mdr A `tibble`.
-#' @param field A field name.
-#'
-#' @return A `tibble`.
-#'
-#' @keywords internal
-assign_level <- function(mdr, field) {
-  f <- c(
-    field,
-    sprintf("%s_spec", field),
-    sprintf("%s_spec_2", field),
-    sprintf("%s_spec_3", field),
-    sprintf("%s_spec_4", field)
-  )
-  scroll <- TRUE
-  while (scroll) {
-    scroll <- FALSE
-    for (i in length(f):2) {
-      values <- unique(mdr[, f[i]][[1]])
-      for (v in values) {
-        if (v != "") {
-          for (j in (i - 1):1) {
-            x <- as.vector(mdr[, f[j]] == v)
-            if (sum(x) > 0) {
-              if (!all(mdr[x, f[i]] == "")) {
-                scroll <- TRUE
-                mdr <-
-                  scroll_level(
-                    mdr,
-                    fields = f,
-                    field_index = i,
-                    values_indices = x,
-                    index_limit = length(f)
-                  )
-              }
-              mdr[x, f[i]] <- v
-              mdr[x, f[j]] <- ""
-            }
-          }
-        }
-      }
-    }
-  }
-  mdr
-}
-
-
-#' scroll_level
-#'
-#' Recursive function. Shifts the required values to be able to move the set of
-#' values to the next level.
-#'
-#' @param mdr A `tibble`.
-#' @param fields Vector with the name of the field and its levels.
-#' @param field_index Index of the vector of names to consider.
-#' @param values_indices Indices of the tibble positions to move.
-#' @param index_limit Level limit for the name index.
-#'
-#' @return A `tibble`.
-#'
-#' @keywords internal
-scroll_level <- function(mdr, fields, field_index, values_indices, index_limit) {
-  enough_spec_fields <- (field_index + 1 <= index_limit)
-  if (!enough_spec_fields) {
-    print(unique(mdr[values_indices, fields[field_index]]))
-  }
-  stopifnot(enough_spec_fields)
-  if (all(mdr[values_indices, fields[field_index + 1]] == "")) {
-    mdr[values_indices, fields[field_index + 1]] <-
-      mdr[values_indices, fields[field_index]]
-    mdr[values_indices, fields[field_index]] <- ""
-  } else {
-    mdr <- scroll_level(mdr, fields, field_index + 1, values_indices, index_limit)
-  }
-  mdr
-}
-
-
 # interpret ---------------------------------------------------------------
+
+#' interpret_social_ancestry
+#'
+#' Classifies the value in a field if it is one of the possible values
+#' considered for that field.
+#'
+#' @param mdr A `tibble` row.
+#' @param val A transformed value.
+#' @param value A value.
+#' @param field_values A data frame to store associations between fields and
+#'   values.
+#'
+#' @return A result structure.
+#'
+#' @keywords internal
+interpret_social_ancestry <-
+  function(mdr, val, value, field_values = NULL) {
+    val_set <- c(
+      "armenian",
+      "german",
+      "greek",
+      "haitian",
+      "italian",
+      "polish",
+      "portuguese",
+      "russian",
+      "afghan",
+      "albanian",
+      "alsatian",
+      "american",
+      "arab",
+      "subsaharan_african",
+      "west_indian_except_hispanic_groups",
+      "african",
+      "arab",
+      "assyrian_chaldean_syriac",
+      "australian",
+      "austrian",
+      "bahamian",
+      "barbadian",
+      "basque",
+      "belgian",
+      "belizean",
+      "bermudan",
+      "brazilian",
+      "british",
+      "british_west_indian",
+      "bulgarian",
+      "cajun",
+      "canadian",
+      "cape_verdean",
+      "carpatho_rusyn",
+      "celtic",
+      "croatian",
+      "cypriot",
+      "czech",
+      "czechoslovakian",
+      "danish",
+      "dutch",
+      "dutch_west_indian",
+      "eastern_european",
+      "egyptian",
+      "english",
+      "estonian",
+      "ethiopian",
+      "european",
+      "finnish",
+      "french_except_basque",
+      "french_canadian",
+      "german_russian",
+      "ghanaian",
+      "guyanese",
+      "hungarian",
+      "icelander",
+      "iranian",
+      "iraqi",
+      "irish",
+      "israeli",
+      "jamaican",
+      "jordanian",
+      "kenyan",
+      "latvian",
+      "lebanese",
+      "liberian",
+      "lithuanian",
+      "luxembourger",
+      "macedonian",
+      "maltese",
+      "moroccan",
+      "new_zealander",
+      "nigerian",
+      "northern_european",
+      "norwegian",
+      "other_arab",
+      "other_groups",
+      "other_subsaharan_african",
+      "other_west_indian",
+      "palestinian",
+      "pennsylvania_german",
+      "romanian",
+      "scandinavian",
+      "scotch_irish",
+      "scottish",
+      "senegalese",
+      "serbian",
+      "sierra_leonean",
+      "slavic",
+      "slovak",
+      "slovene",
+      "somali",
+      "south_african",
+      "soviet_union",
+      "sudanese",
+      "swedish",
+      "swiss",
+      "syrian",
+      "trinidadian_and_tobagonian",
+      "turkish",
+      "u_s_virgin_islander",
+      "ugandan",
+      "ukrainian",
+      "unclassified_or_not_reported",
+      "welsh",
+      "west_indian",
+      "yugoslavian",
+      "zimbabwean"
+    )
+    interpret_as(mdr, field = "social_ancestry", val, value, val_set, field_values)
+  }
+
+
 
 #' interpret_as_survey
 #'
@@ -353,12 +383,14 @@ scroll_level <- function(mdr, fields, field_index, values_indices, index_limit) 
 #' @param mdr A `tibble` row.
 #' @param val A transformed value.
 #' @param value A value.
+#' @param field_values A data frame to store associations between fields and
+#'   values.
 #'
 #' @return A result structure.
 #'
 #' @keywords internal
 interpret_as_survey <-
-  function(mdr, val, value) {
+  function(mdr, val, value, field_values = NULL) {
     val_set <- c(
       "final_actual_interviews",
       "final_number_of_housing_unit_interviews",
@@ -425,7 +457,7 @@ interpret_as_survey <-
       "language_status_not_allocated",
       "one_or_more_but_not_all_geographic_parts_allocated"
     )
-    interpret_as(mdr, field = "survey", val, value, val_set)
+    interpret_as(mdr, field = "survey", val, value, val_set, field_values)
   }
 
 
@@ -437,12 +469,14 @@ interpret_as_survey <-
 #' @param mdr A `tibble` row.
 #' @param val A transformed value.
 #' @param value A value.
+#' @param field_values A data frame to store associations between fields and
+#'   values.
 #'
 #' @return A result structure.
 #'
 #' @keywords internal
 interpret_as_housing_computer_and_internet_use <-
-  function(mdr, val, value) {
+  function(mdr, val, value, field_values = NULL) {
     val_set <- c(
       "broadband_of_any_type",
       "broadband_such_as_cable_fiber_optic_or_dsl",
@@ -486,7 +520,7 @@ interpret_as_housing_computer_and_internet_use <-
       "broadband_such_as_cable_fiberoptic_or_dsl_satellite_and_other_service",
       "dial_up"
     )
-    interpret_as(mdr, field = "housing_computer_and_internet_use", val, value, val_set)
+    interpret_as(mdr, field = "housing_computer_and_internet_use", val, value, val_set, field_values)
   }
 
 
@@ -498,12 +532,14 @@ interpret_as_housing_computer_and_internet_use <-
 #' @param mdr A `tibble` row.
 #' @param val A transformed value.
 #' @param value A value.
+#' @param field_values A data frame to store associations between fields and
+#'   values.
 #'
 #' @return A result structure.
 #'
 #' @keywords internal
 interpret_as_demographic_group_quarters_population <-
-  function(mdr, val, value) {
+  function(mdr, val, value, field_values = NULL) {
     val_set <- c(
       "adult_correctional_facilities",
       "college_university_student_housing",
@@ -511,7 +547,7 @@ interpret_as_demographic_group_quarters_population <-
       "juvenile_facilities",
       "military_quarters_military_ships"
     )
-    interpret_as(mdr, field = "demographic_group_quarters_population", val, value, val_set)
+    interpret_as(mdr, field = "demographic_group_quarters_population", val, value, val_set, field_values)
   }
 
 
@@ -523,19 +559,21 @@ interpret_as_demographic_group_quarters_population <-
 #' @param mdr A `tibble` row.
 #' @param val A transformed value.
 #' @param value A value.
+#' @param field_values A data frame to store associations between fields and
+#'   values.
 #'
 #' @return A result structure.
 #'
 #' @keywords internal
 interpret_as_economic_food_stamps_snap <-
-  function(mdr, val, value) {
+  function(mdr, val, value, field_values = NULL) {
     val_set <- c(
       "household_did_not_receive_food_stamps_snap_in_the_past_12_months",
       "household_received_food_stamps_snap_in_the_past_12_months",
       "did_not_receive_food_stamps_snap_in_the_past_12_months",
       "received_food_stamps_snap_in_the_past_12_months"
     )
-    interpret_as(mdr, field = "economic_food_stamps_snap", val, value, val_set)
+    interpret_as(mdr, field = "economic_food_stamps_snap", val, value, val_set, field_values)
   }
 
 
@@ -547,12 +585,14 @@ interpret_as_economic_food_stamps_snap <-
 #' @param mdr A `tibble` row.
 #' @param val A transformed value.
 #' @param value A value.
+#' @param field_values A data frame to store associations between fields and
+#'   values.
 #'
 #' @return A result structure.
 #'
 #' @keywords internal
 interpret_as_social_veteran_status_military_service <-
-  function(mdr, val, value) {
+  function(mdr, val, value, field_values = NULL) {
     val_set <- c(
       "between_gulf_war_and_vietnam_era_only",
       "between_korean_war_and_world_war_ii_only",
@@ -574,7 +614,7 @@ interpret_as_social_veteran_status_military_service <-
       "civilian",
       "in_armed_forces"
     )
-    interpret_as(mdr, field = "social_veteran_status_military_service", val, value, val_set)
+    interpret_as(mdr, field = "social_veteran_status_military_service", val, value, val_set, field_values)
   }
 
 
@@ -586,12 +626,14 @@ interpret_as_social_veteran_status_military_service <-
 #' @param mdr A `tibble` row.
 #' @param val A transformed value.
 #' @param value A value.
+#' @param field_values A data frame to store associations between fields and
+#'   values.
 #'
 #' @return A result structure.
 #'
 #' @keywords internal
 interpret_as_social_school_enrollment <-
-  function(mdr, val, value) {
+  function(mdr, val, value, field_values = NULL) {
     val_set <- c(
       "enrolled_in_college_undergraduate_years",
       "enrolled_in_grade_1_to_grade_4",
@@ -623,7 +665,7 @@ interpret_as_social_school_enrollment <-
       "enrolled_in_public_school",
       "not_enrolled_in_college_or_graduate_school"
     )
-    interpret_as(mdr, field = "social_school_enrollment", val, value, val_set)
+    interpret_as(mdr, field = "social_school_enrollment", val, value, val_set, field_values)
   }
 
 
@@ -635,17 +677,19 @@ interpret_as_social_school_enrollment <-
 #' @param mdr A `tibble` row.
 #' @param val A transformed value.
 #' @param value A value.
+#' @param field_values A data frame to store associations between fields and
+#'   values.
 #'
 #' @return A result structure.
 #'
 #' @keywords internal
 interpret_as_social_fertility <-
-  function(mdr, val, value) {
+  function(mdr, val, value, field_values = NULL) {
     val_set <- c(
       "women_who_did_not_have_a_birth_in_the_past_12_months",
       "women_who_had_a_birth_in_the_past_12_months"
     )
-    interpret_as(mdr, field = "social_fertility", val, value, val_set)
+    interpret_as(mdr, field = "social_fertility", val, value, val_set, field_values)
   }
 
 
@@ -657,12 +701,14 @@ interpret_as_social_fertility <-
 #' @param mdr A `tibble` row.
 #' @param val A transformed value.
 #' @param value A value.
+#' @param field_values A data frame to store associations between fields and
+#'   values.
 #'
 #' @return A result structure.
 #'
 #' @keywords internal
 interpret_as_economic_health_insurance_coverage <-
-  function(mdr, val, value) {
+  function(mdr, val, value, field_values = NULL) {
     val_set <- c(
       "with_social_security_income_in_the_past_12_months",
       "without_social_security_income_in_the_past_12_months",
@@ -705,7 +751,7 @@ interpret_as_economic_health_insurance_coverage <-
       "with_tricare_military_health_coverage",
       "with_va_health_care"
     )
-    interpret_as(mdr, field = "economic_health_insurance_coverage", val, value, val_set)
+    interpret_as(mdr, field = "economic_health_insurance_coverage", val, value, val_set, field_values)
   }
 
 
@@ -717,12 +763,14 @@ interpret_as_economic_health_insurance_coverage <-
 #' @param mdr A `tibble` row.
 #' @param val A transformed value.
 #' @param value A value.
+#' @param field_values A data frame to store associations between fields and
+#'   values.
 #'
 #' @return A result structure.
 #'
 #' @keywords internal
 interpret_as_economic_income_and_earnings <-
-  function(mdr, val, value) {
+  function(mdr, val, value, field_values = NULL) {
     val_set <- c(
       "no_income",
       "with_income",
@@ -817,7 +865,7 @@ interpret_as_economic_income_and_earnings <-
       "10_000_to_19_999",
       "20_000_to_34_999"
     )
-    interpret_as(mdr, field = "economic_income_and_earnings", val, value, val_set)
+    interpret_as(mdr, field = "economic_income_and_earnings", val, value, val_set, field_values)
   }
 
 
@@ -829,18 +877,20 @@ interpret_as_economic_income_and_earnings <-
 #' @param mdr A `tibble` row.
 #' @param val A transformed value.
 #' @param value A value.
+#' @param field_values A data frame to store associations between fields and
+#'   values.
 #'
 #' @return A result structure.
 #'
 #' @keywords internal
 interpret_as_housing_units_in_structure <-
-  function(mdr, val, value) {
+  function(mdr, val, value, field_values = NULL) {
     val_set <- c(
       "1_unit_structures",
       "2_or_more_unit_structures",
       "mobile_homes_and_all_other_types_of_units"
     )
-    interpret_as(mdr, field = "housing_units_in_structure", val, value, val_set)
+    interpret_as(mdr, field = "housing_units_in_structure", val, value, val_set, field_values)
   }
 
 
@@ -853,12 +903,14 @@ interpret_as_housing_units_in_structure <-
 #' @param mdr A `tibble` row.
 #' @param val A transformed value.
 #' @param value A value.
+#' @param field_values A data frame to store associations between fields and
+#'   values.
 #'
 #' @return A result structure.
 #'
 #' @keywords internal
 interpret_as_economic_work_status_last_year <-
-  function(mdr, val, value) {
+  function(mdr, val, value, field_values = NULL) {
     val_set <- c(
       "in_labor_force",
       "not_in_labor_force",
@@ -903,7 +955,7 @@ interpret_as_economic_work_status_last_year <-
       "in_the_civilian_labor_force",
       "in_the_labor_force"
     )
-    interpret_as(mdr, field = "economic_work_status_last_year", val, value, val_set)
+    interpret_as(mdr, field = "economic_work_status_last_year", val, value, val_set, field_values)
   }
 
 
@@ -915,12 +967,14 @@ interpret_as_economic_work_status_last_year <-
 #' @param mdr A `tibble` row.
 #' @param val A transformed value.
 #' @param value A value.
+#' @param field_values A data frame to store associations between fields and
+#'   values.
 #'
 #' @return A result structure.
 #'
 #' @keywords internal
 interpret_as_social_disability_status <-
-  function(mdr, val, value) {
+  function(mdr, val, value, field_values = NULL) {
     val_set <- c(
       "no_disability",
       "with_any_disability",
@@ -948,7 +1002,7 @@ interpret_as_social_disability_status <-
       "with_one_type_of_disability",
       "with_two_or_more_types_of_disability"
     )
-    interpret_as(mdr, field = "social_disability_status", val, value, val_set)
+    interpret_as(mdr, field = "social_disability_status", val, value, val_set, field_values)
   }
 
 
@@ -960,12 +1014,14 @@ interpret_as_social_disability_status <-
 #' @param mdr A `tibble` row.
 #' @param val A transformed value.
 #' @param value A value.
+#' @param field_values A data frame to store associations between fields and
+#'   values.
 #'
 #' @return A result structure.
 #'
 #' @keywords internal
 interpret_as_social_grandparents_as_caregivers <-
-  function(mdr, val, value) {
+  function(mdr, val, value, field_values = NULL) {
     val_set <- c(
       "grandparent_householder_responsible_for_own_grandchildren_under_18_years",
       "grandparent_householder_not_responsible_for_own_grandchildren_under_18_years",
@@ -989,7 +1045,7 @@ interpret_as_social_grandparents_as_caregivers <-
       "household_with_grandparent_not_responsible_for_own_grandchildren_under_18_years",
       "household_without_grandparents_living_with_grandchildren"
     )
-    interpret_as(mdr, field = "social_grandparents_as_caregivers", val, value, val_set)
+    interpret_as(mdr, field = "social_grandparents_as_caregivers", val, value, val_set, field_values)
   }
 
 
@@ -1001,12 +1057,14 @@ interpret_as_social_grandparents_as_caregivers <-
 #' @param mdr A `tibble` row.
 #' @param val A transformed value.
 #' @param value A value.
+#' @param field_values A data frame to store associations between fields and
+#'   values.
 #'
 #' @return A result structure.
 #'
 #' @keywords internal
 interpret_as_demographic_household <-
-  function(mdr, val, value) {
+  function(mdr, val, value, field_values = NULL) {
     val_set <- c(
       "1_person_household",
       "2_person_household",
@@ -1198,7 +1256,7 @@ interpret_as_demographic_household <-
       "living_with_mother",
       "in_non_family_households_and_other_living_arrangements"
     )
-    interpret_as(mdr, field = "demographic_household", val, value, val_set)
+    interpret_as(mdr, field = "demographic_household", val, value, val_set, field_values)
   }
 
 
@@ -1210,12 +1268,14 @@ interpret_as_demographic_household <-
 #' @param mdr A `tibble` row.
 #' @param val A transformed value.
 #' @param value A value.
+#' @param field_values A data frame to store associations between fields and
+#'   values.
 #'
 #' @return A result structure.
 #'
 #' @keywords internal
 interpret_as_economic_industry_and_occupation <-
-  function(mdr, val, value) {
+  function(mdr, val, value, field_values = NULL) {
     val_set <- c(
       "management_business_science_and_arts_occupations",
       "military_specific_occupations",
@@ -1856,7 +1916,7 @@ interpret_as_economic_industry_and_occupation <-
       "word_processors_and_typists",
       "writers_and_authors"
     )
-    interpret_as(mdr, field = "economic_industry_and_occupation", val, value, val_set)
+    interpret_as(mdr, field = "economic_industry_and_occupation", val, value, val_set, field_values)
   }
 
 
@@ -1868,12 +1928,14 @@ interpret_as_economic_industry_and_occupation <-
 #' @param mdr A `tibble` row.
 #' @param val A transformed value.
 #' @param value A value.
+#' @param field_values A data frame to store associations between fields and
+#'   values.
 #'
 #' @return A result structure.
 #'
 #' @keywords internal
 interpret_as_economic_journey_and_place_of_work <-
-  function(mdr, val, value) {
+  function(mdr, val, value, field_values = NULL) {
     val_set <- c(
       "worked_in_state_of_residence",
       "worked_in_county_of_residence",
@@ -1968,7 +2030,7 @@ interpret_as_economic_journey_and_place_of_work <-
       "did_not_work_at_home",
       "other_means_including_those_who_worked_at_home"
     )
-    interpret_as(mdr, field = "economic_journey_and_place_of_work", val, value, val_set)
+    interpret_as(mdr, field = "economic_journey_and_place_of_work", val, value, val_set, field_values)
   }
 
 
@@ -1980,12 +2042,14 @@ interpret_as_economic_journey_and_place_of_work <-
 #' @param mdr A `tibble` row.
 #' @param val A transformed value.
 #' @param value A value.
+#' @param field_values A data frame to store associations between fields and
+#'   values.
 #'
 #' @return A result structure.
 #'
 #' @keywords internal
 interpret_as_housing_tenure_owner_renter <-
-  function(mdr, val, value) {
+  function(mdr, val, value, field_values = NULL) {
     val_set <- c(
       "householder_lived_in_owner_occupied_housing_units",
       "householder_lived_in_renter_occupied_housing_units",
@@ -2001,7 +2065,7 @@ interpret_as_housing_tenure_owner_renter <-
       "vacant_housing_units",
       "owner_occupied_housing_units"
     )
-    interpret_as(mdr, field = "housing_tenure_owner_renter", val, value, val_set)
+    interpret_as(mdr, field = "housing_tenure_owner_renter", val, value, val_set, field_values)
   }
 
 
@@ -2013,12 +2077,14 @@ interpret_as_housing_tenure_owner_renter <-
 #' @param mdr A `tibble` row.
 #' @param val A transformed value.
 #' @param value A value.
+#' @param field_values A data frame to store associations between fields and
+#'   values.
 #'
 #' @return A result structure.
 #'
 #' @keywords internal
 interpret_as_social_migration_residence_1_year_ago <-
-  function(mdr, val, value) {
+  function(mdr, val, value, field_values = NULL) {
     val_set <- c(
       "moved_from_abroad",
       "moved_from_different_county_within_same_state",
@@ -2081,7 +2147,7 @@ interpret_as_social_migration_residence_1_year_ago <-
       "in_the_united_states",
       "different_house"
     )
-    interpret_as(mdr, field = "social_migration_residence_1_year_ago", val, value, val_set)
+    interpret_as(mdr, field = "social_migration_residence_1_year_ago", val, value, val_set, field_values)
   }
 
 
@@ -2093,12 +2159,14 @@ interpret_as_social_migration_residence_1_year_ago <-
 #' @param mdr A `tibble` row.
 #' @param val A transformed value.
 #' @param value A value.
+#' @param field_values A data frame to store associations between fields and
+#'   values.
 #'
 #' @return A result structure.
 #'
 #' @keywords internal
 interpret_as_social_educational_attainment <-
-  function(mdr, val, value) {
+  function(mdr, val, value, field_values = NULL) {
     val_set <- c(
       "bachelor_s_degree",
       "graduate_or_professional_degree",
@@ -2160,7 +2228,7 @@ interpret_as_social_educational_attainment <-
       "high_school_graduate_includes_equivalency_some_college_or_associate_s_degree",
       "less_than_high_school_graduate_or_equivalency"
     )
-    interpret_as(mdr, field = "social_educational_attainment", val, value, val_set)
+    interpret_as(mdr, field = "social_educational_attainment", val, value, val_set, field_values)
   }
 
 
@@ -2172,11 +2240,13 @@ interpret_as_social_educational_attainment <-
 #' @param mdr A `tibble` row.
 #' @param val A transformed value.
 #' @param value A value.
+#' @param field_values A data frame to store associations between fields and
+#'   values.
 #'
 #' @return A result structure.
 #'
 #' @keywords internal
-interpret_as_social_marital_status <- function(mdr, val, value) {
+interpret_as_social_marital_status <- function(mdr, val, value, field_values = NULL) {
   val_set <- c(
     "divorced",
     "never_married",
@@ -2200,7 +2270,7 @@ interpret_as_social_marital_status <- function(mdr, val, value) {
     "three_or_more_times",
     "two_times"
   )
-  interpret_as(mdr, field = "social_marital_status", val, value, val_set)
+  interpret_as(mdr, field = "social_marital_status", val, value, val_set, field_values)
 }
 
 
@@ -2212,12 +2282,14 @@ interpret_as_social_marital_status <- function(mdr, val, value) {
 #' @param mdr A `tibble` row.
 #' @param val A transformed value.
 #' @param value A value.
+#' @param field_values A data frame to store associations between fields and
+#'   values.
 #'
 #' @return A result structure.
 #'
 #' @keywords internal
 interpret_as_social_language_spoken_at_home <-
-  function(mdr, val, value) {
+  function(mdr, val, value, field_values = NULL) {
     val_set <- c(
       "speak_only_english",
       "speak_other_languages",
@@ -2284,7 +2356,7 @@ interpret_as_social_language_spoken_at_home <-
       "limited_english_speaking_household",
       "not_a_limited_english_speaking_household"
     )
-    interpret_as(mdr, field = "social_language_spoken_at_home", val, value, val_set)
+    interpret_as(mdr, field = "social_language_spoken_at_home", val, value, val_set, field_values)
   }
 
 
@@ -2296,11 +2368,13 @@ interpret_as_social_language_spoken_at_home <-
 #' @param mdr A `tibble` row.
 #' @param val A transformed value.
 #' @param value A value.
+#' @param field_values A data frame to store associations between fields and
+#'   values.
 #'
 #' @return A result structure.
 #'
 #' @keywords internal
-interpret_as_economic_poverty_status <- function(mdr, val, value) {
+interpret_as_economic_poverty_status <- function(mdr, val, value, field_values = NULL) {
   val_set <- c(
     "under_1_00",
     "1_00_to_1_99",
@@ -2342,7 +2416,7 @@ interpret_as_economic_poverty_status <- function(mdr, val, value) {
     "4_00_of_poverty_threshold_and_over",
     "under_1_00_of_poverty_threshold"
   )
-  interpret_as(mdr, field = "economic_poverty_status", val, value, val_set)
+  interpret_as(mdr, field = "economic_poverty_status", val, value, val_set, field_values)
 }
 
 
@@ -2354,11 +2428,13 @@ interpret_as_economic_poverty_status <- function(mdr, val, value) {
 #' @param mdr A `tibble` row.
 #' @param val A transformed value.
 #' @param value A value.
+#' @param field_values A data frame to store associations between fields and
+#'   values.
 #'
 #' @return A result structure.
 #'
 #' @keywords internal
-interpret_as_social_place_of_birth <- function(mdr, val, value) {
+interpret_as_social_place_of_birth <- function(mdr, val, value, field_values = NULL) {
   val_set <- c(
     "born_in_other_state_in_the_united_states",
     "born_in_other_state_of_the_united_states",
@@ -2549,7 +2625,7 @@ interpret_as_social_place_of_birth <- function(mdr, val, value) {
     "native_born",
     "foreign_born_naturalized_citizens"
   )
-  interpret_as(mdr, field = "social_place_of_birth", val, value, val_set)
+  interpret_as(mdr, field = "social_place_of_birth", val, value, val_set, field_values)
 }
 
 
@@ -2561,11 +2637,13 @@ interpret_as_social_place_of_birth <- function(mdr, val, value) {
 #' @param mdr A `tibble` row.
 #' @param val A transformed value.
 #' @param value A value.
+#' @param field_values A data frame to store associations between fields and
+#'   values.
 #'
 #' @return A result structure.
 #'
 #' @keywords internal
-interpret_as_social_year_of_entry <- function(mdr, val, value) {
+interpret_as_social_year_of_entry <- function(mdr, val, value, field_values = NULL) {
   val_set <- c(
     "entered_1990_to_1999",
     "entered_2000_to_2009",
@@ -2573,7 +2651,7 @@ interpret_as_social_year_of_entry <- function(mdr, val, value) {
     "entered_before_1990",
     "entered_before_2000"
   )
-  interpret_as(mdr, field = "social_year_of_entry", val, value, val_set)
+  interpret_as(mdr, field = "social_year_of_entry", val, value, val_set, field_values)
 }
 
 
@@ -2585,11 +2663,13 @@ interpret_as_social_year_of_entry <- function(mdr, val, value) {
 #' @param mdr A `tibble` row.
 #' @param val A transformed value.
 #' @param value A value.
+#' @param field_values A data frame to store associations between fields and
+#'   values.
 #'
 #' @return A result structure.
 #'
 #' @keywords internal
-interpret_as_social_citizenship_status <- function(mdr, val, value) {
+interpret_as_social_citizenship_status <- function(mdr, val, value, field_values = NULL) {
   val_set <- c(
     "naturalized_u_s_citizen",
     "naturalized_citizens",
@@ -2612,7 +2692,7 @@ interpret_as_social_citizenship_status <- function(mdr, val, value) {
     "naturalized",
     "noncitizen"
   )
-  interpret_as(mdr, field = "social_citizenship_status", val, value, val_set)
+  interpret_as(mdr, field = "social_citizenship_status", val, value, val_set, field_values)
 }
 
 
@@ -2624,11 +2704,13 @@ interpret_as_social_citizenship_status <- function(mdr, val, value) {
 #' @param mdr A `tibble` row.
 #' @param val A transformed value.
 #' @param value A value.
+#' @param field_values A data frame to store associations between fields and
+#'   values.
 #'
 #' @return A result structure.
 #'
 #' @keywords internal
-interpret_as_demographic_race <- function(mdr, val, value) {
+interpret_as_demographic_race <- function(mdr, val, value, field_values = NULL) {
   val_set <- c(
     "black_or_african_american_alone",
     "hispanic_or_latino_population",
@@ -2895,7 +2977,7 @@ interpret_as_demographic_race <- function(mdr, val, value) {
     "civilian_employed_white_alone_population_16_years_and_over",
     "civilian_employed_white_alone_not_hispanic_or_latino_population_16_years_and_over"
   )
-  interpret_as(mdr, field = "demographic_race", val, value, val_set)
+  interpret_as(mdr, field = "demographic_race", val, value, val_set, field_values)
 }
 
 #' interpret_as_demographic
@@ -2906,11 +2988,13 @@ interpret_as_demographic_race <- function(mdr, val, value) {
 #' @param mdr A `tibble` row.
 #' @param val A transformed value.
 #' @param value A value.
+#' @param field_values A data frame to store associations between fields and
+#'   values.
 #'
 #' @return A result structure.
 #'
 #' @keywords internal
-interpret_as_demographic <- function(mdr, val, value) {
+interpret_as_demographic <- function(mdr, val, value, field_values = NULL) {
   val_set <- c(
     "total",
     "housing_units",
@@ -3052,14 +3136,14 @@ interpret_as_demographic <- function(mdr, val, value) {
     "local_state_and_federal_government_workers"
   )
   res <-
-    interpret_as(mdr, field = "demographic_total_population", val, value, val_set)
+    interpret_as(mdr, field = "demographic_total_population", val, value, val_set, field_values)
   if (!res$result) {
     val_set <- c("male",
                  "female",
                  "female_dollars",
                  "male_dollars")
     res <-
-      interpret_as(mdr, field = "demographic_sex", val, value, val_set)
+      interpret_as(mdr, field = "demographic_sex", val, value, val_set, field_values)
     if (!res$result) {
       if (!res$result) {
         val_set <- c(
@@ -3166,7 +3250,7 @@ interpret_as_demographic <- function(mdr, val, value) {
           "16_to_64_years"
         )
         res <-
-          interpret_as(mdr, field = "demographic_age", val, value, val_set)
+          interpret_as(mdr, field = "demographic_age", val, value, val_set, field_values)
       }
     }
   }

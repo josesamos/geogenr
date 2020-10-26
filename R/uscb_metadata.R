@@ -80,6 +80,37 @@ new_uscb_metadata <- function(filepath = NULL, code = NULL, group_code = NULL) {
     "rest"
   )
 
+  interpret <- c(
+    interpret_as_demographic,
+    interpret_as_economic_food_stamps_snap,
+    interpret_as_social_veteran_status_military_service,
+    interpret_as_social_school_enrollment,
+    interpret_as_social_fertility,
+    interpret_social_ancestry,
+    interpret_as_economic_health_insurance_coverage,
+    interpret_as_economic_income_and_earnings,
+    interpret_as_housing_units_in_structure,
+    interpret_as_economic_work_status_last_year,
+    interpret_as_social_disability_status,
+    interpret_as_social_grandparents_as_caregivers,
+    interpret_as_demographic_household,
+    interpret_as_demographic_group_quarters_population,
+    interpret_as_economic_journey_and_place_of_work,
+    interpret_as_housing_tenure_owner_renter,
+    interpret_as_housing_computer_and_internet_use,
+    interpret_as_social_migration_residence_1_year_ago,
+    interpret_as_social_educational_attainment,
+    interpret_as_social_marital_status,
+    interpret_as_social_language_spoken_at_home,
+    interpret_as_economic_poverty_status,
+    interpret_as_social_year_of_entry,
+    interpret_as_social_citizenship_status,
+    interpret_as_demographic_race,
+    interpret_as_social_place_of_birth,
+    interpret_as_economic_industry_and_occupation,
+    interpret_as_survey
+  )
+
   metadata$inf_code <- ""
   metadata$type_code <- ""
   metadata$spec_code <- ""
@@ -97,7 +128,7 @@ new_uscb_metadata <- function(filepath = NULL, code = NULL, group_code = NULL) {
     metadata[sprintf("%s_spec_2", var)] <- ""
     metadata[sprintf("%s_spec_3", var)] <- ""
     metadata[sprintf("%s_spec_4", var)] <- ""
-   }
+  }
 
   for (i in seq_along(metadata[[1]])) {
     short <- strsplit(metadata$Short_Name[i], "")[[1]]
@@ -118,6 +149,8 @@ new_uscb_metadata <- function(filepath = NULL, code = NULL, group_code = NULL) {
     list(
       layers = layer_names,
       variables = var_name,
+      interpret = interpret,
+      field_values = "",
       metadata = metadata
     )
 
