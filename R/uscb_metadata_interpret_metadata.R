@@ -141,7 +141,6 @@ interpret_all <- function(mdr, val, value, interpret, field_values, other_field)
       }
     }
   } else {
-#    browser()
     fields <- field_values[field_values$val_set == val, "field"]
     if (length(fields) == 0) {
       res <- interpret_as(mdr, field = "rest", val, value)
@@ -156,7 +155,7 @@ interpret_all <- function(mdr, val, value, interpret, field_values, other_field)
         }
       }
       mdr <- add_value(mdr, field, value)
-      other_field <- c(field, other_field)[1:10]
+      other_field <- c(field, other_field[other_field != field])[1:10]
       res <-   list(mdr = mdr,
                     other_field = other_field,
                     field_values = field_values,
@@ -3604,13 +3603,20 @@ interpret_as_demographic_race <-
       "occupied_housing_units_with_a_householder_who_is_white_alone",
       "occupied_housing_units_with_a_householder_who_is_white_alone_not_hispanic_or_latino",
       "householder_who_is_american_indian_and_alaska_native_alone",
-      "householder_who_is_asian_alone", "householder_who_is_black_or_african_american_alone",
+      "householder_who_is_asian_alone",
+      "householder_who_is_black_or_african_american_alone",
       "householder_who_is_native_hawaiian_and_other_pacific_islander_alone",
-      "householder_who_is_some_other_race_alone", "householder_who_is_two_or_more_races",
+      "householder_who_is_some_other_race_alone",
+      "householder_who_is_two_or_more_races",
       "householder_who_is_white_alone" ,
       "householder_who_is_two_races_excluding_some_other_race_and_three_or_more_races",
-      "householder_who_is_two_races_including_some_other_race"
-      )
+      "householder_who_is_two_races_including_some_other_race",
+      "hmong",
+      "japanese",
+      "korean",
+      "navajo",
+      "vietnamese"
+    )
     interpret_as(mdr, field = "demographic_race", val, value, val_set, field_values)
   }
 
