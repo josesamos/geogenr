@@ -111,7 +111,7 @@ get_field_values <- function(um) {
 #' @export
 #' @keywords internal
 get_field_values.uscb_metadata <- function(um) {
-  field_values <- data.frame(field = character(), val_set = character())
+  field_values <- data.frame(subject = character(), field = character(), val_set = character())
 
   for (f in um$interpret) {
     res <- f(um$metadata[1,], val="zzzzzzzzz", value="zzzzzzzzz", field_values = field_values)

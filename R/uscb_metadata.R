@@ -76,12 +76,15 @@ new_uscb_metadata <- function(filepath = NULL, code = NULL, group_code = NULL) {
     "demographic_total_population",
     "demographic_family",
     "demographic_household",
+    "housing_units",
     "survey",
     "rest"
   )
 
   interpret <- c(
-    interpret_as_demographic,
+    interpret_as_demographic_total_population,
+    interpret_as_demographic_sex,
+    interpret_as_demographic_age,
     interpret_as_economic_food_stamps_snap,
     interpret_as_social_veteran_status_military_service,
     interpret_as_social_school_enrollment,
@@ -89,7 +92,16 @@ new_uscb_metadata <- function(filepath = NULL, code = NULL, group_code = NULL) {
     interpret_social_ancestry,
     interpret_as_economic_health_insurance_coverage,
     interpret_as_economic_income_and_earnings,
-    interpret_as_housing_units_in_structure,
+    interpret_as_housing_units,
+    interpret_as_housing_plumbing_facilities,
+    interpret_as_housing_rent,
+    interpret_as_housing_vehicles_available,
+    interpret_as_housing_rooms,
+    interpret_as_housing_occupancy_vacancy_status,
+    interpret_as_housing_occupants_per_room,
+    interpret_as_housing_value_of_home,
+    interpret_as_housing_year_structure_built,
+    interpret_as_housing_year_householder_moved_into_unit,
     interpret_as_economic_work_status_last_year,
     interpret_as_social_disability_status,
     interpret_as_social_grandparents_as_caregivers,
@@ -150,7 +162,7 @@ new_uscb_metadata <- function(filepath = NULL, code = NULL, group_code = NULL) {
       layers = layer_names,
       variables = var_name,
       interpret = interpret,
-      field_values = "",
+      field_values = NULL,
       metadata = metadata
     )
 

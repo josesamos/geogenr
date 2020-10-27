@@ -4,7 +4,7 @@
 \alias{interpret_values}
 \title{interpret values}
 \usage{
-interpret_values(mdr, values, interpret, other_field)
+interpret_values(mdr, values, interpret, field_values, other_field)
 }
 \arguments{
 \item{mdr}{A \code{tibble} row.}
@@ -12,6 +12,9 @@ interpret_values(mdr, values, interpret, other_field)
 \item{values}{A vector of values.}
 
 \item{interpret}{Vector of functions to consider.}
+
+\item{field_values}{A data frame that stores associations between fields and
+values.}
 
 \item{other_field}{Included field that can contain the value "other".}
 }

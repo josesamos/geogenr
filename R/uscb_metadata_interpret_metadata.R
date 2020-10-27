@@ -21,16 +21,15 @@ interpret_metadata <- function(um) {
 interpret_metadata.uscb_metadata <- function(um) {
   other_field <- ""
   for (i in seq_along(um$metadata[[1]])) {
-    um$metadata[i,] <- interpret_code(um$metadata[i,])
+    um$metadata[i, ] <- interpret_code(um$metadata[i, ])
 
     values <- strsplit(um$metadata$Full_Name[i], ": ")[[1]]
     values <- stringr::str_trim(values, side = "both")
 
-    res <- interpret_values(um$metadata[i,], values, um$interpret, other_field)
-    um$metadata[i,] <- res$mdr[1, ]
-    if (res$other_field != "") {
-      other_field <- res$other_field
-    }
+    res <- interpret_values(um$metadata[i, ], values, um$interpret, um$field_values, other_field)
+    um$metadata[i, ] <- res$mdr[1,]
+    other_field <- res$other_field
+
     if (i %% 1000 == 0) {
       print(i)
     }
@@ -76,12 +75,14 @@ interpret_code <- function(mdr) {
 #' @param mdr A `tibble` row.
 #' @param values A vector of values.
 #' @param interpret Vector of functions to consider.
+#' @param field_values A data frame that stores associations between fields and
+#'   values.
 #' @param other_field Included field that can contain the value "other".
 #'
 #' @return A `tibble` row.
 #'
 #' @keywords internal
-interpret_values <- function(mdr, values, interpret, other_field) {
+interpret_values <- function(mdr, values, interpret, field_values, other_field) {
   vals <- tolower(values)
   vals <- snakecase::to_snake_case(vals, sep_out = "_")
 
@@ -103,19 +104,15 @@ interpret_values <- function(mdr, values, interpret, other_field) {
   }
 
   for (j in 2:length(values)) {
-    res <- interpret_all(mdr, vals[j], values[j], interpret, other_field)
+    res <- interpret_all(mdr, vals[j], values[j], interpret, field_values, other_field)
     if (!res$result) {
       res <- interpret_as(mdr, field = "rest", vals[j], values[j])
     } else {
-      if (res$other_field != "") {
-        other_field <- res$other_field
-      }
+      other_field <- res$other_field
     }
     mdr <- res$mdr
   }
-  if (other_field != "") {
-    res$other_field <- other_field
-  }
+  res$other_field <- other_field
   res
 }
 
@@ -128,24 +125,42 @@ interpret_values <- function(mdr, values, interpret, other_field) {
 #' @param val A transformed value.
 #' @param value A value to classify.
 #' @param interpret Vector of functions to consider.
+#' @param field_values A data frame that stores associations between fields and
+#'   values.
 #' @param other_field Included field that can contain the value "other".
 #'
 #' @return A result structure.
 #'
 #' @keywords internal
-interpret_all <- function(mdr, val, value, interpret, other_field) {
-  if (val == "other") {
-    if (other_field != "") {
-      res <- interpret_as(mdr, field = other_field, val, value)
-    } else {
-      res <- interpret_as(mdr, field = "rest", val, value)
-    }
-  } else {
+interpret_all <- function(mdr, val, value, interpret, field_values, other_field) {
+  if (is.null(field_values)) {
     for (f in interpret) {
       res <- f(mdr, val, value)
       if (res$result) {
         return(res)
       }
+    }
+  } else {
+#    browser()
+    fields <- field_values[field_values$val_set == val, "field"]
+    if (length(fields) == 0) {
+      res <- interpret_as(mdr, field = "rest", val, value)
+    } else {
+      field <- fields[1]
+      if (length(fields) > 1) {
+        for (i in 1:length(other_field)) {
+          if (other_field[i] %in% fields) {
+            field <- other_field[i]
+            break
+          }
+        }
+      }
+      mdr <- add_value(mdr, field, value)
+      other_field <- c(field, other_field)[1:10]
+      res <-   list(mdr = mdr,
+                    other_field = other_field,
+                    field_values = field_values,
+                    result = TRUE)
     }
   }
   res
@@ -180,24 +195,13 @@ interpret_as <- function(mdr, field, val, value, val_set = NULL, field_values = 
 
   if (!is.null(field_values)) {
     if (!is.null(val_set) & !(field %in% unique(field_values$field))) {
-      df <- data.frame(field = field, val_set = val_set)
+      df <- data.frame(subject = strsplit(field, "_")[[1]][1], field = field, val_set = val_set)
       field_values <- rbind(field_values, df)
     }
   }
 
-  if (field %in% c(
-    "demographic_household",
-    "social_educational_attainment",
-    "social_marital_status",
-    "social_place_of_birth"
-  )) {
-    other_field <- field
-  } else {
-    other_field <- ""
-  }
-
   list(mdr = mdr,
-       other_field = other_field,
+       other_field = "",
        field_values = field_values,
        result = result)
 }
@@ -368,7 +372,13 @@ interpret_social_ancestry <-
       "welsh",
       "west_indian",
       "yugoslavian",
-      "zimbabwean"
+      "zimbabwean",
+      "ancestry_not_specified",
+      "ancestry_specified",
+      "ancestry_not_reported",
+      "ancestry_unclassified",
+      "multiple_ancestry",
+      "single_ancestry"
     )
     interpret_as(mdr, field = "social_ancestry", val, value, val_set, field_values)
   }
@@ -863,13 +873,14 @@ interpret_as_economic_income_and_earnings <-
       "50_000_to_74_999",
       "under_25_000",
       "10_000_to_19_999",
-      "20_000_to_34_999"
+      "20_000_to_34_999",
+      "other_dollars"
     )
     interpret_as(mdr, field = "economic_income_and_earnings", val, value, val_set, field_values)
   }
 
 
-#' interpret_as_housing_units_in_structure
+#' interpret_as_housing_units
 #'
 #' Classifies the value in a field if it is one of the possible values
 #' considered for that field.
@@ -883,14 +894,463 @@ interpret_as_economic_income_and_earnings <-
 #' @return A result structure.
 #'
 #' @keywords internal
-interpret_as_housing_units_in_structure <-
+interpret_as_housing_units <-
   function(mdr, val, value, field_values = NULL) {
     val_set <- c(
       "1_unit_structures",
       "2_or_more_unit_structures",
-      "mobile_homes_and_all_other_types_of_units"
+      "mobile_homes_and_all_other_types_of_units",
+      "occupied",
+      "vacant",
+      "1_attached",
+      "1_detached",
+      "1_detached_or_attached",
+      "10_to_19",
+      "2",
+      "2_to_4",
+      "20_to_49",
+      "3_or_4",
+      "5_or_more",
+      "5_to_9",
+      "50_or_more",
+      "boat_rv_van_etc",
+      "mobile_home",
+      "bottled_tank_or_lp_gas",
+      "coal_or_coke",
+      "electricity",
+      "fuel_oil_kerosene_etc",
+      "no_fuel_used",
+      "no_telephone_service_available",
+      "other_fuel",
+      "solar_energy",
+      "utility_gas",
+      "with_telephone_service_available",
+      "wood",
+      "complete_kitchen_facilities",
+      "lacking_complete_kitchen_facilities",
+      "10_0_to_14_9_percent",
+      "15_0_to_19_9_percent",
+      "20_0_to_24_9_percent",
+      "25_0_to_29_9_percent",
+      "30_0_to_34_9_percent",
+      "35_0_percent_or_more",
+      "35_0_to_39_9_percent",
+      "40_0_to_49_9_percent",
+      "5_to_19",
+      "50_0_percent_or_more",
+      "less_than_10_0_percent",
+      "less_than_20_0_percent",
+      "not_computed",
+      "1_attached_dollars",
+      "1_detached_dollars",
+      "2_dollars",
+      "3_or_4_dollars",
+      "5_or_more_dollars",
+      "boat_rv_van_etc_dollars",
+      "housing_units_with_a_mortgage_dollars",
+      "housing_units_with_a_mortgage_contract_to_purchase_or_similar_debt",
+      "housing_units_without_a_mortgage_dollars",
+      "mobile_home_dollars",
+      "not_mortgaged",
+      "owner_occupied_mobile_homes",
+      "with_a_mortgage",
+      "with_either_a_second_mortgage_or_home_equity_loan_but_not_both",
+      "2_0_to_2_9",
+      "3_0_to_3_9",
+      "4_0_or_more",
+      "both_second_mortgage_and_home_equity_loan",
+      "home_equity_loan_only",
+      "less_than_2_0",
+      "no_second_mortgage_and_no_home_equity_loan",
+      "second_mortgage_only",
+      "mobile_home_boat_rv_van_etc",
+      "no_real_estate_taxes_paid",
+      "no_selected_conditions",
+      "occupied_housing_units_with_monthly_housing_costs",
+      "owner_occupied_dollars",
+      "renter_occupied_dollars",
+      "with_four_selected_conditions",
+      "with_one_selected_condition",
+      "with_three_selected_conditions",
+      "with_two_selected_conditions",
+      "zero_or_negative_income",
+      "20_to_29_percent",
+      "30_percent_or_more",
+      "less_than_20_percent",
+      "mobile_home_boat_rv_van_etc"
     )
-    interpret_as(mdr, field = "housing_units_in_structure", val, value, val_set, field_values)
+    interpret_as(mdr, field = "housing_units", val, value, val_set, field_values)
+  }
+
+
+#' interpret_as_housing_plumbing_facilities
+#'
+#' Classifies the value in a field if it is one of the possible values
+#' considered for that field.
+#'
+#' @param mdr A `tibble` row.
+#' @param val A transformed value.
+#' @param value A value.
+#' @param field_values A data frame to store associations between fields and
+#'   values.
+#'
+#' @return A result structure.
+#'
+#' @keywords internal
+interpret_as_housing_plumbing_facilities <-
+  function(mdr, val, value, field_values = NULL) {
+    val_set <- c(
+      "complete_plumbing_facilities",
+      "lacking_complete_plumbing_facilities",
+      "lacking_plumbing_facilities"
+    )
+    interpret_as(mdr, field = "housing_plumbing_facilities", val, value, val_set, field_values)
+  }
+
+
+#' interpret_as_housing_occupancy_vacancy_status
+#'
+#' Classifies the value in a field if it is one of the possible values
+#' considered for that field.
+#'
+#' @param mdr A `tibble` row.
+#' @param val A transformed value.
+#' @param value A value.
+#' @param field_values A data frame to store associations between fields and
+#'   values.
+#'
+#' @return A result structure.
+#'
+#' @keywords internal
+interpret_as_housing_occupancy_vacancy_status <-
+  function(mdr, val, value, field_values = NULL) {
+    val_set <- c(
+      "for_migrant_workers",
+      "for_rent",
+      "for_sale_only",
+      "for_seasonal_recreational_or_occasional_use",
+      "other_vacant",
+      "rented_not_occupied",
+      "sold_not_occupied"
+    )
+    interpret_as(mdr, field = "housing_occupancy_vacancy_status", val, value, val_set, field_values)
+  }
+
+
+
+#' interpret_as_housing_vehicles_available
+#'
+#' Classifies the value in a field if it is one of the possible values
+#' considered for that field.
+#'
+#' @param mdr A `tibble` row.
+#' @param val A transformed value.
+#' @param value A value.
+#' @param field_values A data frame to store associations between fields and
+#'   values.
+#'
+#' @return A result structure.
+#'
+#' @keywords internal
+interpret_as_housing_vehicles_available <-
+  function(mdr, val, value, field_values = NULL) {
+    val_set <- c(
+      "1_vehicle_available",
+      "2_vehicles_available",
+      "3_vehicles_available",
+      "4_vehicles_available",
+      "5_or_more_vehicles_available",
+      "3_or_more_vehicles_available",
+      "4_or_more_vehicles_available",
+      "no_vehicle_available",
+      "1_or_more_vehicles_available"
+    )
+    interpret_as(mdr, field = "housing_vehicles_available", val, value, val_set, field_values)
+  }
+
+
+
+#' interpret_as_housing_rooms
+#'
+#' Classifies the value in a field if it is one of the possible values
+#' considered for that field.
+#'
+#' @param mdr A `tibble` row.
+#' @param val A transformed value.
+#' @param value A value.
+#' @param field_values A data frame to store associations between fields and
+#'   values.
+#'
+#' @return A result structure.
+#'
+#' @keywords internal
+interpret_as_housing_rooms <-
+  function(mdr, val, value, field_values = NULL) {
+    val_set <- c(
+      "1_bedroom",
+      "1_room",
+      "2_bedrooms",
+      "2_rooms",
+      "3_bedrooms",
+      "3_rooms",
+      "4_bedrooms",
+      "4_rooms",
+      "5_or_more_bedrooms",
+      "5_rooms",
+      "6_rooms",
+      "7_rooms",
+      "8_rooms",
+      "9_or_more_rooms",
+      "no_bedroom",
+      "3_or_more_bedrooms"
+    )
+    interpret_as(mdr, field = "housing_rooms", val, value, val_set, field_values)
+  }
+
+
+
+#' interpret_as_housing_occupants_per_room
+#'
+#' Classifies the value in a field if it is one of the possible values
+#' considered for that field.
+#'
+#' @param mdr A `tibble` row.
+#' @param val A transformed value.
+#' @param value A value.
+#' @param field_values A data frame to store associations between fields and
+#'   values.
+#'
+#' @return A result structure.
+#'
+#' @keywords internal
+interpret_as_housing_occupants_per_room <-
+  function(mdr, val, value, field_values = NULL) {
+    val_set <- c(
+      "0_50_or_less_occupants_per_room",
+      "0_51_to_1_00_occupants_per_room",
+      "1_00_or_less_occupants_per_room",
+      "1_01_or_more_occupants_per_room",
+      "1_01_to_1_50_occupants_per_room",
+      "1_51_or_more_occupants_per_room",
+      "1_51_to_2_00_occupants_per_room",
+      "2_01_or_more_occupants_per_room"
+    )
+    interpret_as(mdr, field = "housing_occupants_per_room", val, value, val_set, field_values)
+  }
+
+
+
+#' interpret_as_housing_value_of_home
+#'
+#' Classifies the value in a field if it is one of the possible values
+#' considered for that field.
+#'
+#' @param mdr A `tibble` row.
+#' @param val A transformed value.
+#' @param value A value.
+#' @param field_values A data frame to store associations between fields and
+#'   values.
+#'
+#' @return A result structure.
+#'
+#' @keywords internal
+interpret_as_housing_value_of_home <-
+  function(mdr, val, value, field_values = NULL) {
+    val_set <- c(
+      "value_10_000_to_19_999",
+      "value_100_000_to_199_999",
+      "value_20_000_to_29_999",
+      "value_200_000_to_249_999",
+      "value_250_000_to_499_999",
+      "value_30_000_to_39_999",
+      "value_40_000_to_49_999",
+      "value_50_000_to_59_999",
+      "value_500_000_or_more",
+      "value_60_000_to_69_999",
+      "value_70_000_to_79_999",
+      "value_80_000_to_89_999",
+      "value_90_000_to_99_999",
+      "value_less_than_10_000",
+      "1_000_000_to_1_499_999",
+      "1_500_000_to_1_999_999",
+      "150_000_to_174_999",
+      "175_000_to_199_999",
+      "2_000_000_or_more",
+      "200_000_to_249_999",
+      "250_000_to_299_999",
+      "300_000_to_399_999",
+      "40_000_to_49_999",
+      "400_000_to_499_999",
+      "400_000_to_499_999",
+      "500_000_to_749_999",
+      "60_000_to_69_999",
+      "70_000_to_79_999",
+      "750_000_to_999_999",
+      "80_000_to_89_999",
+      "90_000_to_99_999",
+      "100_000_to_149_999",
+      "150_000_or_more",
+      "1_000_000_or_more",
+      "10_000_to_24_999",
+      "100_000_to_149_999",
+      "150_000_or_more",
+      "200_000_to_299_999",
+      "300_000_to_499_999",
+      "50_000_to_99_999",
+      "less_than_50_000",
+      "less_than_20_000"
+    )
+    interpret_as(mdr, field = "housing_value_of_home", val, value, val_set, field_values)
+  }
+
+
+
+#' interpret_as_housing_rent
+#'
+#' Classifies the value in a field if it is one of the possible values
+#' considered for that field.
+#'
+#' @param mdr A `tibble` row.
+#' @param val A transformed value.
+#' @param value A value.
+#' @param field_values A data frame to store associations between fields and
+#'   values.
+#'
+#' @return A result structure.
+#'
+#' @keywords internal
+interpret_as_housing_rent <-
+  function(mdr, val, value, field_values = NULL) {
+    val_set <- c(
+      "meals_included_in_rent",
+      "no_meals_included_in_rent",
+      "with_cash_rent",
+      "1_000_to_1_249",
+      "1_250_to_1_499",
+      "1_500_to_1_999",
+      "100_to_149",
+      "150_to_199",
+      "2_000_to_2_499",
+      "2_500_to_2_999",
+      "200_to_249",
+      "250_to_299",
+      "3_000_to_3_499",
+      "3_500_or_more",
+      "300_to_349",
+      "350_to_399",
+      "400_to_449",
+      "450_to_499",
+      "500_to_549",
+      "550_to_599",
+      "600_to_649",
+      "650_to_699",
+      "700_to_749",
+      "750_to_799",
+      "800_to_899",
+      "900_to_999",
+      "less_than_100",
+      "meals_included_in_rent",
+      "no_cash_rent",
+      "no_meals_included_in_rent",
+      "1_000_to_1_499",
+      "1_500_or_more",
+      "300_to_499",
+      "500_to_749",
+      "750_to_999",
+      "no_extra_payment_for_any_utilities",
+      "pay_extra_for_one_or_more_utilities",
+      "less_than_300",
+      "1000_to_1_099",
+      "1100_to_1_199",
+      "1200_to_1_299",
+      "1300_to_1_399",
+      "1400_to_1_499",
+      "200_to_299",
+      "3_500_to_3_999",
+      "300_to_399",
+      "4_000_or_more",
+      "400_to_499",
+      "500_to_599",
+      "600_to_699",
+      "700_to_799",
+      "100_to_199",
+      "2_000_or_more",
+      "2_000_to_2_999",
+      "3_000_or_more",
+      "5_000_to_9_999",
+      "800_to_1_499",
+      "less_than_5_000",
+      "less_than_800",
+      "less_than_200"
+    )
+    interpret_as(mdr, field = "housing_rent", val, value, val_set, field_values)
+  }
+
+
+#' interpret_as_housing_year_structure_built
+#'
+#' Classifies the value in a field if it is one of the possible values
+#' considered for that field.
+#'
+#' @param mdr A `tibble` row.
+#' @param val A transformed value.
+#' @param value A value.
+#' @param field_values A data frame to store associations between fields and
+#'   values.
+#'
+#' @return A result structure.
+#'
+#' @keywords internal
+interpret_as_housing_year_structure_built <-
+  function(mdr, val, value, field_values = NULL) {
+    val_set <- c(
+      "built_1939_or_earlier",
+      "built_1940_to_1949",
+      "built_1950_or_later",
+      "built_1950_to_1959",
+      "built_1960_to_1969",
+      "built_1970_to_1979",
+      "built_1980_to_1989",
+      "built_1990_to_1999",
+      "built_2000_to_2009",
+      "built_2010_to_2013",
+      "built_2014_or_later",
+      "built_1940_to_1959",
+      "built_1960_to_1979",
+      "built_1980_to_1999",
+      "built_2010_or_later"
+    )
+    interpret_as(mdr, field = "housing_year_structure_built", val, value, val_set, field_values)
+  }
+
+
+
+#' interpret_as_housing_year_householder_moved_into_unit
+#'
+#' Classifies the value in a field if it is one of the possible values
+#' considered for that field.
+#'
+#' @param mdr A `tibble` row.
+#' @param val A transformed value.
+#' @param value A value.
+#' @param field_values A data frame to store associations between fields and
+#'   values.
+#'
+#' @return A result structure.
+#'
+#' @keywords internal
+interpret_as_housing_year_householder_moved_into_unit <-
+  function(mdr, val, value, field_values = NULL) {
+    val_set <- c(
+      "moved_in_1989_or_earlier",
+      "moved_in_1990_to_1999",
+      "moved_in_2000_to_2009",
+      "moved_in_2010_to_2014",
+      "moved_in_2015_to_2016",
+      "moved_in_2017_or_later",
+      "moved_in_2015_or_later"
+    )
+    interpret_as(mdr, field = "housing_year_householder_moved_into_unit", val, value, val_set, field_values)
   }
 
 
@@ -1139,8 +1599,6 @@ interpret_as_demographic_household <-
       "female_householder_and_male_partner",
       "male_householder_and_female_partner",
       "male_householder_and_male_partner",
-      "householder_15_to_64_years",
-      "householder_65_years_and_over",
       "households_with_no_nonrelatives",
       "households_with_one_or_more_nonrelatives",
       "4_person_household",
@@ -1162,9 +1620,6 @@ interpret_as_demographic_household <-
       "3_to_4_people",
       "5_to_6_people",
       "7_or_more_people",
-      "householder_25_to_44_years",
-      "householder_45_to_64_years",
-      "householder_under_25_years",
       "all_relatives",
       "in_non_family_households_and_other_living_arrangement",
       "non_relatives",
@@ -1210,16 +1665,6 @@ interpret_as_demographic_household <-
       "not_living_alone_dollars",
       "other_dollars",
       "other_family_dollars",
-      "householder_15_to_24_years_dollars",
-      "householder_15_to_64_years_dollars",
-      "householder_25_to_34_years_dollars",
-      "householder_35_to_44_years_dollars",
-      "householder_45_to_54_years_dollars",
-      "householder_55_to_59_years_dollars",
-      "householder_60_to_64_years_dollars",
-      "householder_65_to_74_years_dollars",
-      "householder_65_years_and_over_dollars",
-      "householder_75_years_and_over_dollars",
       "no_children_under_18_years",
       "with_children_under_18_years",
       "at_least_one_person_in_household_60_years_or_over",
@@ -1254,11 +1699,15 @@ interpret_as_demographic_household <-
       "married_couple_families",
       "living_with_father",
       "living_with_mother",
-      "in_non_family_households_and_other_living_arrangements"
+      "in_non_family_households_and_other_living_arrangements",
+      "with_own_children_of_the_householder_under_18",
+      "with_related_children_of_the_householder_under_18",
+      "no_own_children_of_the_householder_under_18",
+      "no_related_children_of_the_householder_under_18",
+      "5_or_more_person_household"
     )
     interpret_as(mdr, field = "demographic_household", val, value, val_set, field_values)
   }
-
 
 #' interpret_as_economic_industry_and_occupation
 #'
@@ -1996,14 +2445,6 @@ interpret_as_economic_journey_and_place_of_work <-
       "8_00_a_m_to_8_29_a_m",
       "8_30_a_m_to_8_59_a_m",
       "9_00_a_m_to_9_59_a_m",
-      "1_vehicle_available",
-      "2_vehicles_available",
-      "3_vehicles_available",
-      "4_vehicles_available",
-      "5_or_more_vehicles_available",
-      "3_or_more_vehicles_available",
-      "4_or_more_vehicles_available",
-      "no_vehicle_available",
       "in_2_person_carpool",
       "in_3_or_more_person_carpool",
       "in_3_person_carpool",
@@ -2063,7 +2504,8 @@ interpret_as_housing_tenure_owner_renter <-
       "vacant_for_rent_and_rented_not_occupied_housing_units",
       "vacant_for_sale_only_and_sold_not_occupied_housing_units",
       "vacant_housing_units",
-      "owner_occupied_housing_units"
+      "owner_occupied_housing_units",
+      "all_other_vacant_units"
     )
     interpret_as(mdr, field = "housing_tenure_owner_renter", val, value, val_set, field_values)
   }
@@ -2145,7 +2587,8 @@ interpret_as_social_migration_residence_1_year_ago <-
       "abroad",
       "in_puerto_rico",
       "in_the_united_states",
-      "different_house"
+      "different_house",
+      "vacant_current_residence_elsewhere"
     )
     interpret_as(mdr, field = "social_migration_residence_1_year_ago", val, value, val_set, field_values)
   }
@@ -2226,7 +2669,8 @@ interpret_as_social_educational_attainment <-
       "less_than_high_school_diploma",
       "nursery_school_through_12_th_grade",
       "high_school_graduate_includes_equivalency_some_college_or_associate_s_degree",
-      "less_than_high_school_graduate_or_equivalency"
+      "less_than_high_school_graduate_or_equivalency",
+      "high_school_graduate_including_equivalency"
     )
     interpret_as(mdr, field = "social_educational_attainment", val, value, val_set, field_values)
   }
@@ -2710,277 +3154,467 @@ interpret_as_social_citizenship_status <- function(mdr, val, value, field_values
 #' @return A result structure.
 #'
 #' @keywords internal
-interpret_as_demographic_race <- function(mdr, val, value, field_values = NULL) {
-  val_set <- c(
-    "black_or_african_american_alone",
-    "hispanic_or_latino_population",
-    "people_who_are_american_indian_and_alaska_native_alone",
-    "people_who_are_asian_alone",
-    "people_who_are_native_hawaiian_and_other_pacific_islander_alone",
-    "people_who_are_some_other_race_alone",
-    "people_who_are_two_or_more_races",
-    "people_who_are_white_alone",
-    "white_alone_not_hispanic_or_latino_population",
-    "american_indian_and_alaska_native_alone_population_in_puerto_rico",
-    "american_indian_and_alaska_native_alone_population_in_the_united_states",
-    "asian_alone_population_in_puerto_rico",
-    "asian_alone_population_in_the_united_states",
-    "black_or_african_american_alone_population_in_puerto_rico",
-    "black_or_african_american_alone_population_in_the_united_states",
-    "hispanic_or_latino_population_in_puerto_rico",
-    "hispanic_or_latino_population_in_the_united_states",
-    "native_hawaiian_and_other_pacific_islander_alone_population_in_puerto_rico",
-    "native_hawaiian_and_other_pacific_islander_alone_population_in_the_united_states",
-    "some_other_race_alone_population_in_the_united_states",
-    "some_other_race_population_in_puerto_rico",
-    "two_or_more_races_population_in_puerto_rico",
-    "two_or_more_races_population_in_the_united_states",
-    "white_alone_population_in_puerto_rico",
-    "white_alone_population_in_the_united_states",
-    "white_alone_not_hispanic_or_latino_population_in_puerto_rico",
-    "white_alone_not_hispanic_or_latino_population_in_the_united_states",
-    "american_indian_and_alaskan_native_alone_population_1_year_and_over_in_puerto_rico",
-    "american_indian_and_alaskan_native_alone_population_1_year_and_over_in_the_united_states",
-    "asian_alone_population_1_year_and_over_in_puerto_rico",
-    "asian_alone_population_1_year_and_over_in_the_united_states",
-    "black_or_african_american_alone_population_1_year_and_over_in_puerto_rico",
-    "black_or_african_american_alone_population_1_year_and_over_in_the_united_states",
-    "hispanic_or_latino_population_1_year_and_over_in_puerto_rico",
-    "hispanic_or_latino_population_1_year_and_over_in_the_united_states",
-    "native_hawaiian_and_other_pacific_islander_alone_population_1_year_and_over_in_puerto_rico",
-    "native_hawaiian_and_other_pacific_islander_alone_population_1_year_and_over_in_the_united_states",
-    "some_other_race_alone_population_1_year_and_over_in_puerto_rico",
-    "some_other_race_alone_population_1_year_and_over_in_the_united_states",
-    "two_or_more_races_population_1_year_and_over_in_puerto_rico",
-    "two_or_more_races_population_1_year_and_over_in_the_united_states",
-    "white_alone_population_1_year_and_over_in_puerto_rico",
-    "white_alone_population_1_year_and_over_in_the_united_states",
-    "white_alone_not_hispanic_or_latino_population_1_year_and_over_in_puerto_rico",
-    "white_alone_not_hispanic_or_latino_population_1_year_and_over_in_the_united_states",
-    "american_indian_and_alaska_native_alone_population_1_year_and_over",
-    "asian_alone_population_1_year_and_over",
-    "black_or_african_american_alone_population_1_year_and_over",
-    "hispanic_or_latino_population_1_year_and_over",
-    "native_hawaiian_and_other_pacific_islander_alone_population_1_year_and_over",
-    "some_other_race_alone_population_1_year_and_over",
-    "two_or_more_races_population_1_year_and_over",
-    "white_alone_population_1_year_and_over",
-    "white_alone_not_hispanic_or_latino_population_1_year_and_over",
-    "american_indian_and_alaska_native_alone_workers_16_years_and_over",
-    "asian_alone_workers_16_years_and_over",
-    "black_or_african_american_alone_workers_16_years_and_over",
-    "hispanic_or_latino_workers_16_years_and_over",
-    "native_hawaiian_and_other_pacific_islander_alone_workers_16_years_and_over",
-    "some_other_race_alone_workers_16_years_and_over",
-    "two_or_more_races_workers_16_years_and_over",
-    "white_alone_workers_16_years_and_over",
-    "white_alone_not_hispanic_or_latino_workers_16_years_and_over",
-    "grandparents_american_indian_and_alaska_native_alone_living_with_own_grandchildren_under_18_years",
-    "grandparents_asian_alone_living_with_own_grandchildren_under_18_years",
-    "grandparents_black_or_african_american_alone_living_with_own_grandchildren_under_18_years",
-    "grandparents_hispanic_or_latino_living_with_own_grandchildren_under_18_years",
-    "grandparents_native_hawaiian_and_other_pacific_islander_alone_living_with_own_grandchildren_under_18_years",
-    "grandparents_some_other_race_alone_living_with_own_grandchildren_under_18_years",
-    "grandparents_two_or_more_races_living_with_own_grandchildren_under_18_years",
-    "grandparents_white_alone_living_with_own_grandchildren_under_18_years",
-    "grandparents_white_alone_not_hispanic_or_latino_living_with_own_grandchildren_under_18_years",
-    "households_with_a_householder_who_is_american_indian_and_alaska_native_alone",
-    "households_with_a_householder_who_is_asian_alone",
-    "households_with_a_householder_who_is_black_or_african_american_alone",
-    "households_with_a_householder_who_is_hispanic_or_latino",
-    "households_with_a_householder_who_is_native_hawaiian_and_other_pacific_islander_alone",
-    "households_with_a_householder_who_is_some_other_race_alone",
-    "households_with_a_householder_who_is_two_or_more_races",
-    "households_with_a_householder_who_is_white_alone",
-    "households_with_a_householder_who_is_white_alone_not_hispanic_or_latino",
-    "population_in_households_with_a_householder_who_is_american_indian_and_alaska_native_alone",
-    "population_in_households_with_a_householder_who_is_asian_alone",
-    "population_in_households_with_a_householder_who_is_black_or_african_american_alone",
-    "population_in_households_with_a_householder_who_is_hispanic_or_latino",
-    "population_in_households_with_a_householder_who_is_native_hawaiian_and_other_pacific_islander_alone",
-    "population_in_households_with_a_householder_who_is_some_other_race_alone",
-    "population_in_households_with_a_householder_who_is_two_or_more_races",
-    "population_in_households_with_a_householder_who_is_white_alone",
-    "population_in_households_with_a_householder_who_is_white_alone_not_hispanic_or_latino",
-    "american_indian_and_alaska_native_alone_population_15_to_54_years",
-    "asian_alone_population_15_to_54_years",
-    "black_or_african_american_alone_population_15_to_54_years",
-    "hispanic_or_latino_population_15_to_54_years",
-    "native_hawaiian_and_other_pacific_islander_alone_population_15_to_54_years",
-    "some_other_race_alone_population_15_to_54_years",
-    "two_or_more_races_population_15_to_54_years",
-    "white_alone_population_15_to_54_years",
-    "white_alone_not_hispanic_or_latino_population_15_to_54_years",
-    "american_indian_and_alaska_native_alone_population_15_years_and_over",
-    "asian_alone_population_15_years_and_over",
-    "black_or_african_american_alone_population_15_years_and_over",
-    "hispanic_or_latino_population_15_years_and_over",
-    "native_hawaiian_and_other_pacific_islander_alone_population_15_years_and_over",
-    "some_other_race_alone_population_15_years_and_over",
-    "two_or_more_races_population_15_years_and_over",
-    "white_alone_population_15_years_and_over",
-    "white_alone_not_hispanic_or_latino_population_15_years_and_over",
-    "black_or_african_american_alone_women_15_to_50_years",
-    "hispanic_or_latino_women_15_to_50_years",
-    "native_hawaiian_and_other_pacific_islander_alone_women_15_to_50_years",
-    "some_other_race_alone_women_15_to_50_years",
-    "two_or_more_races_women_15_to_50_years",
-    "white_alone_women_15_to_50_years",
-    "white_alone_not_hispanic_or_latino_women_15_to_50_years",
-    "american_indian_and_alaska_native_alone_women_15_to_50_years",
-    "asian_alone_women_15_to_50_years",
-    "american_indian_and_alaska_native_alone_population_3_years_and_over",
-    "asian_alone_population_3_years_and_over",
-    "black_or_african_american_alone_population_3_years_and_over",
-    "hispanic_or_latino_population_3_years_and_over",
-    "native_hawaiian_and_other_pacific_islander_alone_population_3_years_and_over",
-    "some_other_race_alone_population_3_years_and_over",
-    "two_or_more_races_population_3_years_and_over",
-    "white_alone_population_3_years_and_over",
-    "white_alone_not_hispanic_or_latino_population_3_years_and_over",
-    "american_indian_and_alaska_native_alone_population_5_years_and_over",
-    "asian_alone_population_5_years_and_over",
-    "black_or_african_american_alone_population_5_years_and_over",
-    "hispanic_or_latino_population_5_years_and_over",
-    "native_hawaiian_and_other_pacific_islander_alone_population_5_years_and_over",
-    "some_other_race_alone_population_5_years_and_over",
-    "two_or_more_races_population_5_years_and_over",
-    "white_alone_population_5_years_and_over",
-    "white_alone_not_hispanic_or_latino_population_5_years_and_over",
-    "american_indian_and_alaska_native_alone_population_for_whom_poverty_status_is_determined",
-    "asian_alone_population_for_whom_poverty_status_is_determined",
-    "black_or_african_american_alone_population_for_whom_poverty_status_is_determined",
-    "hispanic_or_latino_population_for_whom_poverty_status_is_determined",
-    "native_hawaiian_and_other_pacific_islander_alone_population_for_whom_poverty_status_is_determined",
-    "some_other_race_alone_population_for_whom_poverty_status_is_determined",
-    "two_or_more_races_population_for_whom_poverty_status_is_determined",
-    "white_alone_population_for_whom_poverty_status_is_determined",
-    "white_alone_not_hispanic_or_latino_population_for_whom_poverty_status_is_determined",
-    "families_with_a_householder_who_is_american_indian_and_alaska_native_alone",
-    "families_with_a_householder_who_is_asian_alone",
-    "families_with_a_householder_who_is_black_or_african_american_alone",
-    "families_with_a_householder_who_is_hispanic_or_latino",
-    "families_with_a_householder_who_is_native_hawaiian_and_other_pacific_islander_alone",
-    "families_with_a_householder_who_is_some_other_race_alone",
-    "families_with_a_householder_who_is_two_or_more_races",
-    "families_with_a_householder_who_is_white_alone",
-    "families_with_a_householder_who_is_white_alone_not_hispanic_or_latino",
-    "american_indian_and_alaska_native_alone_civilian_noninstitutionalized_population",
-    "asian_alone_civilian_noninstitutionalized_population",
-    "black_or_african_american_alone_civilian_noninstitutionalized_population",
-    "hispanic_or_latino_civilian_noninstitutionalized_population",
-    "native_hawaiian_and_other_pacific_islander_alone_civilian_noninstitutionalized_population",
-    "some_other_race_alone_civilian_noninstitutionalized_population",
-    "two_or_more_races_civilian_noninstitutionalized_population",
-    "white_alone_civilian_noninstitutionalized_population",
-    "white_alone_not_hispanic_or_latino_civilian_noninstitutionalized_population",
-    "nonfamily_households_with_a_householder_who_is_asian_alone",
-    "nonfamily_households_with_a_householder_who_is_black_or_african_american_alone",
-    "nonfamily_households_with_a_householder_who_is_hispanic_or_latino",
-    "nonfamily_households_with_a_householder_who_is_native_hawaiian_and_other_pacific_islander_alone",
-    "nonfamily_households_with_a_householder_who_is_some_other_race_alone",
-    "nonfamily_households_with_a_householder_who_is_two_or_more_races",
-    "nonfamily_households_with_a_householder_who_is_white_alone",
-    "nonfamily_households_with_a_householder_who_is_white_alone_not_hispanic_or_latino",
-    "nonfamily_households_with_householder_who_is_american_indian_and_alaska_native_alone",
-    "people_who_are_black_or_african_american_alone",
-    "people_who_are_hispanic_or_latino",
-    "two_or_more_races_population",
-    "households_with_a_householder_who_is_american_indian_and_alaska_native_alone",
-    "households_with_a_householder_who_is_asian_alone",
-    "households_with_a_householder_who_is_black_or_african_american_alone",
-    "households_with_a_householder_who_is_hispanic_or_latino",
-    "households_with_a_householder_who_is_native_hawaiian_and_other_pacific_islander_alone",
-    "households_with_a_householder_who_is_some_other_race_alone",
-    "households_with_a_householder_who_is_two_or_more_races",
-    "households_with_a_householder_who_is_white_alone",
-    "households_with_a_householder_who_is_white_alone_not_hispanic_or_latino",
-    "american_indian_and_alaska_native_alone_population",
-    "asian_alone_population",
-    "black_or_african_american_alone_population",
-    "native_hawaiian_and_other_pacific_islander_alone_population",
-    "some_other_race_alone_population",
-    "white_alone_population",
-    "american_indian_and_alaska_native_alone_household_population",
-    "asian_alone_household_population",
-    "black_or_african_american_alone_household_population",
-    "hispanic_or_latino_household_population",
-    "native_hawaiian_and_other_pacific_islander_alone_household_population",
-    "some_other_race_alone_household_population",
-    "two_or_more_races_household_population",
-    "white_alone_household_population",
-    "white_alone_not_hispanic_or_latino_household_population",
-    "american_indian_and_alaska_native",
-    "asian",
-    "black_or_african_american",
-    "hispanic_or_latino",
-    "native_hawaiian_and_other_pacific_islander",
-    "white",
-    "population_of_one_race",
-    "population_of_two_or_more_races",
-    "population_of_two_races",
-    "all_other_two_race_combinations",
-    "asian_alone",
-    "black_or_african_american_american_indian_and_alaska_native",
-    "population_of_four_or_more_races",
-    "population_of_three_races",
-    "some_other_race",
-    "two_races_excluding_some_other_race_and_three_or_more_races",
-    "two_races_including_some_other_race",
-    "white_american_indian_and_alaska_native",
-    "white_asian",
-    "white_black_or_african_american",
-    "american_indian_and_alaska_native_alone_population_25_years_and_over",
-    "american_indian_and_alaska_native_alone_population_25_years_and_over_with_a_bachelor_s_degree_or_higher_attainment",
-    "asian_alone_population_25_years_and_over",
-    "asian_alone_population_25_years_and_over_with_a_bachelor_s_degree_or_higher_attainment",
-    "black_or_african_american_alone_population_25_years_and_over",
-    "black_or_african_american_alone_population_25_years_and_over_with_a_bachelor_s_degree_or_higher_attainment",
-    "hispanic_or_latino_population_25_years_and_over",
-    "hispanic_or_latino_population_25_years_and_over_with_a_bachelor_s_degree_or_higher_attainment",
-    "native_hawaiian_and_other_pacific_islander_alone_population_25_years_and_over",
-    "native_hawaiian_and_other_pacific_islander_alone_population_25_years_and_over_with_a_bachelor_s_degree_or_higher_attainment",
-    "some_other_race_alone_population_25_years_and_over",
-    "some_other_race_alone_population_25_years_and_over_with_a_bachelor_s_degree_or_higher_attainment",
-    "two_or_more_races_population_25_years_and_over",
-    "two_or_more_races_population_25_years_and_over_with_a_bachelor_s_degree_or_higher_attainment",
-    "white_alone_population_25_years_and_over",
-    "white_alone_population_25_years_and_over_with_a_bachelor_s_degree_or_higher_attainment",
-    "white_alone_not_hispanic_or_latino_population_25_years_and_over",
-    "white_alone_not_hispanic_or_latino_population_25_years_and_over_with_a_bachelor_s_degree_or_higher_attainment",
-    "american_indian_and_alaska_native_alone_civilian_population_18_years_and_over",
-    "asian_alone_civilian_population_18_years_and_over",
-    "black_or_african_american_alone_civilian_population_18_years_and_over",
-    "civilian_population_18_years_and_over_for_whom_poverty_status_is_determined",
-    "hispanic_or_latino_civilian_population_18_years_and_over",
-    "native_hawaiian_and_other_pacific_islander_alone_civilian_population_18_years_and_over",
-    "some_other_race_alone_civilian_population_18_years_and_over",
-    "two_or_more_races_civilian_population_18_years_and_over",
-    "white_alone_civilian_population_18_years_and_over",
-    "white_alone_not_hispanic_or_latino_civilian_population_18_years_and_over",
-    "american_indian_and_alaska_native_alone_population_16_years_and_over",
-    "asian_alone_population_16_years_and_over",
-    "black_or_african_american_alone_population_16_years_and_over",
-    "hispanic_or_latino_population_16_years_and_over",
-    "native_hawaiian_and_other_pacific_islander_alone_population_16_years_and_over",
-    "some_other_race_alone_population_16_years_and_over",
-    "two_or_more_races_population_16_years_and_over",
-    "white_alone_population_16_years_and_over",
-    "white_alone_not_hispanic_or_latino_population_16_years_and_over",
-    "civilian_employed_american_indian_and_alaska_native_alone_population_16_years_and_over",
-    "civilian_employed_asian_alone_population_16_years_and_over",
-    "civilian_employed_black_or_african_american_alone_population_16_years_and_over",
-    "civilian_employed_hispanic_or_latino_population_16_years_and_over",
-    "civilian_employed_native_hawaiian_and_other_pacific_islander_alone_population_16_years_and_over",
-    "civilian_employed_some_other_race_alone_population_16_years_and_over",
-    "civilian_employed_two_or_more_races_population_16_years_and_over",
-    "civilian_employed_white_alone_population_16_years_and_over",
-    "civilian_employed_white_alone_not_hispanic_or_latino_population_16_years_and_over"
-  )
-  interpret_as(mdr, field = "demographic_race", val, value, val_set, field_values)
-}
+interpret_as_demographic_race <-
+  function(mdr, val, value, field_values = NULL) {
+    val_set <- c(
+      "black_or_african_american_alone",
+      "hispanic_or_latino_population",
+      "people_who_are_american_indian_and_alaska_native_alone",
+      "people_who_are_asian_alone",
+      "people_who_are_native_hawaiian_and_other_pacific_islander_alone",
+      "people_who_are_some_other_race_alone",
+      "people_who_are_two_or_more_races",
+      "people_who_are_white_alone",
+      "white_alone_not_hispanic_or_latino_population",
+      "american_indian_and_alaska_native_alone_population_in_puerto_rico",
+      "american_indian_and_alaska_native_alone_population_in_the_united_states",
+      "asian_alone_population_in_puerto_rico",
+      "asian_alone_population_in_the_united_states",
+      "black_or_african_american_alone_population_in_puerto_rico",
+      "black_or_african_american_alone_population_in_the_united_states",
+      "hispanic_or_latino_population_in_puerto_rico",
+      "hispanic_or_latino_population_in_the_united_states",
+      "native_hawaiian_and_other_pacific_islander_alone_population_in_puerto_rico",
+      "native_hawaiian_and_other_pacific_islander_alone_population_in_the_united_states",
+      "some_other_race_alone_population_in_the_united_states",
+      "some_other_race_population_in_puerto_rico",
+      "two_or_more_races_population_in_puerto_rico",
+      "two_or_more_races_population_in_the_united_states",
+      "white_alone_population_in_puerto_rico",
+      "white_alone_population_in_the_united_states",
+      "white_alone_not_hispanic_or_latino_population_in_puerto_rico",
+      "white_alone_not_hispanic_or_latino_population_in_the_united_states",
+      "american_indian_and_alaskan_native_alone_population_1_year_and_over_in_puerto_rico",
+      "american_indian_and_alaskan_native_alone_population_1_year_and_over_in_the_united_states",
+      "asian_alone_population_1_year_and_over_in_puerto_rico",
+      "asian_alone_population_1_year_and_over_in_the_united_states",
+      "black_or_african_american_alone_population_1_year_and_over_in_puerto_rico",
+      "black_or_african_american_alone_population_1_year_and_over_in_the_united_states",
+      "hispanic_or_latino_population_1_year_and_over_in_puerto_rico",
+      "hispanic_or_latino_population_1_year_and_over_in_the_united_states",
+      "native_hawaiian_and_other_pacific_islander_alone_population_1_year_and_over_in_puerto_rico",
+      "native_hawaiian_and_other_pacific_islander_alone_population_1_year_and_over_in_the_united_states",
+      "some_other_race_alone_population_1_year_and_over_in_puerto_rico",
+      "some_other_race_alone_population_1_year_and_over_in_the_united_states",
+      "two_or_more_races_population_1_year_and_over_in_puerto_rico",
+      "two_or_more_races_population_1_year_and_over_in_the_united_states",
+      "white_alone_population_1_year_and_over_in_puerto_rico",
+      "white_alone_population_1_year_and_over_in_the_united_states",
+      "white_alone_not_hispanic_or_latino_population_1_year_and_over_in_puerto_rico",
+      "white_alone_not_hispanic_or_latino_population_1_year_and_over_in_the_united_states",
+      "american_indian_and_alaska_native_alone_population_1_year_and_over",
+      "asian_alone_population_1_year_and_over",
+      "black_or_african_american_alone_population_1_year_and_over",
+      "hispanic_or_latino_population_1_year_and_over",
+      "native_hawaiian_and_other_pacific_islander_alone_population_1_year_and_over",
+      "some_other_race_alone_population_1_year_and_over",
+      "two_or_more_races_population_1_year_and_over",
+      "white_alone_population_1_year_and_over",
+      "white_alone_not_hispanic_or_latino_population_1_year_and_over",
+      "american_indian_and_alaska_native_alone_workers_16_years_and_over",
+      "asian_alone_workers_16_years_and_over",
+      "black_or_african_american_alone_workers_16_years_and_over",
+      "hispanic_or_latino_workers_16_years_and_over",
+      "native_hawaiian_and_other_pacific_islander_alone_workers_16_years_and_over",
+      "some_other_race_alone_workers_16_years_and_over",
+      "two_or_more_races_workers_16_years_and_over",
+      "white_alone_workers_16_years_and_over",
+      "white_alone_not_hispanic_or_latino_workers_16_years_and_over",
+      "grandparents_american_indian_and_alaska_native_alone_living_with_own_grandchildren_under_18_years",
+      "grandparents_asian_alone_living_with_own_grandchildren_under_18_years",
+      "grandparents_black_or_african_american_alone_living_with_own_grandchildren_under_18_years",
+      "grandparents_hispanic_or_latino_living_with_own_grandchildren_under_18_years",
+      "grandparents_native_hawaiian_and_other_pacific_islander_alone_living_with_own_grandchildren_under_18_years",
+      "grandparents_some_other_race_alone_living_with_own_grandchildren_under_18_years",
+      "grandparents_two_or_more_races_living_with_own_grandchildren_under_18_years",
+      "grandparents_white_alone_living_with_own_grandchildren_under_18_years",
+      "grandparents_white_alone_not_hispanic_or_latino_living_with_own_grandchildren_under_18_years",
+      "households_with_a_householder_who_is_american_indian_and_alaska_native_alone",
+      "households_with_a_householder_who_is_asian_alone",
+      "households_with_a_householder_who_is_black_or_african_american_alone",
+      "households_with_a_householder_who_is_hispanic_or_latino",
+      "households_with_a_householder_who_is_native_hawaiian_and_other_pacific_islander_alone",
+      "households_with_a_householder_who_is_some_other_race_alone",
+      "households_with_a_householder_who_is_two_or_more_races",
+      "households_with_a_householder_who_is_white_alone",
+      "households_with_a_householder_who_is_white_alone_not_hispanic_or_latino",
+      "population_in_households_with_a_householder_who_is_american_indian_and_alaska_native_alone",
+      "population_in_households_with_a_householder_who_is_asian_alone",
+      "population_in_households_with_a_householder_who_is_black_or_african_american_alone",
+      "population_in_households_with_a_householder_who_is_hispanic_or_latino",
+      "population_in_households_with_a_householder_who_is_native_hawaiian_and_other_pacific_islander_alone",
+      "population_in_households_with_a_householder_who_is_some_other_race_alone",
+      "population_in_households_with_a_householder_who_is_two_or_more_races",
+      "population_in_households_with_a_householder_who_is_white_alone",
+      "population_in_households_with_a_householder_who_is_white_alone_not_hispanic_or_latino",
+      "american_indian_and_alaska_native_alone_population_15_to_54_years",
+      "asian_alone_population_15_to_54_years",
+      "black_or_african_american_alone_population_15_to_54_years",
+      "hispanic_or_latino_population_15_to_54_years",
+      "native_hawaiian_and_other_pacific_islander_alone_population_15_to_54_years",
+      "some_other_race_alone_population_15_to_54_years",
+      "two_or_more_races_population_15_to_54_years",
+      "white_alone_population_15_to_54_years",
+      "white_alone_not_hispanic_or_latino_population_15_to_54_years",
+      "american_indian_and_alaska_native_alone_population_15_years_and_over",
+      "asian_alone_population_15_years_and_over",
+      "black_or_african_american_alone_population_15_years_and_over",
+      "hispanic_or_latino_population_15_years_and_over",
+      "native_hawaiian_and_other_pacific_islander_alone_population_15_years_and_over",
+      "some_other_race_alone_population_15_years_and_over",
+      "two_or_more_races_population_15_years_and_over",
+      "white_alone_population_15_years_and_over",
+      "white_alone_not_hispanic_or_latino_population_15_years_and_over",
+      "black_or_african_american_alone_women_15_to_50_years",
+      "hispanic_or_latino_women_15_to_50_years",
+      "native_hawaiian_and_other_pacific_islander_alone_women_15_to_50_years",
+      "some_other_race_alone_women_15_to_50_years",
+      "two_or_more_races_women_15_to_50_years",
+      "white_alone_women_15_to_50_years",
+      "white_alone_not_hispanic_or_latino_women_15_to_50_years",
+      "american_indian_and_alaska_native_alone_women_15_to_50_years",
+      "asian_alone_women_15_to_50_years",
+      "american_indian_and_alaska_native_alone_population_3_years_and_over",
+      "asian_alone_population_3_years_and_over",
+      "black_or_african_american_alone_population_3_years_and_over",
+      "hispanic_or_latino_population_3_years_and_over",
+      "native_hawaiian_and_other_pacific_islander_alone_population_3_years_and_over",
+      "some_other_race_alone_population_3_years_and_over",
+      "two_or_more_races_population_3_years_and_over",
+      "white_alone_population_3_years_and_over",
+      "white_alone_not_hispanic_or_latino_population_3_years_and_over",
+      "american_indian_and_alaska_native_alone_population_5_years_and_over",
+      "asian_alone_population_5_years_and_over",
+      "black_or_african_american_alone_population_5_years_and_over",
+      "hispanic_or_latino_population_5_years_and_over",
+      "native_hawaiian_and_other_pacific_islander_alone_population_5_years_and_over",
+      "some_other_race_alone_population_5_years_and_over",
+      "two_or_more_races_population_5_years_and_over",
+      "white_alone_population_5_years_and_over",
+      "white_alone_not_hispanic_or_latino_population_5_years_and_over",
+      "american_indian_and_alaska_native_alone_population_for_whom_poverty_status_is_determined",
+      "asian_alone_population_for_whom_poverty_status_is_determined",
+      "black_or_african_american_alone_population_for_whom_poverty_status_is_determined",
+      "hispanic_or_latino_population_for_whom_poverty_status_is_determined",
+      "native_hawaiian_and_other_pacific_islander_alone_population_for_whom_poverty_status_is_determined",
+      "some_other_race_alone_population_for_whom_poverty_status_is_determined",
+      "two_or_more_races_population_for_whom_poverty_status_is_determined",
+      "white_alone_population_for_whom_poverty_status_is_determined",
+      "white_alone_not_hispanic_or_latino_population_for_whom_poverty_status_is_determined",
+      "families_with_a_householder_who_is_american_indian_and_alaska_native_alone",
+      "families_with_a_householder_who_is_asian_alone",
+      "families_with_a_householder_who_is_black_or_african_american_alone",
+      "families_with_a_householder_who_is_hispanic_or_latino",
+      "families_with_a_householder_who_is_native_hawaiian_and_other_pacific_islander_alone",
+      "families_with_a_householder_who_is_some_other_race_alone",
+      "families_with_a_householder_who_is_two_or_more_races",
+      "families_with_a_householder_who_is_white_alone",
+      "families_with_a_householder_who_is_white_alone_not_hispanic_or_latino",
+      "american_indian_and_alaska_native_alone_civilian_noninstitutionalized_population",
+      "asian_alone_civilian_noninstitutionalized_population",
+      "black_or_african_american_alone_civilian_noninstitutionalized_population",
+      "hispanic_or_latino_civilian_noninstitutionalized_population",
+      "native_hawaiian_and_other_pacific_islander_alone_civilian_noninstitutionalized_population",
+      "some_other_race_alone_civilian_noninstitutionalized_population",
+      "two_or_more_races_civilian_noninstitutionalized_population",
+      "white_alone_civilian_noninstitutionalized_population",
+      "white_alone_not_hispanic_or_latino_civilian_noninstitutionalized_population",
+      "nonfamily_households_with_a_householder_who_is_asian_alone",
+      "nonfamily_households_with_a_householder_who_is_black_or_african_american_alone",
+      "nonfamily_households_with_a_householder_who_is_hispanic_or_latino",
+      "nonfamily_households_with_a_householder_who_is_native_hawaiian_and_other_pacific_islander_alone",
+      "nonfamily_households_with_a_householder_who_is_some_other_race_alone",
+      "nonfamily_households_with_a_householder_who_is_two_or_more_races",
+      "nonfamily_households_with_a_householder_who_is_white_alone",
+      "nonfamily_households_with_a_householder_who_is_white_alone_not_hispanic_or_latino",
+      "nonfamily_households_with_householder_who_is_american_indian_and_alaska_native_alone",
+      "people_who_are_black_or_african_american_alone",
+      "people_who_are_hispanic_or_latino",
+      "two_or_more_races_population",
+      "households_with_a_householder_who_is_american_indian_and_alaska_native_alone",
+      "households_with_a_householder_who_is_asian_alone",
+      "households_with_a_householder_who_is_black_or_african_american_alone",
+      "households_with_a_householder_who_is_hispanic_or_latino",
+      "households_with_a_householder_who_is_native_hawaiian_and_other_pacific_islander_alone",
+      "households_with_a_householder_who_is_some_other_race_alone",
+      "households_with_a_householder_who_is_two_or_more_races",
+      "households_with_a_householder_who_is_white_alone",
+      "households_with_a_householder_who_is_white_alone_not_hispanic_or_latino",
+      "american_indian_and_alaska_native_alone_population",
+      "asian_alone_population",
+      "black_or_african_american_alone_population",
+      "native_hawaiian_and_other_pacific_islander_alone_population",
+      "some_other_race_alone_population",
+      "white_alone_population",
+      "american_indian_and_alaska_native_alone_household_population",
+      "asian_alone_household_population",
+      "black_or_african_american_alone_household_population",
+      "hispanic_or_latino_household_population",
+      "native_hawaiian_and_other_pacific_islander_alone_household_population",
+      "some_other_race_alone_household_population",
+      "two_or_more_races_household_population",
+      "white_alone_household_population",
+      "white_alone_not_hispanic_or_latino_household_population",
+      "american_indian_and_alaska_native",
+      "asian",
+      "black_or_african_american",
+      "hispanic_or_latino",
+      "native_hawaiian_and_other_pacific_islander",
+      "white",
+      "population_of_one_race",
+      "population_of_two_or_more_races",
+      "population_of_two_races",
+      "all_other_two_race_combinations",
+      "asian_alone",
+      "black_or_african_american_american_indian_and_alaska_native",
+      "population_of_four_or_more_races",
+      "population_of_three_races",
+      "some_other_race",
+      "two_races_excluding_some_other_race_and_three_or_more_races",
+      "two_races_including_some_other_race",
+      "white_american_indian_and_alaska_native",
+      "white_asian",
+      "white_black_or_african_american",
+      "american_indian_and_alaska_native_alone_population_25_years_and_over",
+      "american_indian_and_alaska_native_alone_population_25_years_and_over_with_a_bachelor_s_degree_or_higher_attainment",
+      "asian_alone_population_25_years_and_over",
+      "asian_alone_population_25_years_and_over_with_a_bachelor_s_degree_or_higher_attainment",
+      "black_or_african_american_alone_population_25_years_and_over",
+      "black_or_african_american_alone_population_25_years_and_over_with_a_bachelor_s_degree_or_higher_attainment",
+      "hispanic_or_latino_population_25_years_and_over",
+      "hispanic_or_latino_population_25_years_and_over_with_a_bachelor_s_degree_or_higher_attainment",
+      "native_hawaiian_and_other_pacific_islander_alone_population_25_years_and_over",
+      "native_hawaiian_and_other_pacific_islander_alone_population_25_years_and_over_with_a_bachelor_s_degree_or_higher_attainment",
+      "some_other_race_alone_population_25_years_and_over",
+      "some_other_race_alone_population_25_years_and_over_with_a_bachelor_s_degree_or_higher_attainment",
+      "two_or_more_races_population_25_years_and_over",
+      "two_or_more_races_population_25_years_and_over_with_a_bachelor_s_degree_or_higher_attainment",
+      "white_alone_population_25_years_and_over",
+      "white_alone_population_25_years_and_over_with_a_bachelor_s_degree_or_higher_attainment",
+      "white_alone_not_hispanic_or_latino_population_25_years_and_over",
+      "white_alone_not_hispanic_or_latino_population_25_years_and_over_with_a_bachelor_s_degree_or_higher_attainment",
+      "american_indian_and_alaska_native_alone_civilian_population_18_years_and_over",
+      "asian_alone_civilian_population_18_years_and_over",
+      "black_or_african_american_alone_civilian_population_18_years_and_over",
+      "civilian_population_18_years_and_over_for_whom_poverty_status_is_determined",
+      "hispanic_or_latino_civilian_population_18_years_and_over",
+      "native_hawaiian_and_other_pacific_islander_alone_civilian_population_18_years_and_over",
+      "some_other_race_alone_civilian_population_18_years_and_over",
+      "two_or_more_races_civilian_population_18_years_and_over",
+      "white_alone_civilian_population_18_years_and_over",
+      "white_alone_not_hispanic_or_latino_civilian_population_18_years_and_over",
+      "american_indian_and_alaska_native_alone_population_16_years_and_over",
+      "asian_alone_population_16_years_and_over",
+      "black_or_african_american_alone_population_16_years_and_over",
+      "hispanic_or_latino_population_16_years_and_over",
+      "native_hawaiian_and_other_pacific_islander_alone_population_16_years_and_over",
+      "some_other_race_alone_population_16_years_and_over",
+      "two_or_more_races_population_16_years_and_over",
+      "white_alone_population_16_years_and_over",
+      "white_alone_not_hispanic_or_latino_population_16_years_and_over",
+      "civilian_employed_american_indian_and_alaska_native_alone_population_16_years_and_over",
+      "civilian_employed_asian_alone_population_16_years_and_over",
+      "civilian_employed_black_or_african_american_alone_population_16_years_and_over",
+      "civilian_employed_hispanic_or_latino_population_16_years_and_over",
+      "civilian_employed_native_hawaiian_and_other_pacific_islander_alone_population_16_years_and_over",
+      "civilian_employed_some_other_race_alone_population_16_years_and_over",
+      "civilian_employed_two_or_more_races_population_16_years_and_over",
+      "civilian_employed_white_alone_population_16_years_and_over",
+      "civilian_employed_white_alone_not_hispanic_or_latino_population_16_years_and_over",
+      "alaska_native_tribes_specified",
+      "american_indian_and_alaska_native_alone",
+      "american_indian_tribes_specified",
+      "asian_alone_or_in_combination_with_one_or_more_other_races",
+      "asian_indian",
+      "bangladeshi",
+      "bhutanese",
+      "black_or_african_american_alone_or_in_combination_with_one_or_more_other_races",
+      "burmese",
+      "cambodian",
+      "chinese_except_taiwanese",
+      "fijian",
+      "filipino",
+      "guamanian_or_chamorro",
+      "indonesian",
+      "laotian",
+      "malaysian",
+      "marshallese",
+      "mongolian",
+      "native_hawaiian",
+      "native_hawaiian_and_other_pacific_islander_alone",
+      "native_hawaiian_and_other_pacific_islander_alone_or_in_combination_with_one_or_more_other_races",
+      "nepalese",
+      "okinawan",
+      "other_asian_not_specified",
+      "other_asian_specified",
+      "other_melanesian",
+      "other_micronesian",
+      "other_pacific_islander_not_specified_check_box_only",
+      "other_polynesian",
+      "pakistani",
+      "people_who_are_american_indian_or_alaska_native_alone_or_in_combination_with_one_or_more_other_races",
+      "samoan",
+      "some_other_race_alone",
+      "some_other_race_alone_or_in_combination_with_one_or_more_other_races",
+      "sri_lankan",
+      "taiwanese",
+      "thai",
+      "tongan",
+      "two_or_more_asian",
+      "two_or_more_nhpi",
+      "two_or_more_races",
+      "white_alone",
+      "white_alone_or_in_combination_with_one_or_more_other_races",
+      "alaska_native_tribes_not_specified",
+      "alaskan_athabascan",
+      "aleut",
+      "all_other_american_indian_tribes_with_only_one_tribe_reported",
+      "american_indian_or_alaska_native_tribes_not_specified",
+      "american_indian_tribes_not_specified",
+      "apache",
+      "arapaho",
+      "asian_indian",
+      "bangladeshi",
+      "bhutanese",
+      "blackfeet",
+      "burmese",
+      "cambodian",
+      "canadian_and_french_american_indian",
+      "central_american_indian",
+      "cherokee",
+      "cheyenne",
+      "chickasaw",
+      "chinese_except_taiwanese",
+      "chippewa",
+      "choctaw",
+      "colville",
+      "comanche",
+      "cree",
+      "creek",
+      "crow",
+      "delaware",
+      "fijian",
+      "filipino",
+      "guamanian_or_chamorro",
+      "hopi",
+      "houma",
+      "indonesian",
+      "inupiat",
+      "iroquois",
+      "kiowa",
+      "laotian",
+      "lumbee",
+      "malaysian",
+      "marshallese",
+      "menominee",
+      "mexican_american_indian",
+      "mongolian",
+      "native_hawaiian",
+      "nepalese",
+      "okinawan",
+      "osage",
+      "other_asian_not_specified",
+      "other_asian_specified",
+      "other_melanesian",
+      "other_micronesian",
+      "other_pacific_islander_not_specified",
+      "other_polynesian",
+      "ottawa",
+      "paiute",
+      "pakistani",
+      "pima",
+      "potawatomi",
+      "pueblo",
+      "puget_sound_salish",
+      "samoan",
+      "seminole",
+      "shoshone",
+      "sioux",
+      "south_american_indian",
+      "spanish_american_indian",
+      "sri_lankan",
+      "taiwanese",
+      "thai",
+      "tlingit_haida",
+      "tohono_o_odham",
+      "tongan",
+      "tsimshian",
+      "two_or_more_american_indian_or_alaska_native_tribes",
+      "ute",
+      "yakama",
+      "yaqui",
+      "yuman",
+      "yup_ik",
+      "people_who_are_american_indian_and_alaska_native_alone_and_people_with_no_tribe_reported",
+      "central_american",
+      "cuban",
+      "dominican_dominican_republic",
+      "mexican",
+      "not_hispanic_or_latino",
+      "other_hispanic_or_latino",
+      "puerto_rican",
+      "south_american",
+      "all_other_hispanic_or_latino",
+      "argentinean",
+      "bolivian",
+      "chilean",
+      "colombian",
+      "costa_rican",
+      "ecuadorian",
+      "guatemalan",
+      "honduran",
+      "nicaraguan",
+      "other_central_american",
+      "other_south_american",
+      "panamanian",
+      "paraguayan",
+      "peruvian",
+      "salvadoran",
+      "spaniard",
+      "spanish_american",
+      "uruguayan",
+      "venezuelan",
+      "american_indian_and_alaska_native_alone_population_16_years_and_over_with_earnings_in_the_past_12_months",
+      "asian_alone_population_16_years_and_over_with_earnings_in_the_past_12_months",
+      "black_or_african_american_alone_population_16_years_and_over_with_earnings_in_the_past_12_months",
+      "hispanic_or_latino_population_16_years_and_over_with_earnings_in_the_past_12_months",
+      "median_earnings_in_the_past_12_months_in_2018_inflation_adjusted_dollars",
+      "native_hawaiian_and_other_pacific_islander_alone_population_16_years_and_over_with_earnings_in_the_past_12_months",
+      "other",
+      "some_other_race_alone_population_16_years_and_over_with_earnings_in_the_past_12_months",
+      "two_or_more_races_population_16_years_and_over_with_earnings_in_the_past_12_months",
+      "white_alone_population_16_years_and_over_with_earnings_in_the_past_12_months",
+      "white_alone_not_hispanic_or_latino_population_16_years_and_over_with_earnings_in_the_past_12_months",
+      "occupied_housing_units_with_a_householder_who_is_american_indian_and_alaska_native_alone",
+      "occupied_housing_units_with_a_householder_who_is_asian_alone",
+      "occupied_housing_units_with_a_householder_who_is_black_or_african_american_alone",
+      "occupied_housing_units_with_a_householder_who_is_hispanic_or_latino",
+      "occupied_housing_units_with_a_householder_who_is_native_hawaiian_and_other_pacific_islander_alone",
+      "occupied_housing_units_with_a_householder_who_is_some_other_race_alone",
+      "occupied_housing_units_with_a_householder_who_is_two_or_more_races",
+      "occupied_housing_units_with_a_householder_who_is_white_alone",
+      "occupied_housing_units_with_a_householder_who_is_white_alone_not_hispanic_or_latino",
+      "occupied_housing_units_with_a_householder_who_is_american_indian_and_alaska_native_alone",
+      "occupied_housing_units_with_a_householder_who_is_asian_alone",
+      "occupied_housing_units_with_a_householder_who_is_black_or_african_american_alone",
+      "occupied_housing_units_with_a_householder_who_is_hispanic_or_latino",
+      "occupied_housing_units_with_a_householder_who_is_native_hawaiian_and_other_pacific_islander_alone",
+      "occupied_housing_units_with_a_householder_who_is_some_other_race_alone",
+      "occupied_housing_units_with_a_householder_who_is_two_or_more_races",
+      "occupied_housing_units_with_a_householder_who_is_white_alone",
+      "occupied_housing_units_with_a_householder_who_is_white_alone_not_hispanic_or_latino",
+      "householder_who_is_american_indian_and_alaska_native_alone",
+      "householder_who_is_asian_alone", "householder_who_is_black_or_african_american_alone",
+      "householder_who_is_native_hawaiian_and_other_pacific_islander_alone",
+      "householder_who_is_some_other_race_alone", "householder_who_is_two_or_more_races",
+      "householder_who_is_white_alone" ,
+      "householder_who_is_two_races_excluding_some_other_race_and_three_or_more_races",
+      "householder_who_is_two_races_including_some_other_race"
+      )
+    interpret_as(mdr, field = "demographic_race", val, value, val_set, field_values)
+  }
 
-#' interpret_as_demographic
+#' interpret_as_demographic_total_population
 #'
 #' Classifies the value in a field if it is one of the possible values
 #' considered for that field.
@@ -2994,266 +3628,364 @@ interpret_as_demographic_race <- function(mdr, val, value, field_values = NULL) 
 #' @return A result structure.
 #'
 #' @keywords internal
-interpret_as_demographic <- function(mdr, val, value, field_values = NULL) {
-  val_set <- c(
-    "total",
-    "housing_units",
-    "total_population",
-    "total_population_in_puerto_rico",
-    "total_population_in_the_united_states",
-    "population_in_puerto_rico_for_whom_poverty_status_is_determined",
-    "population_in_the_united_states_for_whom_poverty_status_is_determined",
-    "population_5_years_and_over_in_puerto_rico",
-    "population_5_years_and_over_in_the_united_states",
-    "population_15_years_and_over_in_puerto_rico",
-    "population_15_years_and_over_in_the_united_states",
-    "population_25_years_and_over_in_puerto_rico",
-    "population_25_years_and_over_in_the_united_states",
-    "population_15_years_and_over_in_puerto_rico_with_income",
-    "population_15_years_and_over_in_the_united_states_with_income",
-    "population_1_year_and_over_in_puerto_rico",
-    "population_1_year_and_over_in_the_united_states",
-    "population_1_year_and_over_in_puerto_rico_for_whom_poverty_status_is_determined",
-    "population_1_year_and_over_in_the_united_states_for_whom_poverty_status_is_determined",
-    "population_1_year_and_over_in_households_in_puerto_rico",
-    "population_1_year_and_over_in_households_in_the_united_states",
-    "population_1_year_and_over_living_in_a_metropolitan_statistical_area_in_puerto_rico",
-    "population_1_year_and_over_living_in_a_metropolitan_statistical_area_in_the_united_states",
-    "population_1_year_and_over_living_in_a_micropolitan_statistical_area_in_puerto_rico",
-    "population_1_year_and_over_living_in_a_micropolitan_statistical_area_in_the_united_states",
-    "population_1_year_and_over",
-    "population_15_years_and_over",
-    "population_25_years_and_over",
-    "population_15_years_and_over_with_income_in_the_past_12_months",
-    "population_1_year_and_over_for_whom_poverty_status_is_determined",
-    "population_1_year_and_over_in_households",
-    "population_1_year_and_over_not_living_in_a_metropolitan_or_micropolitan_statistical_area_in_puerto_rico",
-    "population_1_year_and_over_not_living_in_a_metropolitan_or_micropolitan_statistical_area_in_the_united_states",
-    "workers_16_years_and_over",
-    "workers_16_years_and_over_who_did_not_work_at_home",
-    "workers_16_years_and_over_in_households",
-    "workers_whose_means_of_transportation_is_car_truck_or_van",
-    "workers_16_years_and_over_living_in_a_metropolitan_statistical_area",
-    "workers_16_years_and_over_living_in_a_micropolitan_statistical_area",
-    "workers_16_years_and_over_not_living_in_a_metropolitan_or_micropolitan_statistical_area",
-    "workers_16_years_and_over_with_earnings",
-    "workers_16_years_and_over_for_whom_poverty_status_is_determined",
-    "households",
-    "population_under_18_years",
-    "own_children_under_18_years",
-    "population_under_18_years_in_households_excluding_householders_spouses_and_unmarried_partners",
-    "population_under_18_years_in_households",
-    "population_65_years_and_over",
-    "population_18_years_and_over_in_households",
-    "grandchildren_under_18_living_with_grandparent_householder",
-    "families_with_grandparent_householders_and_or_spouses_living_with_grandchildren",
-    "population_30_years_and_over",
-    "grandparents_living_with_own_grandchildren_under_18_years",
-    "civilian_grandparents_living_with_own_grandchildren_under_18_years",
-    "grandparents_living_with_own_grandchildren_under_18_years_for_whom_poverty_status_is_determined",
-    "population_in_households",
-    "families",
-    "subfamilies",
-    "population_in_subfamilies",
-    "total_households",
-    "population_16_years_and_over",
-    "population_15_years_and_over_who_are_now_married_or_separated",
-    "population_15_to_54_years",
-    "women_15_to_50_years",
-    "women_15_to_50_years_in_households",
-    "women_16_to_50_years",
-    "women_15_to_50_years_for_whom_poverty_status_is_determined",
-    "population_3_years_and_over",
-    "population_16_to_19_years",
-    "population_3_years_and_over_for_whom_poverty_status_is_determined",
-    "population_18_years_and_over",
-    "population_25_years_and_over_with_a_bachelor_s_degree_or_higher_attainment",
-    "total_bachelor_s_degree_majors_tallied_for_people_25_years_and_over_with_a_bachelor_s_degree_or_higher_attainment",
-    "population_5_years_and_over",
-    "population_5_years_and_over_in_households_in_which_no_one_14_and_over_speaks_english_only_or_speaks_a_language_other_than_english_at_home_and_speaks_english_very_well",
-    "population_5_years_and_over_for_whom_poverty_status_is_determined",
-    "population_for_whom_poverty_status_is_determined",
-    "population_25_years_and_over_for_whom_poverty_status_is_determined",
-    "population_16_years_and_over_for_whom_poverty_status_is_determined",
-    "civilian_population_16_years_and_over_for_whom_poverty_status_is_determined",
-    "related_children_under_18_years",
-    "unrelated_individuals_15_years_and_over_for_whom_poverty_status_is_determined",
-    "families_with_income_in_the_past_12_months_below_the_poverty_level",
-    "civilian_noninstitutionalized_population",
-    "civilian_noninstitutionalized_population_16_years_and_over_with_earnings_in_the_past_12_months",
-    "civilian_noninstitutionalized_population_18_years_and_over",
-    "civilian_noninstitutionalized_population_5_years_and_over",
-    "median_household_income_in_the_past_12_months_in_2018_inflation_adjusted_dollars",
-    "aggregate_household_income_in_the_past_12_months_in_2018_inflation_adjusted_dollars",
-    "total_dollars",
-    "civilian_veterans_18_years_and_over",
-    "civilian_population_18_to_64_years",
-    "civilian_population_18_years_and_over",
-    "civilian_population_25_years_and_over",
-    "civilian_population_18_years_and_over_with_income_in_the_past_12_months",
-    "civilian_population_65_years_and_over",
-    "own_children_under_18_years_in_families_and_subfamilies",
-    "population_16_to_64_years",
-    "females_20_to_64_years_in_households",
-    "opposite_sex_married_couple_families_and_families_maintained_by_women_and_men_with_no_spouse_present",
-    "population_20_to_64_years_for_whom_poverty_status_is_determined",
-    "population_25_to_64_years",
-    "population_16_to_64_years_who_have_worked_in_the_past_12_months",
-    "civilian_employed_population_16_years_and_over_with_earnings",
-    "full_time_year_round_civilian_employed_population_16_years_and_over_with_earnings",
-    "civilian_employed_female_population_16_years_and_over",
-    "civilian_employed_male_population_16_years_and_over", "civilian_employed_population_16_years_and_over",
-    "full_time_year_round_civilian_employed_female_population_16_years_and_over",
-    "full_time_year_round_civilian_employed_female_population_16_years_and_over_with_earnings",
-    "full_time_year_round_civilian_employed_male_population_16_years_and_over",
-    "full_time_year_round_civilian_employed_male_population_16_years_and_over_with_earnings",
-    "full_time_year_round_civilian_employed_population_16_years_and_over",
-    "civilian_noninstitutionalized_employed_population_16_years_and_over",
-    "population_16_years_and_over_with_earnings",
-    "population_3_years_and_over_enrolled_in_school",
-    "population_in_group_quarters",
-    "population_18_to_64_years",
-    "population_65_years",
-    "foreign_born_population",
-    "foreign_born_population_excluding_population_born_at_sea",
-    "foreign_born_population_in_puerto_rico_excluding_population_born_at_sea",
-    "household_population",
-    "group_quarters_population",
-    "institutionalized_group_quarters_population",
-    "noninstitutionalized_group_quarters_population",
-    "civilian_noninstitutionalized_population_19_to_25_years",
-    "civilian_noninstitutionalized_population_19_to_64_years",
-    "civilian_noninstitutionalized_population_26_years_and_over",
-    "civilian_population_living_in_households",
-    "civilian_household_population_16_years_and_over",
-    "household_population_25_years_and_over",
-    "citizens_18_years_and_over",
-    "citizens_18_years_and_over_for_whom_poverty_status_is_determined",
-    "households_with_a_citizen_voting_age_householder",
-    "civilian_noninstitutionalized_population_15_years_and_over",
-    "civilian_noninstitutionalized_population_18_to_64_years",
-    "civilian_noninstitutionalized_population_for_whom_poverty_status_is_determined",
-    "local_state_and_federal_government_workers"
-  )
-  res <-
+interpret_as_demographic_total_population <-
+  function(mdr, val, value, field_values = NULL) {
+    val_set <- c(
+      "total",
+      "housing_units",
+      "total_population",
+      "total_population_in_puerto_rico",
+      "total_population_in_the_united_states",
+      "population_in_puerto_rico_for_whom_poverty_status_is_determined",
+      "population_in_the_united_states_for_whom_poverty_status_is_determined",
+      "population_5_years_and_over_in_puerto_rico",
+      "population_5_years_and_over_in_the_united_states",
+      "population_15_years_and_over_in_puerto_rico",
+      "population_15_years_and_over_in_the_united_states",
+      "population_25_years_and_over_in_puerto_rico",
+      "population_25_years_and_over_in_the_united_states",
+      "population_15_years_and_over_in_puerto_rico_with_income",
+      "population_15_years_and_over_in_the_united_states_with_income",
+      "population_1_year_and_over_in_puerto_rico",
+      "population_1_year_and_over_in_the_united_states",
+      "population_1_year_and_over_in_puerto_rico_for_whom_poverty_status_is_determined",
+      "population_1_year_and_over_in_the_united_states_for_whom_poverty_status_is_determined",
+      "population_1_year_and_over_in_households_in_puerto_rico",
+      "population_1_year_and_over_in_households_in_the_united_states",
+      "population_1_year_and_over_living_in_a_metropolitan_statistical_area_in_puerto_rico",
+      "population_1_year_and_over_living_in_a_metropolitan_statistical_area_in_the_united_states",
+      "population_1_year_and_over_living_in_a_micropolitan_statistical_area_in_puerto_rico",
+      "population_1_year_and_over_living_in_a_micropolitan_statistical_area_in_the_united_states",
+      "population_1_year_and_over",
+      "population_15_years_and_over",
+      "population_25_years_and_over",
+      "population_15_years_and_over_with_income_in_the_past_12_months",
+      "population_1_year_and_over_for_whom_poverty_status_is_determined",
+      "population_1_year_and_over_in_households",
+      "population_1_year_and_over_not_living_in_a_metropolitan_or_micropolitan_statistical_area_in_puerto_rico",
+      "population_1_year_and_over_not_living_in_a_metropolitan_or_micropolitan_statistical_area_in_the_united_states",
+      "workers_16_years_and_over",
+      "workers_16_years_and_over_who_did_not_work_at_home",
+      "workers_16_years_and_over_in_households",
+      "workers_whose_means_of_transportation_is_car_truck_or_van",
+      "workers_16_years_and_over_living_in_a_metropolitan_statistical_area",
+      "workers_16_years_and_over_living_in_a_micropolitan_statistical_area",
+      "workers_16_years_and_over_not_living_in_a_metropolitan_or_micropolitan_statistical_area",
+      "workers_16_years_and_over_with_earnings",
+      "workers_16_years_and_over_for_whom_poverty_status_is_determined",
+      "households",
+      "population_under_18_years",
+      "own_children_under_18_years",
+      "population_under_18_years_in_households_excluding_householders_spouses_and_unmarried_partners",
+      "population_under_18_years_in_households",
+      "population_65_years_and_over",
+      "population_18_years_and_over_in_households",
+      "grandchildren_under_18_living_with_grandparent_householder",
+      "families_with_grandparent_householders_and_or_spouses_living_with_grandchildren",
+      "population_30_years_and_over",
+      "grandparents_living_with_own_grandchildren_under_18_years",
+      "civilian_grandparents_living_with_own_grandchildren_under_18_years",
+      "grandparents_living_with_own_grandchildren_under_18_years_for_whom_poverty_status_is_determined",
+      "population_in_households",
+      "families",
+      "subfamilies",
+      "population_in_subfamilies",
+      "total_households",
+      "population_16_years_and_over",
+      "population_15_years_and_over_who_are_now_married_or_separated",
+      "population_15_to_54_years",
+      "women_15_to_50_years",
+      "women_15_to_50_years_in_households",
+      "women_16_to_50_years",
+      "women_15_to_50_years_for_whom_poverty_status_is_determined",
+      "population_3_years_and_over",
+      "population_16_to_19_years",
+      "population_3_years_and_over_for_whom_poverty_status_is_determined",
+      "population_18_years_and_over",
+      "population_25_years_and_over_with_a_bachelor_s_degree_or_higher_attainment",
+      "total_bachelor_s_degree_majors_tallied_for_people_25_years_and_over_with_a_bachelor_s_degree_or_higher_attainment",
+      "population_5_years_and_over",
+      "population_5_years_and_over_in_households_in_which_no_one_14_and_over_speaks_english_only_or_speaks_a_language_other_than_english_at_home_and_speaks_english_very_well",
+      "population_5_years_and_over_for_whom_poverty_status_is_determined",
+      "population_for_whom_poverty_status_is_determined",
+      "population_25_years_and_over_for_whom_poverty_status_is_determined",
+      "population_16_years_and_over_for_whom_poverty_status_is_determined",
+      "civilian_population_16_years_and_over_for_whom_poverty_status_is_determined",
+      "related_children_under_18_years",
+      "unrelated_individuals_15_years_and_over_for_whom_poverty_status_is_determined",
+      "families_with_income_in_the_past_12_months_below_the_poverty_level",
+      "civilian_noninstitutionalized_population",
+      "civilian_noninstitutionalized_population_16_years_and_over_with_earnings_in_the_past_12_months",
+      "civilian_noninstitutionalized_population_18_years_and_over",
+      "civilian_noninstitutionalized_population_5_years_and_over",
+      "median_household_income_in_the_past_12_months_in_2018_inflation_adjusted_dollars",
+      "aggregate_household_income_in_the_past_12_months_in_2018_inflation_adjusted_dollars",
+      "total_dollars",
+      "civilian_veterans_18_years_and_over",
+      "civilian_population_18_to_64_years",
+      "civilian_population_18_years_and_over",
+      "civilian_population_25_years_and_over",
+      "civilian_population_18_years_and_over_with_income_in_the_past_12_months",
+      "civilian_population_65_years_and_over",
+      "own_children_under_18_years_in_families_and_subfamilies",
+      "population_16_to_64_years",
+      "females_20_to_64_years_in_households",
+      "opposite_sex_married_couple_families_and_families_maintained_by_women_and_men_with_no_spouse_present",
+      "population_20_to_64_years_for_whom_poverty_status_is_determined",
+      "population_25_to_64_years",
+      "population_16_to_64_years_who_have_worked_in_the_past_12_months",
+      "civilian_employed_population_16_years_and_over_with_earnings",
+      "full_time_year_round_civilian_employed_population_16_years_and_over_with_earnings",
+      "civilian_employed_female_population_16_years_and_over",
+      "civilian_employed_male_population_16_years_and_over",
+      "civilian_employed_population_16_years_and_over",
+      "full_time_year_round_civilian_employed_female_population_16_years_and_over",
+      "full_time_year_round_civilian_employed_female_population_16_years_and_over_with_earnings",
+      "full_time_year_round_civilian_employed_male_population_16_years_and_over",
+      "full_time_year_round_civilian_employed_male_population_16_years_and_over_with_earnings",
+      "full_time_year_round_civilian_employed_population_16_years_and_over",
+      "civilian_noninstitutionalized_employed_population_16_years_and_over",
+      "population_16_years_and_over_with_earnings",
+      "population_3_years_and_over_enrolled_in_school",
+      "population_in_group_quarters",
+      "population_18_to_64_years",
+      "population_65_years",
+      "foreign_born_population",
+      "foreign_born_population_excluding_population_born_at_sea",
+      "foreign_born_population_in_puerto_rico_excluding_population_born_at_sea",
+      "household_population",
+      "group_quarters_population",
+      "institutionalized_group_quarters_population",
+      "noninstitutionalized_group_quarters_population",
+      "civilian_noninstitutionalized_population_19_to_25_years",
+      "civilian_noninstitutionalized_population_19_to_64_years",
+      "civilian_noninstitutionalized_population_26_years_and_over",
+      "civilian_population_living_in_households",
+      "civilian_household_population_16_years_and_over",
+      "household_population_25_years_and_over",
+      "citizens_18_years_and_over",
+      "citizens_18_years_and_over_for_whom_poverty_status_is_determined",
+      "households_with_a_citizen_voting_age_householder",
+      "civilian_noninstitutionalized_population_15_years_and_over",
+      "civilian_noninstitutionalized_population_18_to_64_years",
+      "civilian_noninstitutionalized_population_for_whom_poverty_status_is_determined",
+      "local_state_and_federal_government_workers",
+      "people_reporting_multiple_ancestries",
+      "people_reporting_single_ancestry",
+      "total_aian_alone_or_in_any_combination_population_the_total_groups_tallied",
+      "total_asian_alone_or_in_any_combination_population_the_total_groups_tallied",
+      "total_nhpi_alone_or_in_any_combination_population_the_total_groups_tallied",
+      "total_asian_alone_population",
+      "total_native_hawaiian_and_other_pacific_islander_alone_population",
+      "total_groups_tallied",
+      "population_25_years_and_over_with_earnings",
+      "population_16_years_and_over_who_worked_full_time_year_round_with_earnings",
+      "total_population_in_occupied_housing_units",
+      "aggregate_real_estate_taxes_paid_for_units_with_a_mortgage_dollars",
+      "aggregate_real_estate_taxes_paid_for_units_without_a_mortgage_dollars",
+      "lower_contract_rent_quartile",
+      "lower_value_quartile_dollars",
+      "median_contract_rent",
+      "median_gross_rent",
+      "median_gross_rent_as_a_percentage_of_household_income",
+      "median_household_income_for_units_with_a_mortgage",
+      "median_household_income_for_units_without_a_mortgage",
+      "median_monthly_housing_costs",
+      "median_number_of_rooms",
+      "median_real_estate_taxes_paid_for_units_with_a_mortgage",
+      "median_real_estate_taxes_paid_for_units_without_a_mortgage",
+      "median_value_dollars",
+      "median_value_for_units_with_a_mortgage",
+      "median_value_for_units_without_a_mortgage",
+      "median_year_structure_built",
+      "aggregate_contract_rent",
+      "aggregate_gross_rent",
+      "aggregate_gross_rent_dollars",
+      "aggregate_number_of_rooms",
+      "aggregate_number_of_vehicles_available",
+      "aggregate_price_asked_dollars",
+      "aggregate_real_estate_taxes_paid_dollars",
+      "aggregate_rent_asked",
+      "aggregate_selected_monthly_owner_costs_dollars",
+      "aggregate_value_dollars",
+      "upper_contract_rent_quartile",
+      "upper_value_quartile_dollars"
+    )
     interpret_as(mdr, field = "demographic_total_population", val, value, val_set, field_values)
-  if (!res$result) {
+  }
+
+#' interpret_as_demographic_sex
+#'
+#' Classifies the value in a field if it is one of the possible values
+#' considered for that field.
+#'
+#' @param mdr A `tibble` row.
+#' @param val A transformed value.
+#' @param value A value.
+#' @param field_values A data frame to store associations between fields and
+#'   values.
+#'
+#' @return A result structure.
+#'
+#' @keywords internal
+interpret_as_demographic_sex <-
+  function(mdr, val, value, field_values = NULL) {
     val_set <- c("male",
                  "female",
                  "female_dollars",
                  "male_dollars")
-    res <-
-      interpret_as(mdr, field = "demographic_sex", val, value, val_set, field_values)
-    if (!res$result) {
-      if (!res$result) {
-        val_set <- c(
-          "10_to_14_years",
-          "15_to_17_years",
-          "18_and_19_years",
-          "20_to_24_years",
-          "20_years",
-          "21_years",
-          "22_to_24_years",
-          "25_to_29_years",
-          "30_to_34_years",
-          "35_to_39_years",
-          "35_to_44_years",
-          "40_to_44_years",
-          "45_to_49_years",
-          "45_to_54_years",
-          "5_to_9_years",
-          "50_to_54_years",
-          "55_to_59_years",
-          "55_to_64_years",
-          "60_and_61_years",
-          "62_to_64_years",
-          "65_and_66_years",
-          "65_to_74_years",
-          "67_to_69_years",
-          "70_to_74_years",
-          "75_to_79_years",
-          "75_to_84_years",
-          "80_to_84_years",
-          "85_years_and_over",
-          "under_5_years",
-          "6_to_17_years",
-          "under_6_years",
-          "15_to_19_years",
-          "60_to_64_years",
-          "65_to_69_years",
-          "18_years_and_over",
-          "under_18_years",
-          "10_to_19_years",
-          "20_to_29_years",
-          "30_to_39_years",
-          "40_to_49_years",
-          "50_to_59_years",
-          "60_to_69_years",
-          "70_years_and_over",
-          "18_to_24_years",
-          "25_to_34_years",
-          "5_to_17_years",
-          "75_years_and_over",
-          "under_10_years",
-          "1_to_4_years",
-          "16_to_19_years",
-          "25_to_44_years",
-          "65_years_and_over",
-          "12_to_14_years",
-          "3_and_4_years",
-          "5_years",
-          "6_to_8_years",
-          "9_to_11_years",
-          "under_3_years",
-          "12_to_17_years",
-          "6_to_11_years",
-          "18_to_34_years",
-          "35_to_64_years",
-          "grandchildren_12_to_17_years",
-          "grandchildren_6_to_11_years",
-          "grandchildren_under_6_years",
-          "30_to_59_years",
-          "60_years_and_over",
-          "15_to_19_years_old",
-          "20_to_24_years_old",
-          "25_to_29_years_old",
-          "30_to_34_years_old",
-          "35_to_39_years_old",
-          "40_to_44_years_old",
-          "45_to_50_years_old",
-          "20_to_34_years_old",
-          "35_to_50_years_old",
-          "35_years_and_over",
-          "45_to_64_years",
-          "25_to_39_years",
-          "40_to_64_years",
-          "18_to_64_years",
-          "15_years",
-          "16_and_17_years",
-          "18_to_59_years",
-          "60_to_74_years",
-          "19_to_64_years",
-          "under_19_years",
-          "35_to_54_years",
-          "20_and_21_years",
-          "6_to_17_years_only",
-          "under_6_years_and_6_to_17_years",
-          "under_6_years_only",
-          "under_15_years",
-          "19_to_25_years",
-          "19_to_34_years",
-          "26_to_34_years",
-          "26_to_64_years",
-          "6_to_18_years",
-          "18_to_29_years",
-          "30_to_44_years",
-          "16_to_64_years"
-        )
-        res <-
-          interpret_as(mdr, field = "demographic_age", val, value, val_set, field_values)
-      }
-    }
+    interpret_as(mdr, field = "demographic_sex", val, value, val_set, field_values)
   }
-  res
-}
+
+#' interpret_as_demographic_age
+#'
+#' Classifies the value in a field if it is one of the possible values
+#' considered for that field.
+#'
+#' @param mdr A `tibble` row.
+#' @param val A transformed value.
+#' @param value A value.
+#' @param field_values A data frame to store associations between fields and
+#'   values.
+#'
+#' @return A result structure.
+#'
+#' @keywords internal
+interpret_as_demographic_age <-
+  function(mdr, val, value, field_values = NULL) {
+    val_set <- c(
+      "10_to_14_years",
+      "15_to_17_years",
+      "18_and_19_years",
+      "20_to_24_years",
+      "20_years",
+      "21_years",
+      "22_to_24_years",
+      "25_to_29_years",
+      "30_to_34_years",
+      "35_to_39_years",
+      "35_to_44_years",
+      "40_to_44_years",
+      "45_to_49_years",
+      "45_to_54_years",
+      "5_to_9_years",
+      "50_to_54_years",
+      "55_to_59_years",
+      "55_to_64_years",
+      "60_and_61_years",
+      "62_to_64_years",
+      "65_and_66_years",
+      "65_to_74_years",
+      "67_to_69_years",
+      "70_to_74_years",
+      "75_to_79_years",
+      "75_to_84_years",
+      "80_to_84_years",
+      "85_years_and_over",
+      "under_5_years",
+      "6_to_17_years",
+      "under_6_years",
+      "15_to_19_years",
+      "60_to_64_years",
+      "65_to_69_years",
+      "18_years_and_over",
+      "under_18_years",
+      "10_to_19_years",
+      "20_to_29_years",
+      "30_to_39_years",
+      "40_to_49_years",
+      "50_to_59_years",
+      "60_to_69_years",
+      "70_years_and_over",
+      "18_to_24_years",
+      "25_to_34_years",
+      "5_to_17_years",
+      "75_years_and_over",
+      "under_10_years",
+      "1_to_4_years",
+      "16_to_19_years",
+      "25_to_44_years",
+      "65_years_and_over",
+      "12_to_14_years",
+      "3_and_4_years",
+      "5_years",
+      "6_to_8_years",
+      "9_to_11_years",
+      "under_3_years",
+      "12_to_17_years",
+      "6_to_11_years",
+      "18_to_34_years",
+      "35_to_64_years",
+      "grandchildren_12_to_17_years",
+      "grandchildren_6_to_11_years",
+      "grandchildren_under_6_years",
+      "30_to_59_years",
+      "60_years_and_over",
+      "15_to_19_years_old",
+      "20_to_24_years_old",
+      "25_to_29_years_old",
+      "30_to_34_years_old",
+      "35_to_39_years_old",
+      "40_to_44_years_old",
+      "45_to_50_years_old",
+      "20_to_34_years_old",
+      "35_to_50_years_old",
+      "35_years_and_over",
+      "45_to_64_years",
+      "25_to_39_years",
+      "40_to_64_years",
+      "18_to_64_years",
+      "15_years",
+      "16_and_17_years",
+      "18_to_59_years",
+      "60_to_74_years",
+      "19_to_64_years",
+      "under_19_years",
+      "35_to_54_years",
+      "20_and_21_years",
+      "6_to_17_years_only",
+      "under_6_years_and_6_to_17_years",
+      "under_6_years_only",
+      "under_15_years",
+      "19_to_25_years",
+      "19_to_34_years",
+      "26_to_34_years",
+      "26_to_64_years",
+      "6_to_18_years",
+      "18_to_29_years",
+      "30_to_44_years",
+      "16_to_64_years",
+      "householder_25_to_44_years",
+      "householder_45_to_64_years",
+      "householder_under_25_years",
+      "householder_15_to_64_years",
+      "householder_65_years_and_over",
+      "householder_15_to_34_years",
+      "householder_35_to_64_years",
+      "householder_35_to_64_years_dollars",
+      "householder_15_to_24_years_dollars",
+      "householder_15_to_64_years_dollars",
+      "householder_25_to_34_years_dollars",
+      "householder_35_to_44_years_dollars",
+      "householder_45_to_54_years_dollars",
+      "householder_55_to_59_years_dollars",
+      "householder_60_to_64_years_dollars",
+      "householder_65_to_74_years_dollars",
+      "householder_65_years_and_over_dollars",
+      "householder_75_years_and_over_dollars",
+      "householder_15_to_24_years",
+      "householder_15_to_54_years",
+      "householder_25_to_34_years",
+      "householder_35_to_44_years",
+      "householder_45_to_54_years",
+      "householder_55_to_59_years",
+      "householder_55_to_64_years",
+      "householder_60_to_64_years",
+      "householder_65_to_74_years",
+      "householder_75_to_84_years",
+      "householder_75_years_and_over",
+      "householder_85_years_and_over"
+    )
+    interpret_as(mdr, field = "demographic_age", val, value, val_set, field_values)
+  }
 

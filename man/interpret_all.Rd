@@ -4,7 +4,7 @@
 \alias{interpret_all}
 \title{interpret_all}
 \usage{
-interpret_all(mdr, val, value, interpret, other_field)
+interpret_all(mdr, val, value, interpret, field_values, other_field)
 }
 \arguments{
 \item{mdr}{A \code{tibble} row.}
@@ -14,6 +14,9 @@ interpret_all(mdr, val, value, interpret, other_field)
 \item{value}{A value to classify.}
 
 \item{interpret}{Vector of functions to consider.}
+
+\item{field_values}{A data frame that stores associations between fields and
+values.}
 
 \item{other_field}{Included field that can contain the value "other".}
 }
