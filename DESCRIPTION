@@ -30,7 +30,8 @@ Imports:
     rlang,
     pander,
     stringr,
-    snakecase
+    snakecase,
+    data.table
 Suggests: 
     testthat,
     knitr,

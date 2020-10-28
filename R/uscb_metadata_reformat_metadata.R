@@ -117,7 +117,7 @@ get_field_values.uscb_metadata <- function(um) {
     res <- f(um$metadata[1,], val="zzzzzzzzz", value="zzzzzzzzz", field_values = field_values)
     field_values <- res$field_values
   }
-  um$field_values <- unique(field_values)
+  um$field_values <- data.table::setkey(data.table::data.table(unique(field_values)), "val_set")
 
   um
 }

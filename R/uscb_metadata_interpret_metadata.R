@@ -30,7 +30,7 @@ interpret_metadata.uscb_metadata <- function(um) {
     um$metadata[i, ] <- res$mdr[1,]
     other_field <- res$other_field
 
-    if (i %% 1000 == 0) {
+    if (i %% 100 == 0) {
       print(i)
     }
   }
