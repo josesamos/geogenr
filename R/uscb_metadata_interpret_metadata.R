@@ -141,26 +141,36 @@ interpret_all <- function(mdr, val, value, interpret, field_values, other_field)
       }
     }
   } else {
-    fields <- field_values[field_values$val_set == val, "field"]
+    fields <- unique(field_values[field_values$val_set == val, "field"])
     if (length(fields) == 0) {
-      res <- interpret_as(mdr, field = "rest", val, value)
-    } else {
-      field <- fields[1]
-      if (length(fields) > 1) {
-        for (i in 1:length(other_field)) {
-          if (other_field[i] %in% fields) {
-            field <- other_field[i]
-            break
-          }
+      val_std <- standardize_text(val)
+      fields <- unique(field_values[field_values$val_set_red == val_std, "field"])
+      if (length(fields) == 0) {
+        val_std <- standardize_text2(val)
+        fields <- unique(field_values[field_values$val_set_red2 == val_std, "field"])
+        if (length(fields) == 0) {
+          res <- interpret_as(mdr, field = "rest", val, value)
+          return(res)
         }
       }
-      mdr <- add_value(mdr, field, value)
-      other_field <- c(field, other_field[other_field != field])[1:10]
-      res <-   list(mdr = mdr,
-                    other_field = other_field,
-                    field_values = field_values,
-                    result = TRUE)
     }
+    field <- fields[1]
+    if (length(fields) > 1) {
+      for (i in 1:length(other_field)) {
+        if (other_field[i] %in% fields) {
+          field <- other_field[i]
+          break
+        }
+      }
+    }
+    mdr <- add_value(mdr, field, value)
+    other_field <- c(field, other_field[other_field != field])[1:10]
+    res <-   list(
+      mdr = mdr,
+      other_field = other_field,
+      field_values = field_values,
+      result = TRUE
+    )
   }
   res
 }

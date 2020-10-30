@@ -31,7 +31,8 @@ Imports:
     pander,
     stringr,
     snakecase,
-    data.table
+    data.table,
+    tm
 Suggests: 
     testthat,
     knitr,

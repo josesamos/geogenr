@@ -111,18 +111,87 @@ get_field_values <- function(um) {
 #' @export
 #' @keywords internal
 get_field_values.uscb_metadata <- function(um) {
-  field_values <- data.frame(subject = character(), field = character(), val_set = character())
-
+  field_values <-
+    data.frame(
+      subject = character(),
+      field = character(),
+      val_set = character(),
+      val_set_red = character(),
+      val_set_red2 = character()
+    )
   for (f in um$interpret) {
     res <- f(um$metadata[1,], val="zzzzzzzzz", value="zzzzzzzzz", field_values = field_values)
     field_values <- res$field_values
   }
   um$field_values <- data.table::setkey(data.table::data.table(unique(field_values)), "val_set")
 
+  um$field_values$val_set_red <- standardize_text(um$field_values$val_set)
+  um$field_values$val_set_red2 <- standardize_text2(um$field_values$val_set)
+
   um
 }
 
+#' standardize text
+#'
+#' standardize text making transformations.
+#'
+#' @param mdr A character vector.
+#'
+#' @return A character vector.
+#'
+#' @keywords internal
+standardize_text <- function(docs) {
+  docs <- stringr::str_replace_all(docs, "_", " ")
+  docs <- replace_numbers(docs)
+  docs_corpus <- tm::VCorpus(tm::VectorSource(docs))
+  docs_corpus <- tm::tm_map(docs_corpus, tm::stemDocument)
+  docs_red <- data.frame(doc = unlist(sapply(docs_corpus, `[`, "content")), stringsAsFactors = FALSE)[[1]]
+  stringr::str_replace_all(docs_red, " ", "_")
+}
 
+#' standardize text 2
+#'
+#' standardize text 2 making transformations.
+#'
+#' @param mdr A character vector.
+#'
+#' @return A character vector.
+#'
+#' @keywords internal
+standardize_text2 <- function(docs) {
+  docs <- stringr::str_replace_all(docs, "_", " ")
+  docs <- replace_numbers(docs)
+  docs_corpus <- tm::VCorpus(tm::VectorSource(docs))
+  docs_corpus <- tm::tm_map(docs_corpus, tm::removeNumbers)
+  docs_corpus <- tm::tm_map(docs_corpus, tm::removeWords, tm::stopwords())
+  docs_corpus <- tm::tm_map(docs_corpus, tm::stemDocument)
+  docs_red <- data.frame(doc = unlist(sapply(docs_corpus, `[`, "content")), stringsAsFactors = FALSE)[[1]]
+  stringr::str_replace_all(docs_red, " ", "_")
+}
+
+
+#' replace numbers
+#'
+#' replace numbers by N.
+#'
+#' @param mdr A character vector.
+#'
+#' @return A character vector.
+#'
+#' @keywords internal
+replace_numbers <- function(docs) {
+
+  for (i in 1:length(docs)) {
+    matches <- regmatches(docs[i], gregexpr("[[:digit:]]+", docs[i]))
+    matches <- unlist(matches)
+    if (length(matches) > 0) {
+      for (j in 1:length(matches)) {
+        docs[i] <- stringr::str_replace(docs[i], matches[j], "N")
+      }
+    }
+  }
+  docs
+}
 
 # assign_level ------------------------------------------------------------
 

@@ -2,6 +2,7 @@
 
 S3method(delete_empty_columns,uscb_metadata)
 S3method(get_field_values,uscb_metadata)
+S3method(get_metadata,uscb_metadata)
 S3method(interpret_metadata,uscb_metadata)
 S3method(reformat_metadata,uscb_metadata)
 S3method(show_fields,uscb_metadata)

@@ -5,12 +5,24 @@
 \alias{new_uscb_metadata}
 \title{\code{uscb_metadata} S3 class}
 \usage{
-new_uscb_metadata(filepath = NULL, code = NULL, group_code = NULL)
+new_uscb_metadata(
+  filepath = NULL,
+  code = NULL,
+  group_code = NULL,
+  short_name = NULL,
+  uscb_acs_metadata = NULL
+)
 }
 \arguments{
 \item{filepath}{A string, path to gbd file.}
 
-\item{code}{A string.}
+\item{code}{A vector of strings.}
+
+\item{group_code}{A vector of strings.}
+
+\item{short_name}{A vector of strings.}
+
+\item{uscb_acs_metadata}{A metadata object.}
 }
 \value{
 A \code{uscb_metadata} object.

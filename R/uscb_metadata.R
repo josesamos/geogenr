@@ -7,16 +7,22 @@
 #' @name %>%
 #'
 #' @param filepath A string, path to gbd file.
-#' @param code A string.
+#' @param code A vector of strings.
+#' @param group_code A vector of strings.
+#' @param short_name A vector of strings.
+#' @param uscb_acs_metadata A metadata object.
 #'
 #' @return A `uscb_metadata` object.
 #'
 #' @keywords internal
-new_uscb_metadata <- function(filepath = NULL, code = NULL, group_code = NULL) {
+new_uscb_metadata <- function(filepath = NULL, code = NULL, group_code = NULL, short_name = NULL, uscb_acs_metadata = NULL) {
   # Use `st_layers' to list all layer names and their type in a data source.
   # Set the `layer' argument in `st_read' to read a particular layer.
   layers <- sf::st_layers(dsn = filepath)
   layer_names <- sort(layers$name)
+  layer_cod_name <-
+    data.frame(cod = substr(layer_names, 2, 3),
+               name = stringr::str_replace_all(substr(layer_names, 5, length(layer_names)), "_", " "))
 
   metadata <-
     sf::st_read(dsn = filepath,
@@ -124,15 +130,15 @@ new_uscb_metadata <- function(filepath = NULL, code = NULL, group_code = NULL) {
   )
 
   metadata$inf_code <- ""
+  metadata$group_code <- ""
+  metadata$subgroup_code <- ""
   metadata$type_code <- ""
   metadata$spec_code <- ""
 
-  metadata$type <- ""
-
+  metadata$inf <- ""
   metadata$group <- ""
   metadata$subgroup <- ""
-  metadata$group_code <- ""
-  metadata$subgroup_code <- ""
+  metadata$type <- ""
 
   for (var in var_name) {
     metadata[var] <- ""
@@ -146,19 +152,24 @@ new_uscb_metadata <- function(filepath = NULL, code = NULL, group_code = NULL) {
     short <- strsplit(metadata$Short_Name[i], "")[[1]]
     metadata$inf_code[i] <- paste(short[1:3], collapse = "")
     metadata$group_code[i] <- paste(short[4:6], collapse = "")
+    metadata$inf[i] <- layer_cod_name[layer_cod_name$cod == paste(short[2:3], collapse = ""), "name"]
   }
   # select only a code
   if (!is.null(code)) {
     print(sort(unique(metadata$inf_code)))
-    metadata <- metadata[metadata$inf_code == code, ]
+    metadata <- metadata[metadata$inf_code %in% code, ]
     if (!is.null(group_code)) {
       print(sort(unique(metadata$group_code)))
       metadata <- metadata[metadata$group_code %in% group_code, ]
     }
   }
+  if (!is.null(short_name)) {
+    metadata <- metadata[metadata$Short_Name %in% short_name, ]
+  }
 
   acs <-
     list(
+      uscb_acs_metadata = uscb_acs_metadata,
       layers = layer_names,
       variables = var_name,
       interpret = interpret,
@@ -175,16 +186,18 @@ new_uscb_metadata <- function(filepath = NULL, code = NULL, group_code = NULL) {
 #' A `uscb_metadata` object is created from a given
 #'
 #' @param filepath A string, path to gbd file.
-#' @param code A string.
-#' @param group_code A string.
+#' @param code A vector of strings.
+#' @param group_code A vector of strings.
+#' @param short_name A vector of strings.
+#' @param uscb_acs_metadata A metadata object.
 #'
 #' @return A `uscb_metadata` object.
 #'
 #'
 #' @export
 uscb_metadata <-
-  function(filepath = NULL, code = NULL, group_code = NULL) {
-    new_uscb_metadata(filepath, code, group_code)
+  function(filepath = NULL, code = NULL, group_code = NULL, short_name = NULL, uscb_acs_metadata = NULL) {
+    new_uscb_metadata(filepath, code, group_code, short_name, uscb_acs_metadata)
   }
 
 
