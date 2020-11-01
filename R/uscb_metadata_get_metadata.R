@@ -18,28 +18,43 @@ get_metadata <- function(um) {
 #' @export
 #' @keywords internal
 get_metadata.uscb_metadata <- function(um) {
+# cuando tengan la misma estructura (no eliminar campos vacíos en metadatos), asignar todos los que tengan el mismo código
+  # sel_cod <- um$metadata$Short_Name[um$metadata$Short_Name %in% um$uscb_acs_metadata$metadata$Short_Name][[1]]
+  # um$metadata[sel_cod, ] <- um$uscb_acs_metadata$metadata[sel_cod, ]
+  unsel_cod <- um$metadata$Short_Name[!(um$metadata$Short_Name %in% um$uscb_acs_metadata$metadata$Short_Name)]
+  # for solo para estos códigos (arreglarlo)
   other_field <- ""
-  n <-  names(um$uscb_acs_metadata$metadata)
-  for (i in seq_along(um$metadata[[1]])) {
-    short_name <- um$metadata[i, "Short_Name"][[1]]
+  for (short_name in unsel_cod) {
+    um$metadata[um$metadata$Short_Name == short_name, ] <-
+      interpret_code(um$metadata[um$metadata$Short_Name == short_name, ])
+    values <- strsplit(um$metadata$Full_Name[um$metadata$Short_Name == short_name], ": ")[[1]]
+    values <- stringr::str_trim(values, side = "both")
 
-    if (short_name %in% um$uscb_acs_metadata$metadata$Short_Name) {
-#      um$metadata[i, n] <- um$uscb_acs_metadata$metadata[um$uscb_acs_metadata$metadata$Short_Name == short_name, n]
-    } else {
-      um$metadata[i, ] <- interpret_code(um$metadata[i, ])
-
-      values <- strsplit(um$metadata$Full_Name[i], ": ")[[1]]
-      values <- stringr::str_trim(values, side = "both")
-
-      res <- interpret_values(um$metadata[i, ], values, um$interpret, um$field_values, other_field)
-      um$metadata[i, ] <- res$mdr[1,]
-      other_field <- res$other_field
-    }
-
-    if (i %% 100 == 0) {
-      print(i)
-    }
+    res <-
+      interpret_values(
+        um$metadata[um$metadata$Short_Name == short_name, ],
+        values,
+        um$interpret,
+        um$uscb_acs_metadata$field_values,
+        other_field
+      )
+    um$metadata[um$metadata$Short_Name == short_name, ] <- res$mdr[1,]
+    other_field <- res$other_field
+    print(short_name)
   }
+
+
+  i <- 1
+  n <-  names(um$uscb_acs_metadata$metadata)
+  sel_cod <- um$metadata$Short_Name[um$metadata$Short_Name %in% um$uscb_acs_metadata$metadata$Short_Name]
+  for (short_name in sel_cod) {
+    um$metadata[um$metadata$Short_Name == short_name, n] <-
+      um$uscb_acs_metadata$metadata[um$uscb_acs_metadata$metadata$Short_Name == short_name, n]
+    print(i)
+    i <- i + 1
+  }
+
+
   um
 }
 

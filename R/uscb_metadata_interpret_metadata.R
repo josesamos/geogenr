@@ -1422,7 +1422,9 @@ interpret_as_economic_work_status_last_year <-
       "48_and_49_weeks",
       "50_to_52_weeks",
       "in_the_civilian_labor_force",
-      "in_the_labor_force"
+      "in_the_labor_force",
+      "usual_hours_worked_per_week_in_the_past_12_months",
+      "weeks_worked_in_the_past_12_months"
     )
     interpret_as(mdr, field = "economic_work_status_last_year", val, value, val_set, field_values)
   }
@@ -2478,7 +2480,11 @@ interpret_as_economic_journey_and_place_of_work <-
       "60_or_more_minutes",
       "less_than_10_minutes",
       "did_not_work_at_home",
-      "other_means_including_those_who_worked_at_home"
+      "other_means_including_those_who_worked_at_home",
+      "length_of_time",
+      "time_arriving_at_work_from_home",
+      "time_leaving_home_to_go_to_work",
+      "travel_time_to_work"
     )
     interpret_as(mdr, field = "economic_journey_and_place_of_work", val, value, val_set, field_values)
   }
@@ -2514,7 +2520,9 @@ interpret_as_housing_tenure_owner_renter <-
       "vacant_for_sale_only_and_sold_not_occupied_housing_units",
       "vacant_housing_units",
       "owner_occupied_housing_units",
-      "all_other_vacant_units"
+      "all_other_vacant_units",
+      "living_in_owner_occupied_housing_unit",
+      "living_in_renter_occupied_housing_unit"
     )
     interpret_as(mdr, field = "housing_tenure_owner_renter", val, value, val_set, field_values)
   }
@@ -2721,7 +2729,8 @@ interpret_as_social_marital_status <- function(mdr, val, value, field_values = N
     "other",
     "once",
     "three_or_more_times",
-    "two_times"
+    "two_times",
+    "now_married_including_spouse_absent"
   )
   interpret_as(mdr, field = "social_marital_status", val, value, val_set, field_values)
 }
@@ -2807,7 +2816,9 @@ interpret_as_social_language_spoken_at_home <-
       "other_languages",
       "russian_polish_or_other_slavic_languages",
       "limited_english_speaking_household",
-      "not_a_limited_english_speaking_household"
+      "not_a_limited_english_speaking_household",
+      "ability_to_speak_english",
+      "specific_languages_spoken"
     )
     interpret_as(mdr, field = "social_language_spoken_at_home", val, value, val_set, field_values)
   }
@@ -3456,8 +3467,6 @@ interpret_as_demographic_race <-
       "okinawan",
       "other_asian_not_specified",
       "other_asian_specified",
-      "other_melanesian",
-      "other_micronesian",
       "other_pacific_islander_not_specified_check_box_only",
       "other_polynesian",
       "pakistani",
@@ -3625,7 +3634,11 @@ interpret_as_demographic_race <-
       "japanese",
       "korean",
       "navajo",
-      "vietnamese"
+      "vietnamese",
+      "american_indian_tribes_or_alaska_native_tribes_not_specified",
+      "other_alaska_native_tribe",
+      "other_american_indian_tribe",
+      "other_pacific_islander"
     )
     interpret_as(mdr, field = "demographic_race", val, value, val_set, field_values)
   }
@@ -3825,7 +3838,15 @@ interpret_as_demographic_total_population <-
       "aggregate_selected_monthly_owner_costs_dollars",
       "aggregate_value_dollars",
       "upper_contract_rent_quartile",
-      "upper_value_quartile_dollars"
+      "upper_value_quartile_dollars",
+      "household_income_in_the_past_12_months_in_2017_inflation_adjusted_dollars",
+      "household_income_the_past_12_months_in_2017_inflation_adjusted_dollars",
+      "percent_of_earnings_allocated", "percent_of_family_income_allocated_for_families_with_income_in_the_past_12_months_at_or_above_poverty_level",
+      "percent_of_family_income_allocated_for_families_with_income_in_the_past_12_months_below_poverty_level",
+      "percent_of_income_allocated", "percent_of_income_allocated_for_individuals_with_income_in_the_past_12_months_at_or_above_poverty_level",
+      "percent_of_income_allocated_for_individuals_with_income_in_the_past_12_months_below_poverty_level",
+      "selected_monthly_owner_costs",
+      "grandparents_living_with_own_grandchildren_under_18_years_in_households"
     )
     interpret_as(mdr, field = "demographic_total_population", val, value, val_set, field_values)
   }
@@ -4000,7 +4021,11 @@ interpret_as_demographic_age <-
       "householder_65_to_74_years",
       "householder_75_to_84_years",
       "householder_75_years_and_over",
-      "householder_85_years_and_over"
+      "householder_85_years_and_over",
+      "2_to_4",
+      "20_to_49",
+      "5_to_19",
+      "50_or_more"
     )
     interpret_as(mdr, field = "demographic_age", val, value, val_set, field_values)
   }
