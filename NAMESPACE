@@ -3,6 +3,8 @@
 S3method(delete_empty_columns,uscb_metadata)
 S3method(get_field_values,uscb_metadata)
 S3method(get_layer,uscb_layer)
+S3method(get_layer_group,uscb_layer)
+S3method(get_layer_group_names,uscb_layer)
 S3method(get_layer_names,uscb_layer)
 S3method(get_metadata,uscb_metadata)
 S3method(interpret_metadata,uscb_metadata)
