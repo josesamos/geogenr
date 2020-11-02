@@ -20,9 +20,12 @@ new_uscb_layer <- function(filepath = NULL, metadata = NULL) {
 
   acs <-
     list(
+      metadata = metadata,
       filepath = filepath,
-      layers = layer_names,
-      metadata = metadata
+      layer_names = layer_names,
+      layer_name = NULL,
+      layer = NULL,
+      layer_metadata = NULL
     )
 
   structure(acs,

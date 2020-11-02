@@ -5,17 +5,17 @@
 \alias{get_layer.uscb_layer}
 \title{get layer}
 \usage{
-get_layer(ul, layer)
+get_layer(ul, layer_name)
 
-\method{get_layer}{uscb_layer}(ul, layer)
+\method{get_layer}{uscb_layer}(ul, layer_name)
 }
 \arguments{
 \item{ul}{A \code{uscb_layer} object.}
 
-\item{layer}{A layer name.}
+\item{layer_name}{A layer name.}
 }
 \value{
-A layer data.
+A \code{uscb_layer} object.
 }
 \description{
 get layer to interpret variables.
