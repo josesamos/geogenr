@@ -123,6 +123,68 @@ get_layer_group.uscb_layer <- function(ul, layer_group_name) {
   short_names <- ul$layer_metadata$Short_Name[ul$layer_metadata$group_code == group_code]
   names <- names(ul$layer)
   ul$layer_group_columns <- c(names[1], names[names %in% short_names])
+  t <- ul$layer_metadata[ul$layer_metadata$Short_Name %in% ul$layer_group_columns[-1], ]
+  ul$layer_group_metadata <- Filter(function(x)!all(x == ""), t)
 
   ul
 }
+
+
+# get_tidy_data ------------------------------------------------------
+
+#' get tidy data
+#'
+#' get tidy data.
+#'
+#' @param ul A `uscb_layer` object.
+#' @param remove_zeros A boolean, remove data with zero value.
+#' @param remove_geometry A boolean, remove geometry column.
+#'
+#' @return A `tibble` object.
+#'
+#' @keywords internal
+get_tidy_data <- function(ul, remove_zeros = TRUE, remove_geometry = FALSE) {
+  UseMethod("get_tidy_data")
+}
+
+#' @rdname get_tidy_data
+#' @export
+#' @keywords internal
+get_tidy_data.uscb_layer <- function(ul, remove_zeros = TRUE, remove_geometry = FALSE) {
+  layer <- ul$layer[, ul$layer_group_columns]
+  layer <- tidyr::pivot_longer(layer, !c("GEOID"), names_to = "Short_Name", values_to = "value")
+  if (remove_zeros) {
+    layer <- layer[layer$value != 0, ]
+  }
+  layer <- dplyr::left_join(layer, ul$layer_group_metadata, by = c("Short_Name" = "Short_Name"))
+  layer <- tibble::add_column(layer, year = ul$year, .before = "GEOID")
+  layer <- dplyr::relocate(layer, c("value"), .after = tidyselect::last_col())
+  layer$GEOID <- substr(layer$GEOID, 8, 14)
+  names <- names(layer)
+  place <- sf::st_read(
+    dsn = ul$filepath,
+    layer = ul$layer_names[1],
+    options = "METHOD=SKIP",
+    quiet = TRUE,
+    as_tibble = TRUE
+  )
+  place_names <- c("STATEFP", "GEOID", "NAME", "NAMELSAD", "LSAD", "ALAND", "AWATER", "INTPTLAT", "INTPTLON", "Shape")
+  place <- place[, place_names]
+
+  layer <- dplyr::left_join(layer, place, by = c("GEOID" = "GEOID"))
+  names <- c(names[1], place_names[-length(place_names)], names[3:length(names)], place_names[length(place_names)])
+  layer <- layer[, names]
+  names_layer <- snakecase::to_snake_case(tolower(names(layer)), sep_out = "_")
+  names(layer) <- names_layer
+  if (remove_geometry) {
+    layer[, names_layer[-length(names_layer)]]
+  } else {
+    sf::st_as_sf(layer)
+  }
+}
+
+
+
+
+
+

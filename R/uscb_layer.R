@@ -14,7 +14,7 @@
 #' @keywords internal
 new_uscb_layer <- function(filepath = NULL, metadata = NULL) {
   # Use `st_layers' to list all layer names and their type in a data source.
-  # Set the `layer' argument in `st_read' to read a particular layer.
+  # Set the `layer' argument in `st_read` to read a particular layer.
   layers <- sf::st_layers(dsn = filepath)
   layer_names <- sort(layers$name)
 
@@ -22,13 +22,15 @@ new_uscb_layer <- function(filepath = NULL, metadata = NULL) {
     list(
       metadata = metadata,
       filepath = filepath,
+      year = get_year_from_filepath(filepath),
       layer_names = layer_names,
       layer_name = NULL,
       layer = NULL,
       layer_metadata = NULL,
       layer_group_names = NULL,
       layer_group_name = NULL,
-      layer_group_columns = NULL
+      layer_group_columns = NULL,
+      layer_group_metadata = NULL
     )
 
   structure(acs,
@@ -51,4 +53,21 @@ uscb_layer <-
     new_uscb_layer(filepath, metadata)
   }
 
+
+#' get year from filepath
+#'
+#' Get last year from a string.
+#'
+#' @param mdr A string.
+#'
+#' @return A string.
+#'
+#' @keywords internal
+get_year_from_filepath <- function(filepath) {
+  matches <- regmatches(filepath, gregexpr("[[:digit:]]+", filepath))
+  matches <- unlist(matches)
+  matches <- as.integer(matches)
+  matches <- matches[matches >= 2000]
+  sprintf("%d", matches[length(matches)])
+}
 
