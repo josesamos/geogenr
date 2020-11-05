@@ -173,9 +173,7 @@ get_tidy_data.uscb_layer <- function(ul, remove_zeros = TRUE, remove_geometry = 
   )
   options(warn = oldw)
 
-  place_names <- c("STATEFP", "GEOID", "NAME", "NAMELSAD", "LSAD", "ALAND", "AWATER", "INTPTLAT", "INTPTLON", "Shape")
-  place <- place[, place_names]
-
+  place_names <- names(place)
   layer <- dplyr::left_join(layer, place, by = c("GEOID" = "GEOID"))
   names <- c(names[1], place_names[-length(place_names)], names[3:length(names)], place_names[length(place_names)])
   layer <- layer[, names]

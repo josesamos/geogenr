@@ -32,7 +32,9 @@ Imports:
     stringr,
     snakecase,
     data.table,
-    tm
+    tm,
+    utils,
+    httr
 Suggests: 
     testthat,
     knitr,
