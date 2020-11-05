@@ -150,7 +150,7 @@ get_tidy_data <- function(ul, remove_zeros = TRUE, remove_geometry = FALSE) {
 #' @rdname get_tidy_data
 #' @export
 #' @keywords internal
-get_tidy_data.uscb_layer <- function(ul, remove_zeros = TRUE, remove_geometry = FALSE) {
+get_tidy_data.uscb_layer <- function(ul, remove_zeros = TRUE, remove_geometry = TRUE) {
   layer <- ul$layer[, ul$layer_group_columns]
   layer <- tidyr::pivot_longer(layer, !c("GEOID"), names_to = "Short_Name", values_to = "value")
   if (remove_zeros) {
@@ -161,6 +161,9 @@ get_tidy_data.uscb_layer <- function(ul, remove_zeros = TRUE, remove_geometry = 
   layer <- dplyr::relocate(layer, c("value"), .after = tidyselect::last_col())
   layer$GEOID <- substr(layer$GEOID, 8, 14)
   names <- names(layer)
+
+  oldw <- getOption("warn")
+  options(warn = -1)
   place <- sf::st_read(
     dsn = ul$filepath,
     layer = ul$layer_names[1],
@@ -168,6 +171,8 @@ get_tidy_data.uscb_layer <- function(ul, remove_zeros = TRUE, remove_geometry = 
     quiet = TRUE,
     as_tibble = TRUE
   )
+  options(warn = oldw)
+
   place_names <- c("STATEFP", "GEOID", "NAME", "NAMELSAD", "LSAD", "ALAND", "AWATER", "INTPTLAT", "INTPTLON", "Shape")
   place <- place[, place_names]
 

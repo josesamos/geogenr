@@ -7,7 +7,7 @@
 \usage{
 get_tidy_data(ul, remove_zeros = TRUE, remove_geometry = FALSE)
 
-\method{get_tidy_data}{uscb_layer}(ul, remove_zeros = TRUE, remove_geometry = FALSE)
+\method{get_tidy_data}{uscb_layer}(ul, remove_zeros = TRUE, remove_geometry = TRUE)
 }
 \arguments{
 \item{ul}{A \code{uscb_layer} object.}
