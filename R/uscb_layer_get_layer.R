@@ -18,7 +18,7 @@ get_layer_names <- function(ul) {
 #' @keywords internal
 get_layer_names.uscb_layer <- function(ul) {
 
-  ul$layer_names[3:length(ul$layer_names)]
+  ul$layer_names[substr(ul$layer_names, 1, 1) == "X"]
 }
 
 
@@ -159,7 +159,7 @@ get_tidy_data.uscb_layer <- function(ul, remove_zeros = TRUE, remove_geometry = 
   layer <- dplyr::left_join(layer, ul$layer_group_metadata, by = c("Short_Name" = "Short_Name"))
   layer <- tibble::add_column(layer, year = ul$year, .before = "GEOID")
   layer <- dplyr::relocate(layer, c("value"), .after = tidyselect::last_col())
-  layer$GEOID <- substr(layer$GEOID, 8, 14)
+  layer$GEOID <- substr(layer$GEOID, 8, length(layer$GEOID))
   names <- names(layer)
 
   oldw <- getOption("warn")
@@ -174,7 +174,11 @@ get_tidy_data.uscb_layer <- function(ul, remove_zeros = TRUE, remove_geometry = 
   options(warn = oldw)
 
   place_names <- names(place)
-  layer <- dplyr::left_join(layer, place, by = c("GEOID" = "GEOID"))
+  # in one case the GEOID column name is GEOID10
+  place_names_short <- substr(place_names, 1, 5)
+  place_geoid <- (place_names[place_names_short == "GEOID"])[1]
+  place_names[which(place_names == place_geoid)] <- "GEOID"
+  layer <- dplyr::left_join(layer, place, by = c("GEOID" = place_geoid))
   names <- c(names[1], place_names[-length(place_names)], names[3:length(names)], place_names[length(place_names)])
   layer <- layer[, names]
   names_layer <- snakecase::to_snake_case(tolower(names(layer)), sep_out = "_")
