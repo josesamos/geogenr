@@ -130,7 +130,7 @@ get_layer_group.uscb_layer <- function(ul, layer_group_name) {
 }
 
 
-# get_tidy_data ------------------------------------------------------
+# get_flat_table ------------------------------------------------------
 
 #' get tidy data
 #'
@@ -143,14 +143,14 @@ get_layer_group.uscb_layer <- function(ul, layer_group_name) {
 #' @return A `tibble` object.
 #'
 #' @keywords internal
-get_tidy_data <- function(ul, remove_zeros = TRUE, remove_geometry = FALSE) {
-  UseMethod("get_tidy_data")
+get_flat_table <- function(ul, remove_zeros = TRUE, remove_geometry = FALSE) {
+  UseMethod("get_flat_table")
 }
 
-#' @rdname get_tidy_data
+#' @rdname get_flat_table
 #' @export
 #' @keywords internal
-get_tidy_data.uscb_layer <- function(ul, remove_zeros = TRUE, remove_geometry = TRUE) {
+get_flat_table.uscb_layer <- function(ul, remove_zeros = TRUE, remove_geometry = TRUE) {
   layer <- ul$layer[, ul$layer_group_columns]
   layer <- tidyr::pivot_longer(layer, !c("GEOID"), names_to = "Short_Name", values_to = "value")
   if (remove_zeros) {
