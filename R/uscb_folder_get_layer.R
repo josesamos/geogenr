@@ -105,7 +105,7 @@ get_folder_layer_group.uscb_folder <- function(uf, layer_group_name) {
 }
 
 
-# get_common_tidy_data ------------------------------------------------------
+# get_common_flat_table ------------------------------------------------------
 
 #' get tidy data
 #'
@@ -118,18 +118,18 @@ get_folder_layer_group.uscb_folder <- function(uf, layer_group_name) {
 #' @return A `tibble` object.
 #'
 #' @keywords internal
-get_common_tidy_data <- function(uf, remove_zeros = TRUE, remove_geometry = FALSE) {
-  UseMethod("get_common_tidy_data")
+get_common_flat_table <- function(uf, remove_zeros = TRUE, remove_geometry = FALSE) {
+  UseMethod("get_common_flat_table")
 }
 
-#' @rdname get_common_tidy_data
+#' @rdname get_common_flat_table
 #' @export
 #' @keywords internal
-get_common_tidy_data.uscb_folder <- function(uf, remove_zeros = TRUE, remove_geometry = TRUE) {
-  tidy <- uf$initial %>% get_tidy_data(remove_zeros, remove_geometry)
+get_common_flat_table.uscb_folder <- function(uf, remove_zeros = TRUE, remove_geometry = TRUE) {
+  tidy <- uf$initial %>% get_flat_table(remove_zeros, remove_geometry)
   for (i in seq_along(uf$rest)) {
     if (same_layer_group_columns(uf$initial, uf$rest[[i]])) {
-      tidy_rest <- uf$rest[[i]] %>% get_tidy_data(remove_zeros, remove_geometry)
+      tidy_rest <- uf$rest[[i]] %>% get_flat_table(remove_zeros, remove_geometry)
       tidy <- tidy %>% tibble::add_row(tidy_rest)
     }
    }
