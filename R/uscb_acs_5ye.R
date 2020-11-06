@@ -108,7 +108,9 @@ uscb_acs_5ye <- function(folder = "") {
 
 
 
-#' url_file_exist
+# -----------------------------------------------------------------------
+
+#' url_file_exists
 #'
 #' https://stackoverflow.com/questions/60318926/how-to-check-if-file-exists-in-the-url-before-use-download-file-in-r
 #'
@@ -117,8 +119,41 @@ uscb_acs_5ye <- function(folder = "") {
 #' @return A boolean
 #'
 #' @keywords internal
-url_file_exist <- function(url){
-  HTTP_STATUS_OK <- 200
-  hd <- httr::HEAD(url)
-  (hd$all_headers[[1]]$status == HTTP_STATUS_OK)
+url_file_exists <- function(url) {
+  head_url <- httr::HEAD(url)
+  (head_url$all_headers[[1]]$status == 200)
+}
+
+
+# -----------------------------------------------------------------------
+
+#' get_geodatabase_url
+#'
+#'
+#' @param mdr A string.
+#'
+#' @return A boolean
+#'
+#' @keywords internal
+get_geodatabase_url <- function(url, extension, names, name, year) {
+  name <- names[names$name == name, "url"]
+  url <- paste(url, name, extension, sep = "")
+  sprintf(url, year, year)
+}
+
+
+# -----------------------------------------------------------------------
+
+#' get_geodatabase_file
+#'
+#'
+#' @param mdr A string.
+#'
+#' @return A boolean
+#'
+#' @keywords internal
+get_geodatabase_file <- function(folder, extension, names, name, year) {
+  name <- names[names$name == name, "url"]
+  file <- paste(folder, name, extension, sep = "")
+  sprintf(file, year)
 }
