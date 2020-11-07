@@ -2,8 +2,8 @@
 
 S3method(delete_empty_columns,uscb_metadata)
 S3method(download_geodatabases,uscb_acs_5ye)
-S3method(get_available_years,uscb_acs_5ye)
-S3method(get_available_years_of_geodatabases,uscb_acs_5ye)
+S3method(get_available_years_downloaded,uscb_acs_5ye)
+S3method(get_available_years_in_the_web,uscb_acs_5ye)
 S3method(get_common_flat_table,uscb_folder)
 S3method(get_field_values,uscb_metadata)
 S3method(get_flat_table,uscb_layer)

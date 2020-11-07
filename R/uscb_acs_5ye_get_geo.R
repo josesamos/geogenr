@@ -45,31 +45,7 @@ get_statistical_areas.uscb_acs_5ye<- function(ua) {
 }
 
 
-# get_available_years ------------------------------------------------------
-
-#' get layer names
-#'
-#' get layer names.
-#'
-#' @param ua A `uscb_acs_5ye` object.
-#'
-#' @return A vector of years.
-#'
-#' @keywords internal
-get_available_years <- function(ua) {
-  UseMethod("get_available_years")
-}
-
-#' @rdname get_available_years
-#' @export
-#' @keywords internal
-get_available_years.uscb_acs_5ye<- function(ua) {
-
-  ua$years
-}
-
-
-# get_available_years_of_geodatabases ------------------------------------------------------
+# get_available_years_in_the_web ------------------------------------------------------
 
 #' get layer names
 #'
@@ -81,14 +57,14 @@ get_available_years.uscb_acs_5ye<- function(ua) {
 #' @return A vector of years.
 #'
 #' @keywords internal
-get_available_years_of_geodatabases <- function(ua, name) {
-  UseMethod("get_available_years_of_geodatabases")
+get_available_years_in_the_web <- function(ua, name) {
+  UseMethod("get_available_years_in_the_web")
 }
 
-#' @rdname get_available_years_of_geodatabases
+#' @rdname get_available_years_in_the_web
 #' @export
 #' @keywords internal
-get_available_years_of_geodatabases.uscb_acs_5ye<- function(ua, name) {
+get_available_years_in_the_web.uscb_acs_5ye<- function(ua, name) {
   res <- NULL
   for (year in ua$years) {
     url <- get_geodatabase_url(ua$url, ua$extension, ua$variables, name, year)
@@ -108,6 +84,52 @@ get_available_years_of_geodatabases.uscb_acs_5ye<- function(ua, name) {
 }
 
 
+# get_available_years_downloaded ------------------------------------------------------
+
+#' get layer names
+#'
+#' get layer names.
+#'
+#' @param ua A `uscb_acs_5ye` object.
+#' @param name A string.
+#' @param folder A string.
+#'
+#' @return A vector of years.
+#'
+#' @keywords internal
+get_available_years_downloaded <- function(ua, name, folder = NULL) {
+  UseMethod("get_available_years_downloaded")
+}
+
+#' @rdname get_available_years_downloaded
+#' @export
+#' @keywords internal
+get_available_years_downloaded.uscb_acs_5ye<- function(ua, name, folder = NULL) {
+  if (is.null(folder)) {
+    folder <- ua$folder
+  }
+  res <- NULL
+  for (year in ua$years) {
+    destfile <- get_geodatabase_file(folder, ua$extension, ua$variables, name, year)
+    res <- c(res, file.exists(destfile))
+  }
+  years <- ua$years[res]
+  while (TRUE) {
+    if (length(years) == 0) {
+      years <- NULL
+    }
+    year <- ua$years[length(ua$years)] + 1
+    destfile <- get_geodatabase_file(folder, ua$extension, ua$variables, name, year)
+    if (file.exists(destfile)) {
+      years <- c(years, year)
+    } else {
+      break
+    }
+  }
+  years
+}
+
+
 # download_geodatabases ------------------------------------------------------
 
 #' get layer names
@@ -117,7 +139,7 @@ get_available_years_of_geodatabases.uscb_acs_5ye<- function(ua, name) {
 #' @param ua A `uscb_acs_5ye` object.
 #' @param name A string.
 #' @param years A vector of years.
-#' @param folder A string
+#' @param folder A string.
 #'
 #' @return A vector of years.
 #'
