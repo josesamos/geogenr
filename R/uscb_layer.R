@@ -6,13 +6,20 @@
 #' @importFrom magrittr %>%
 #' @name %>%
 #'
-#' @param filepath A string, path to gbd file.
 #' @param metadata A metadata object.
+#' @param ua A `uscb_acs_5ye` object.
+#' @param geodatabase A string.
+#' @param year A integer
+#' @param folder A string.
 #'
 #' @return A `uscb_layer` object.
 #'
 #' @keywords internal
-new_uscb_layer <- function(filepath = NULL, metadata = NULL) {
+new_uscb_layer <- function(metadata, ua, geodatabase, year, folder = NULL) {
+  if (is.null(folder)) {
+    folder <- ua$folder
+  }
+  filepath <- get_geodatabase_file(folder, ua$extension, ua$variables, geodatabase, year)
   # Use `st_layers' to list all layer names and their type in a data source.
   # Set the `layer' argument in `st_read` to read a particular layer.
   layers <- sf::st_layers(dsn = filepath)
@@ -21,8 +28,10 @@ new_uscb_layer <- function(filepath = NULL, metadata = NULL) {
   acs <-
     list(
       metadata = metadata,
+      ua = ua,
+      geodatabase = geodatabase,
+      year = sprintf("%d", year),
       filepath = filepath,
-      year = get_year_from_filepath(filepath),
       layer_names = layer_names,
       layer_name = NULL,
       layer = NULL,
@@ -41,16 +50,19 @@ new_uscb_layer <- function(filepath = NULL, metadata = NULL) {
 #'
 #' A `uscb_layer` object is created from a given
 #'
-#' @param filepath A string, path to gbd file.
 #' @param metadata A metadata object.
+#' @param ua A `uscb_acs_5ye` object.
+#' @param geodatabase A string.
+#' @param year A integer
+#' @param folder A string.
 #'
 #' @return A `uscb_layer` object.
 #'
 #'
 #' @export
 uscb_layer <-
-  function(filepath = NULL, metadata = NULL) {
-    new_uscb_layer(filepath, metadata)
+  function(metadata, ua, geodatabase, year, folder = NULL) {
+    new_uscb_layer(metadata, ua, geodatabase, year, folder)
   }
 
 

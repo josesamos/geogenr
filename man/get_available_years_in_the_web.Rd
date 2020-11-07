@@ -5,14 +5,14 @@
 \alias{get_available_years_in_the_web.uscb_acs_5ye}
 \title{get layer names}
 \usage{
-get_available_years_in_the_web(ua, name)
+get_available_years_in_the_web(ua, geodatabase)
 
-\method{get_available_years_in_the_web}{uscb_acs_5ye}(ua, name)
+\method{get_available_years_in_the_web}{uscb_acs_5ye}(ua, geodatabase)
 }
 \arguments{
 \item{ua}{A \code{uscb_acs_5ye} object.}
 
-\item{name}{A string.}
+\item{geodatabase}{A string.}
 }
 \value{
 A vector of years.

@@ -4,12 +4,18 @@
 \alias{uscb_layer}
 \title{\code{uscb_layer} S3 class}
 \usage{
-uscb_layer(filepath = NULL, metadata = NULL)
+uscb_layer(metadata, ua, geodatabase, year, folder = NULL)
 }
 \arguments{
-\item{filepath}{A string, path to gbd file.}
-
 \item{metadata}{A metadata object.}
+
+\item{ua}{A \code{uscb_acs_5ye} object.}
+
+\item{geodatabase}{A string.}
+
+\item{year}{A integer}
+
+\item{folder}{A string.}
 }
 \value{
 A \code{uscb_layer} object.

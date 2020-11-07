@@ -5,14 +5,14 @@
 \alias{get_available_years_downloaded.uscb_acs_5ye}
 \title{get layer names}
 \usage{
-get_available_years_downloaded(ua, name, folder = NULL)
+get_available_years_downloaded(ua, geodatabase, folder = NULL)
 
-\method{get_available_years_downloaded}{uscb_acs_5ye}(ua, name, folder = NULL)
+\method{get_available_years_downloaded}{uscb_acs_5ye}(ua, geodatabase, folder = NULL)
 }
 \arguments{
 \item{ua}{A \code{uscb_acs_5ye} object.}
 
-\item{name}{A string.}
+\item{geodatabase}{A string.}
 
 \item{folder}{A string.}
 }

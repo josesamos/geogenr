@@ -4,7 +4,7 @@
 \alias{uscb_folder}
 \title{\code{uscb_folder} S3 class}
 \usage{
-uscb_folder(ul = NULL, year = NULL)
+uscb_folder(ul, year = NULL)
 }
 \arguments{
 \item{ul}{A \code{uscb_folder} object.}

@@ -11,9 +11,9 @@
 \usage{
 new_uscb_acs_5ye(folder = "")
 
-new_uscb_folder(ul = NULL, year = NULL)
+new_uscb_folder(ul, year = NULL)
 
-new_uscb_layer(filepath = NULL, metadata = NULL)
+new_uscb_layer(metadata, ua, geodatabase, year, folder = NULL)
 
 new_uscb_metadata(
   filepath = NULL,
@@ -28,11 +28,15 @@ new_uscb_metadata(
 
 \item{ul}{A \code{uscb_folder} object.}
 
-\item{year}{A vector of years.}
-
-\item{filepath}{A string, path to gbd file.}
+\item{year}{A integer}
 
 \item{metadata}{A metadata object.}
+
+\item{ua}{A \code{uscb_acs_5ye} object.}
+
+\item{geodatabase}{A string.}
+
+\item{filepath}{A string, path to gbd file.}
 
 \item{code}{A vector of strings.}
 

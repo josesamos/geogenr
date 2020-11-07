@@ -12,20 +12,26 @@
 #' @return A `uscb_folder` object.
 #'
 #' @keywords internal
-new_uscb_folder <- function(ul = NULL, year = NULL) {
+new_uscb_folder <- function(ul, year = NULL) {
+  if (is.null(year)) {
+    year <- ul$ua %>% get_available_years_downloaded(geodatabase = ul$geodatabase)
+  }
+
   year <- sprintf("%d", year)
   year <- year[year != ul$year]
   pos <- gregexpr(pattern = ul$year, ul$filepath)[[1]]
   pos <- pos[length(pos)]
   rest = list()
-  for (y in year) {
-    filepath <- ul$filepath
-    substr(filepath, pos, pos + 4) <- y
-    stopifnot(file.exists(filepath))
-    uly <- uscb_layer(filepath, metadata = ul$metadata)
-    uly <- uly %>% get_layer(ul$layer_name)
-    uly <- uly %>% get_layer_group(ul$layer_group_name)
-    rest <- c(rest, list(uly))
+  if (length(year) > 0) {
+    for (y in year) {
+      filepath <- ul$filepath
+      substr(filepath, pos, pos + 4) <- y
+      stopifnot(file.exists(filepath))
+      uly <- uscb_layer(metadata = ul$metadata, ua = ul$ua, geodatabase = ul$geodatabase, year = strtoi(y))
+      uly <- uly %>% get_layer(ul$layer_name)
+      uly <- uly %>% get_layer_group(ul$layer_group_name)
+      rest <- c(rest, list(uly))
+    }
   }
 
   acs <-
@@ -49,7 +55,7 @@ new_uscb_folder <- function(ul = NULL, year = NULL) {
 #'
 #'
 #' @export
-uscb_folder <- function(ul = NULL, year = NULL) {
+uscb_folder <- function(ul, year = NULL) {
     new_uscb_folder(ul, year)
   }
 

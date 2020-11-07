@@ -5,14 +5,14 @@
 \alias{download_geodatabases.uscb_acs_5ye}
 \title{get layer names}
 \usage{
-download_geodatabases(ua, name, years, folder = NULL)
+download_geodatabases(ua, geodatabase, years, folder = NULL)
 
-\method{download_geodatabases}{uscb_acs_5ye}(ua, name, years, folder = NULL)
+\method{download_geodatabases}{uscb_acs_5ye}(ua, geodatabase, years, folder = NULL)
 }
 \arguments{
 \item{ua}{A \code{uscb_acs_5ye} object.}
 
-\item{name}{A string.}
+\item{geodatabase}{A string.}
 
 \item{years}{A vector of years.}
 
