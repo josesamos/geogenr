@@ -130,6 +130,51 @@ get_layer_group.uscb_layer <- function(ul, layer_group_name) {
 }
 
 
+# get_basic_flat_table ------------------------------------------------------
+
+#' get tidy data
+#'
+#' get tidy data.
+#'
+#' @param ul A `uscb_layer` object.
+#' @param remove_zeros A boolean, remove data with zero value.
+#'
+#' @return A `tibble` object.
+#'
+#' @keywords internal
+get_basic_flat_table <- function(ul, remove_zeros = FALSE) {
+  UseMethod("get_basic_flat_table")
+}
+
+#' @rdname get_basic_flat_table
+#' @export
+#' @keywords internal
+get_basic_flat_table.uscb_layer <- function(ul, remove_zeros = FALSE) {
+  layer <- ul$layer[, ul$layer_group_columns]
+  layer <- tidyr::pivot_longer(layer, !c("GEOID"), names_to = "Short_Name", values_to = "value")
+  if (remove_zeros) {
+    layer <- layer[layer$value != 0, ]
+  }
+  layer <- dplyr::left_join(layer, ul$layer_group_metadata, by = c("Short_Name" = "Short_Name"))
+  if (all(!grepl("\\D", layer$spec_code))) {
+    format <- sprintf("%%0%dd", max(nchar(layer$spec_code)))
+    spec_code <- sprintf(format, strtoi(layer$spec_code))
+  } else {
+    spec_code <- layer$spec_code
+  }
+  layer$Short_Name <- paste(layer$inf_code, layer$group_code, "_", spec_code, sep = "")
+  layer <- dplyr::select(layer, !c("type_code"))
+  layer <- tidyr::pivot_wider(layer, names_from = "type", values_from = "value")
+
+  layer <- tibble::add_column(layer, year = ul$year, .before = "GEOID")
+  layer <- dplyr::relocate(layer, c("Estimate", "Margin of Error"), .after = tidyselect::last_col())
+  layer$GEOID <- substr(layer$GEOID, 8, length(layer$GEOID))
+  layer
+}
+
+
+
+
 # get_flat_table ------------------------------------------------------
 
 #' get tidy data
@@ -143,23 +188,15 @@ get_layer_group.uscb_layer <- function(ul, layer_group_name) {
 #' @return A `tibble` object.
 #'
 #' @keywords internal
-get_flat_table <- function(ul, remove_zeros = TRUE, remove_geometry = FALSE) {
+get_flat_table <- function(ul, remove_zeros = FALSE, remove_geometry = FALSE) {
   UseMethod("get_flat_table")
 }
 
 #' @rdname get_flat_table
 #' @export
 #' @keywords internal
-get_flat_table.uscb_layer <- function(ul, remove_zeros = TRUE, remove_geometry = TRUE) {
-  layer <- ul$layer[, ul$layer_group_columns]
-  layer <- tidyr::pivot_longer(layer, !c("GEOID"), names_to = "Short_Name", values_to = "value")
-  if (remove_zeros) {
-    layer <- layer[layer$value != 0, ]
-  }
-  layer <- dplyr::left_join(layer, ul$layer_group_metadata, by = c("Short_Name" = "Short_Name"))
-  layer <- tibble::add_column(layer, year = ul$year, .before = "GEOID")
-  layer <- dplyr::relocate(layer, c("value"), .after = tidyselect::last_col())
-  layer$GEOID <- substr(layer$GEOID, 8, length(layer$GEOID))
+get_flat_table.uscb_layer <- function(ul, remove_zeros = FALSE, remove_geometry = TRUE) {
+  layer <- get_basic_flat_table(ul, remove_zeros)
   names <- names(layer)
 
   oldw <- getOption("warn")
@@ -192,6 +229,48 @@ get_flat_table.uscb_layer <- function(ul, remove_zeros = TRUE, remove_geometry =
 
 
 
+
+
+# get_geomultistar ------------------------------------------------------
+
+#' get tidy data
+#'
+#' get tidy data.
+#'
+#' @param ul A `uscb_layer` object.
+#'
+#' @return A `tibble` object.
+#'
+#' @keywords internal
+get_geomultistar <- function(ul) {
+  UseMethod("get_geomultistar")
+}
+
+#' @rdname get_geomultistar
+#' @export
+#' @keywords internal
+get_geomultistar.uscb_layer <- function(ul) {
+  ft <- get_basic_flat_table(ul, remove_zeros = FALSE)
+  names_ft <- names(ft)
+  what_ini <- which(names_ft == "Short_Name")
+  fact_ini <- which(names_ft == "Estimate")
+
+  dm <- starschemar::dimensional_model() %>%
+    starschemar::define_fact(
+      name = substr(ul$layer_group_name, 7, nchar(ul$layer_group_name)),
+      measures = c("Estimate", "Margin of Error"),
+    ) %>%
+    starschemar::define_dimension(name = "when",
+                                  attributes = c("year")) %>%
+    starschemar::define_dimension(name = "where",
+                                  attributes = c("GEOID")) %>%
+    starschemar::define_dimension(name = "what",
+                                  attributes = names_ft[what_ini:(fact_ini - 1)])
+
+  st <- starschemar::star_schema(ft, dm) %>%
+    starschemar::snake_case()
+  st
+}
 
 
 
