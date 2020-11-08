@@ -41,9 +41,12 @@ ul <- ul \%>\% get_layer(layers[3])
 
 
 Other data selection functions: 
+\code{\link{get_flat_table}()},
+\code{\link{get_geomultistar}()},
 \code{\link{get_layer_group_names}()},
 \code{\link{get_layer_group}()},
 \code{\link{get_layer_names}()},
+\code{\link{uscb_folder}()},
 \code{\link{uscb_layer}()}
 }
 \concept{data selection functions}

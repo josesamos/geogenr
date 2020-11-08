@@ -3,7 +3,7 @@
 \name{get_basic_flat_table}
 \alias{get_basic_flat_table}
 \alias{get_basic_flat_table.uscb_layer}
-\title{get tidy data}
+\title{Get basic flat table}
 \usage{
 get_basic_flat_table(ul, remove_zeros = FALSE)
 
@@ -18,5 +18,10 @@ get_basic_flat_table(ul, remove_zeros = FALSE)
 A \code{tibble} object.
 }
 \description{
-get tidy data.
+Get the layer group data in the form of a flat table that only includes the
+geoid column of the geographic data.
 }
+\details{
+Optionally you can delete the rows whose measurement value is zero.
+}
+\keyword{internal}

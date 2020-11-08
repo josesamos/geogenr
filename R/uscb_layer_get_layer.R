@@ -208,22 +208,26 @@ get_layer_group.uscb_layer <- function(ul, layer_group_name) {
 
 # get_basic_flat_table ------------------------------------------------------
 
-#' get tidy data
+#' Get basic flat table
 #'
-#' get tidy data.
+#' Get the layer group data in the form of a flat table that only includes the
+#' geoid column of the geographic data.
+#'
+#' Optionally you can delete the rows whose measurement value is zero.
 #'
 #' @param ul A `uscb_layer` object.
 #' @param remove_zeros A boolean, remove data with zero value.
 #'
 #' @return A `tibble` object.
 #'
-#' @export
+#' @keywords internal
 get_basic_flat_table <- function(ul, remove_zeros = FALSE) {
   UseMethod("get_basic_flat_table")
 }
 
 #' @rdname get_basic_flat_table
 #' @export
+#' @keywords internal
 get_basic_flat_table.uscb_layer <- function(ul, remove_zeros = FALSE) {
   layer <- ul$layer[, ul$layer_group_columns]
   layer <- tidyr::pivot_longer(layer, !c("GEOID"), names_to = "Short_Name", values_to = "value")
@@ -250,15 +254,43 @@ get_basic_flat_table.uscb_layer <- function(ul, remove_zeros = FALSE) {
 
 # get_flat_table ------------------------------------------------------
 
-#' get tidy data
+#' Get flat table
 #'
-#' get tidy data.
+#' Get the layer group data in the form of a flat table that includes all the
+#' geographic data columns.
+#'
+#' Optionally you can delete the rows whose measurement value is zero and remove
+#' the geometry column.
 #'
 #' @param ul A `uscb_layer` object.
 #' @param remove_zeros A boolean, remove data with zero value.
 #' @param remove_geometry A boolean, remove geometry column.
 #'
 #' @return A `tibble` object.
+#'
+#' @family data selection functions
+#' @seealso
+#'
+#' @examples
+#' library(tidyr)
+#'
+#' folder <- system.file("extdata", package = "geogenr")
+#' folder <- stringr::str_replace_all(paste(folder, "/", ""), " ", "")
+#' ua <- uscb_acs_5ye(folder = folder)
+#' sa <- ua %>% get_statistical_areas()
+#' # sa[6]
+#' # [1] "New England City and Town Area Division"
+#' ul <- uscb_layer(uscb_acs_metadata, ua = ua, geodatabase = sa[6], year = 2018)
+#' layers <- ul %>% get_layer_names()
+#' # layers[3]
+#' # [1] "X02_RACE"
+#' ul <- ul %>% get_layer(layers[3])
+#' lg <- ul %>% get_layer_group_names()
+#' # lg[2]
+#' # [1] "003 - DETAILED RACE"
+#' ul <- ul %>% get_layer_group(lg[2])
+#'
+#' layer <- ul %>% get_flat_table()
 #'
 #' @export
 get_flat_table <- function(ul, remove_zeros = FALSE, remove_geometry = FALSE) {
@@ -289,13 +321,41 @@ get_flat_table.uscb_layer <- function(ul, remove_zeros = FALSE, remove_geometry 
 
 # get_geomultistar ------------------------------------------------------
 
-#' get tidy data
+#' Get `geomultistar`
 #'
-#' get tidy data.
+#' Get all the layer group data in the form of a `geomultistar` object: It
+#' contains fact and dimension tables, and a dimension with an associated
+#' geographic layer.
+#'
+#' The name of the facts is the layer group name.
 #'
 #' @param ul A `uscb_layer` object.
 #'
 #' @return A `geomultistar` object.
+#'
+#' @family data selection functions
+#' @seealso
+#'
+#' @examples
+#' library(tidyr)
+#'
+#' folder <- system.file("extdata", package = "geogenr")
+#' folder <- stringr::str_replace_all(paste(folder, "/", ""), " ", "")
+#' ua <- uscb_acs_5ye(folder = folder)
+#' sa <- ua %>% get_statistical_areas()
+#' # sa[6]
+#' # [1] "New England City and Town Area Division"
+#' ul <- uscb_layer(uscb_acs_metadata, ua = ua, geodatabase = sa[6], year = 2018)
+#' layers <- ul %>% get_layer_names()
+#' # layers[3]
+#' # [1] "X02_RACE"
+#' ul <- ul %>% get_layer(layers[3])
+#' lg <- ul %>% get_layer_group_names()
+#' # lg[2]
+#' # [1] "003 - DETAILED RACE"
+#' ul <- ul %>% get_layer_group(lg[2])
+#'
+#' gms <- ul %>% get_geomultistar()
 #'
 #' @export
 get_geomultistar <- function(ul) {
@@ -326,8 +386,7 @@ get_geomultistar.uscb_layer <- function(ul) {
 
 #' define_geomultistar
 #'
-#' Get last year from a string.
-#'
+#' Definition of a `geomultistar` object from a fact table.
 #'
 #' @param ft A `tibble` object.
 #' @param fact_name A string.

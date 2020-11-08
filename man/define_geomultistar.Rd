@@ -21,6 +21,6 @@ define_geomultistar(ft, fact_name, where_names, what_names, place)
 A boolean
 }
 \description{
-Get last year from a string.
+Definition of a \code{geomultistar} object from a fact table.
 }
 \keyword{internal}

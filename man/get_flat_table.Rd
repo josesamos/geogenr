@@ -3,7 +3,7 @@
 \name{get_flat_table}
 \alias{get_flat_table}
 \alias{get_flat_table.uscb_layer}
-\title{get tidy data}
+\title{Get flat table}
 \usage{
 get_flat_table(ul, remove_zeros = FALSE, remove_geometry = FALSE)
 
@@ -20,5 +20,45 @@ get_flat_table(ul, remove_zeros = FALSE, remove_geometry = FALSE)
 A \code{tibble} object.
 }
 \description{
-get tidy data.
+Get the layer group data in the form of a flat table that includes all the
+geographic data columns.
 }
+\details{
+Optionally you can delete the rows whose measurement value is zero and remove
+the geometry column.
+}
+\examples{
+library(tidyr)
+
+folder <- system.file("extdata", package = "geogenr")
+folder <- stringr::str_replace_all(paste(folder, "/", ""), " ", "")
+ua <- uscb_acs_5ye(folder = folder)
+sa <- ua \%>\% get_statistical_areas()
+# sa[6]
+# [1] "New England City and Town Area Division"
+ul <- uscb_layer(uscb_acs_metadata, ua = ua, geodatabase = sa[6], year = 2018)
+layers <- ul \%>\% get_layer_names()
+# layers[3]
+# [1] "X02_RACE"
+ul <- ul \%>\% get_layer(layers[3])
+lg <- ul \%>\% get_layer_group_names()
+# lg[2]
+# [1] "003 - DETAILED RACE"
+ul <- ul \%>\% get_layer_group(lg[2])
+
+layer <- ul \%>\% get_flat_table()
+
+}
+\seealso{
+
+
+Other data selection functions: 
+\code{\link{get_geomultistar}()},
+\code{\link{get_layer_group_names}()},
+\code{\link{get_layer_group}()},
+\code{\link{get_layer_names}()},
+\code{\link{get_layer}()},
+\code{\link{uscb_folder}()},
+\code{\link{uscb_layer}()}
+}
+\concept{data selection functions}
