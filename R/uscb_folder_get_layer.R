@@ -162,7 +162,7 @@ same_layer_group_columns <- function(initial, rest) {
 #'
 #' get tidy data.
 #'
-#' @param ul A `uscb_folder` object.
+#' @param uf A `uscb_folder` object.
 #'
 #' @return A `geomultistar` object.
 #'

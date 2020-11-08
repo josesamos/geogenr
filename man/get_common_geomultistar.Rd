@@ -10,7 +10,7 @@ get_common_geomultistar(uf)
 \method{get_common_geomultistar}{uscb_folder}(uf)
 }
 \arguments{
-\item{ul}{A \code{uscb_folder} object.}
+\item{uf}{A \code{uscb_folder} object.}
 }
 \value{
 A \code{geomultistar} object.
