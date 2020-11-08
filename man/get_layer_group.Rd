@@ -3,7 +3,7 @@
 \name{get_layer_group}
 \alias{get_layer_group}
 \alias{get_layer_group.uscb_layer}
-\title{get layer group}
+\title{Get layer group}
 \usage{
 get_layer_group(ul, layer_group_name)
 
@@ -18,5 +18,37 @@ get_layer_group(ul, layer_group_name)
 A \code{uscb_layer} object.
 }
 \description{
-get layer group to interpret variables.
+Get a layer group to interpret its variables. Refines the content of the
+object.
 }
+\examples{
+library(tidyr)
+
+folder <- system.file("extdata", package = "geogenr")
+folder <- stringr::str_replace_all(paste(folder, "/", ""), " ", "")
+ua <- uscb_acs_5ye(folder = folder)
+sa <- ua \%>\% get_statistical_areas()
+# sa[6]
+# [1] "New England City and Town Area Division"
+ul <- uscb_layer(uscb_acs_metadata, ua = ua, geodatabase = sa[6], year = 2018)
+layers <- ul \%>\% get_layer_names()
+# layers[3]
+# [1] "X02_RACE"
+ul <- ul \%>\% get_layer(layers[3])
+lg <- ul \%>\% get_layer_group_names()
+
+# lg[2]
+# [1] "003 - DETAILED RACE"
+ul <- ul \%>\% get_layer_group(lg[2])
+
+}
+\seealso{
+
+
+Other data selection functions: 
+\code{\link{get_layer_group_names}()},
+\code{\link{get_layer_names}()},
+\code{\link{get_layer}()},
+\code{\link{uscb_layer}()}
+}
+\concept{data selection functions}

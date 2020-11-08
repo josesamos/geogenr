@@ -46,6 +46,9 @@ ul <- uscb_layer(uscb_acs_metadata, ua = ua, geodatabase = sa[6], year = 2018)
 
 
 Other data selection functions: 
-\code{\link{get_layer_names}()}
+\code{\link{get_layer_group_names}()},
+\code{\link{get_layer_group}()},
+\code{\link{get_layer_names}()},
+\code{\link{get_layer}()}
 }
 \concept{data selection functions}

@@ -1,8 +1,9 @@
 # get_layer_names ------------------------------------------------------
 
-#' get layer names
+#' Get layer names
 #'
-#' get layer names.
+#' Once a specific geodatabase has been selected from which the class object has
+#' been created, we can obtain the names of the layers it contains.
 #'
 #' @param ul A `uscb_layer` object.
 #'
@@ -11,6 +12,18 @@
 #' @family data selection functions
 #' @seealso
 #'
+#' @examples
+#' library(tidyr)
+#'
+#' folder <- system.file("extdata", package = "geogenr")
+#' folder <- stringr::str_replace_all(paste(folder, "/", ""), " ", "")
+#' ua <- uscb_acs_5ye(folder = folder)
+#' sa <- ua %>% get_statistical_areas()
+#' # sa[6]
+#' # [1] "New England City and Town Area Division"
+#' ul <- uscb_layer(uscb_acs_metadata, ua = ua, geodatabase = sa[6], year = 2018)
+#'
+#' layers <- ul %>% get_layer_names()
 #'
 #' @export
 get_layer_names <- function(ul) {
@@ -28,14 +41,33 @@ get_layer_names.uscb_layer <- function(ul) {
 
 # get_layer ------------------------------------------------------
 
-#' get layer
+#' Get layer
 #'
-#' get layer to interpret variables.
+#' Get a layer to interpret its variables. Refines the content of the object.
 #'
 #' @param ul A `uscb_layer` object.
 #' @param layer_name A layer name.
 #'
 #' @return A `uscb_layer` object.
+#'
+#' @family data selection functions
+#' @seealso
+#'
+#' @examples
+#' library(tidyr)
+#'
+#' folder <- system.file("extdata", package = "geogenr")
+#' folder <- stringr::str_replace_all(paste(folder, "/", ""), " ", "")
+#' ua <- uscb_acs_5ye(folder = folder)
+#' sa <- ua %>% get_statistical_areas()
+#' # sa[6]
+#' # [1] "New England City and Town Area Division"
+#' ul <- uscb_layer(uscb_acs_metadata, ua = ua, geodatabase = sa[6], year = 2018)
+#' layers <- ul %>% get_layer_names()
+#'
+#' # layers[3]
+#' # [1] "X02_RACE"
+#' ul <- ul %>% get_layer(layers[3])
 #'
 #' @export
 get_layer <- function(ul, layer_name) {
@@ -77,13 +109,33 @@ get_layer.uscb_layer <- function(ul, layer_name) {
 
 # get_layer_group_names ------------------------------------------------------
 
-#' get layer group names
+#' Get layer group names
 #'
-#' get layer group names.
+#' A layer is broken down into groups. Get the name of the layer groups.
 #'
 #' @param ul A `uscb_layer` object.
 #'
 #' @return A vector of names.
+#'
+#' @family data selection functions
+#' @seealso
+#'
+#' @examples
+#' library(tidyr)
+#'
+#' folder <- system.file("extdata", package = "geogenr")
+#' folder <- stringr::str_replace_all(paste(folder, "/", ""), " ", "")
+#' ua <- uscb_acs_5ye(folder = folder)
+#' sa <- ua %>% get_statistical_areas()
+#' # sa[6]
+#' # [1] "New England City and Town Area Division"
+#' ul <- uscb_layer(uscb_acs_metadata, ua = ua, geodatabase = sa[6], year = 2018)
+#' layers <- ul %>% get_layer_names()
+#' # layers[3]
+#' # [1] "X02_RACE"
+#' ul <- ul %>% get_layer(layers[3])
+#'
+#' layer_groups <- ul %>% get_layer_group_names()
 #'
 #' @export
 get_layer_group_names <- function(ul) {
@@ -100,14 +152,38 @@ get_layer_group_names.uscb_layer <- function(ul) {
 
 # get_layer_group ------------------------------------------------------
 
-#' get layer group
+#' Get layer group
 #'
-#' get layer group to interpret variables.
+#' Get a layer group to interpret its variables. Refines the content of the
+#' object.
 #'
 #' @param ul A `uscb_layer` object.
 #' @param layer_group_name A layer name.
 #'
 #' @return A `uscb_layer` object.
+#'
+#' @family data selection functions
+#' @seealso
+#'
+#' @examples
+#' library(tidyr)
+#'
+#' folder <- system.file("extdata", package = "geogenr")
+#' folder <- stringr::str_replace_all(paste(folder, "/", ""), " ", "")
+#' ua <- uscb_acs_5ye(folder = folder)
+#' sa <- ua %>% get_statistical_areas()
+#' # sa[6]
+#' # [1] "New England City and Town Area Division"
+#' ul <- uscb_layer(uscb_acs_metadata, ua = ua, geodatabase = sa[6], year = 2018)
+#' layers <- ul %>% get_layer_names()
+#' # layers[3]
+#' # [1] "X02_RACE"
+#' ul <- ul %>% get_layer(layers[3])
+#' lg <- ul %>% get_layer_group_names()
+#'
+#' # lg[2]
+#' # [1] "003 - DETAILED RACE"
+#' ul <- ul %>% get_layer_group(lg[2])
 #'
 #' @export
 get_layer_group <- function(ul, layer_group_name) {
