@@ -3,7 +3,7 @@
 \name{get_common_geomultistar}
 \alias{get_common_geomultistar}
 \alias{get_common_geomultistar.uscb_folder}
-\title{get tidy data}
+\title{Get common \code{geomultistar}}
 \usage{
 get_common_geomultistar(uf)
 
@@ -16,5 +16,48 @@ get_common_geomultistar(uf)
 A \code{geomultistar} object.
 }
 \description{
-get tidy data.
+Get all the layer group data in the form of a \code{geomultistar} object for all
+geodatabases from the same folder selected: It contains fact and dimension
+tables, and a dimension with an associated geographic layer.
 }
+\details{
+The name of the facts is the layer group name.
+}
+\examples{
+library(tidyr)
+
+folder <- system.file("extdata", package = "geogenr")
+folder <- stringr::str_replace_all(paste(folder, "/", ""), " ", "")
+ua <- uscb_acs_5ye(folder = folder)
+sa <- ua \%>\% get_statistical_areas()
+# sa[6]
+# [1] "New England City and Town Area Division"
+ul <- uscb_layer(uscb_acs_metadata, ua = ua, geodatabase = sa[6], year = 2018)
+layers <- ul \%>\% get_layer_names()
+# layers[3]
+# [1] "X02_RACE"
+ul <- ul \%>\% get_layer(layers[3])
+lg <- ul \%>\% get_layer_group_names()
+# lg[2]
+# [1] "003 - DETAILED RACE"
+ul <- ul \%>\% get_layer_group(lg[2])
+uf <- uscb_folder(ul)
+
+gms <- uf \%>\% get_common_geomultistar()
+
+}
+\seealso{
+
+
+Other data selection functions: 
+\code{\link{get_common_flat_table}()},
+\code{\link{get_flat_table}()},
+\code{\link{get_geomultistar}()},
+\code{\link{get_layer_group_names}()},
+\code{\link{get_layer_group}()},
+\code{\link{get_layer_names}()},
+\code{\link{get_layer}()},
+\code{\link{uscb_folder}()},
+\code{\link{uscb_layer}()}
+}
+\concept{data selection functions}

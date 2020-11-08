@@ -2,15 +2,45 @@
 
 # get_common_flat_table ------------------------------------------------------
 
-#' get tidy data
+#' Get common flat table
 #'
-#' get tidy data.
+#' Get the layer group data in the form of a flat table that includes all the
+#' available data columns for the geodatabases corresponding to the selected
+#' years.
+#'
+#' Optionally you can delete the rows whose measurement value is zero and remove
+#' the geometry column.
 #'
 #' @param uf A `uscb_folder` object.
 #' @param remove_zeros A boolean, remove data with zero value.
 #' @param remove_geometry A boolean, remove geometry column.
 #'
 #' @return A `tibble` object.
+#'
+#' @family data selection functions
+#' @seealso
+#'
+#' @examples
+#' library(tidyr)
+#'
+#' folder <- system.file("extdata", package = "geogenr")
+#' folder <- stringr::str_replace_all(paste(folder, "/", ""), " ", "")
+#' ua <- uscb_acs_5ye(folder = folder)
+#' sa <- ua %>% get_statistical_areas()
+#' # sa[6]
+#' # [1] "New England City and Town Area Division"
+#' ul <- uscb_layer(uscb_acs_metadata, ua = ua, geodatabase = sa[6], year = 2018)
+#' layers <- ul %>% get_layer_names()
+#' # layers[3]
+#' # [1] "X02_RACE"
+#' ul <- ul %>% get_layer(layers[3])
+#' lg <- ul %>% get_layer_group_names()
+#' # lg[2]
+#' # [1] "003 - DETAILED RACE"
+#' ul <- ul %>% get_layer_group(lg[2])
+#' uf <- uscb_folder(ul)
+#'
+#' layer_common <- uf %>% get_common_flat_table()
 #'
 #' @export
 get_common_flat_table <- function(uf, remove_zeros = TRUE, remove_geometry = FALSE) {
@@ -36,7 +66,7 @@ get_common_flat_table.uscb_folder <- function(uf, remove_zeros = TRUE, remove_ge
 
 #' same_layer_group_columns
 #'
-#' Get last year from a string.
+#' Check if two layer groups have the same columns.
 #'
 #' @param initial A vector of strings.
 #' @param rest A vector of strings.
@@ -57,13 +87,42 @@ same_layer_group_columns <- function(initial, rest) {
 
 # get_common_geomultistar ------------------------------------------------------
 
-#' get tidy data
+#' Get common `geomultistar`
 #'
-#' get tidy data.
+#' Get all the layer group data in the form of a `geomultistar` object for all
+#' geodatabases from the same folder selected: It contains fact and dimension
+#' tables, and a dimension with an associated geographic layer.
+#'
+#' The name of the facts is the layer group name.
 #'
 #' @param uf A `uscb_folder` object.
 #'
 #' @return A `geomultistar` object.
+#'
+#' @family data selection functions
+#' @seealso
+#'
+#' @examples
+#' library(tidyr)
+#'
+#' folder <- system.file("extdata", package = "geogenr")
+#' folder <- stringr::str_replace_all(paste(folder, "/", ""), " ", "")
+#' ua <- uscb_acs_5ye(folder = folder)
+#' sa <- ua %>% get_statistical_areas()
+#' # sa[6]
+#' # [1] "New England City and Town Area Division"
+#' ul <- uscb_layer(uscb_acs_metadata, ua = ua, geodatabase = sa[6], year = 2018)
+#' layers <- ul %>% get_layer_names()
+#' # layers[3]
+#' # [1] "X02_RACE"
+#' ul <- ul %>% get_layer(layers[3])
+#' lg <- ul %>% get_layer_group_names()
+#' # lg[2]
+#' # [1] "003 - DETAILED RACE"
+#' ul <- ul %>% get_layer_group(lg[2])
+#' uf <- uscb_folder(ul)
+#'
+#' gms <- uf %>% get_common_geomultistar()
 #'
 #' @export
 get_common_geomultistar <- function(uf) {

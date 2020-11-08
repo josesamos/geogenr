@@ -21,7 +21,7 @@ A \code{tibble} object.
 }
 \description{
 Get the layer group data in the form of a flat table that includes all the
-geographic data columns.
+available data columns.
 }
 \details{
 Optionally you can delete the rows whose measurement value is zero and remove
@@ -53,6 +53,8 @@ layer <- ul \%>\% get_flat_table()
 
 
 Other data selection functions: 
+\code{\link{get_common_flat_table}()},
+\code{\link{get_common_geomultistar}()},
 \code{\link{get_geomultistar}()},
 \code{\link{get_layer_group_names}()},
 \code{\link{get_layer_group}()},

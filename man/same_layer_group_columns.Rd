@@ -15,6 +15,6 @@ same_layer_group_columns(initial, rest)
 A boolean
 }
 \description{
-Get last year from a string.
+Check if two layer groups have the same columns.
 }
 \keyword{internal}

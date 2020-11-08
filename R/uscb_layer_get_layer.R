@@ -257,7 +257,7 @@ get_basic_flat_table.uscb_layer <- function(ul, remove_zeros = FALSE) {
 #' Get flat table
 #'
 #' Get the layer group data in the form of a flat table that includes all the
-#' geographic data columns.
+#' available data columns.
 #'
 #' Optionally you can delete the rows whose measurement value is zero and remove
 #' the geometry column.
