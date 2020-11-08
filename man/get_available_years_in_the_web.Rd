@@ -3,7 +3,7 @@
 \name{get_available_years_in_the_web}
 \alias{get_available_years_in_the_web}
 \alias{get_available_years_in_the_web.uscb_acs_5ye}
-\title{get layer names}
+\title{Get available years in the web}
 \usage{
 get_available_years_in_the_web(ua, geodatabase)
 
@@ -15,9 +15,31 @@ get_available_years_in_the_web(ua, geodatabase)
 \item{geodatabase}{A string.}
 }
 \value{
-A vector of years.
+A vector of integers.
 }
 \description{
-get layer names.
+For the name of a geodatabase, returns a vector with the years for which data
+is available on the web.
 }
-\keyword{internal}
+\examples{
+library(tidyr)
+
+folder <- "../geodimension/data/us/"
+ua <- uscb_acs_5ye(folder = folder)
+laa <- ua \%>\% get_legal_and_administrative_areas()
+
+# laa[8]
+# [1] "State"
+# y <- ua \%>\% get_available_years_in_the_web(geodatabase = laa[8])
+
+}
+\seealso{
+
+
+Other data collection functions: 
+\code{\link{get_available_years_downloaded}()},
+\code{\link{get_legal_and_administrative_areas}()},
+\code{\link{get_statistical_areas}()},
+\code{\link{uscb_acs_5ye}()}
+}
+\concept{data collection functions}

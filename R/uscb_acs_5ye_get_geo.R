@@ -1,21 +1,30 @@
 # get_legal_and_administrative_areas ------------------------------------------------------
 
-#' get layer names
+#' Get Legal and Administrative Area names
 #'
-#' get layer names.
+#' Returns a list of area names for which geodatabases are available.
 #'
 #' @param ua A `uscb_acs_5ye` object.
 #'
 #' @return A vector of names.
 #'
-#' @keywords internal
+#' @family data collection functions
+#' @seealso
+#'
+#' @examples
+#' library(tidyr)
+#'
+#' folder <- "../geodimension/data/us/"
+#' ua <- uscb_acs_5ye(folder = folder)
+#' laa <- ua %>% get_legal_and_administrative_areas()
+#'
+#' @export
 get_legal_and_administrative_areas <- function(ua) {
   UseMethod("get_legal_and_administrative_areas")
 }
 
 #' @rdname get_legal_and_administrative_areas
 #' @export
-#' @keywords internal
 get_legal_and_administrative_areas.uscb_acs_5ye<- function(ua) {
 
   sort(ua$variables[ua$variables$type == 1, "name"])
@@ -23,22 +32,31 @@ get_legal_and_administrative_areas.uscb_acs_5ye<- function(ua) {
 
 # get_statistical_areas ------------------------------------------------------
 
-#' get layer names
+#' Get Statistical Area names
 #'
-#' get layer names.
+#' Returns a list of area names for which geodatabases are available.
 #'
 #' @param ua A `uscb_acs_5ye` object.
 #'
 #' @return A vector of names.
 #'
-#' @keywords internal
+#' @family data collection functions
+#' @seealso
+#'
+#' @examples
+#' library(tidyr)
+#'
+#' folder <- "../geodimension/data/us/"
+#' ua <- uscb_acs_5ye(folder = folder)
+#' sa <- ua %>% get_statistical_areas()
+#'
+#' @export
 get_statistical_areas <- function(ua) {
   UseMethod("get_statistical_areas")
 }
 
 #' @rdname get_statistical_areas
 #' @export
-#' @keywords internal
 get_statistical_areas.uscb_acs_5ye<- function(ua) {
 
   sort(ua$variables[ua$variables$type == 2, "name"])
@@ -47,23 +65,37 @@ get_statistical_areas.uscb_acs_5ye<- function(ua) {
 
 # get_available_years_in_the_web ------------------------------------------------------
 
-#' get layer names
+#' Get available years in the web
 #'
-#' get layer names.
+#' For the name of a geodatabase, returns a vector with the years for which data
+#' is available on the web.
 #'
 #' @param ua A `uscb_acs_5ye` object.
 #' @param geodatabase A string.
 #'
-#' @return A vector of years.
+#' @return A vector of integers.
 #'
-#' @keywords internal
+#' @family data collection functions
+#' @seealso
+#'
+#' @examples
+#' library(tidyr)
+#'
+#' folder <- "../geodimension/data/us/"
+#' ua <- uscb_acs_5ye(folder = folder)
+#' laa <- ua %>% get_legal_and_administrative_areas()
+#'
+#' # laa[8]
+#' # [1] "State"
+#' # y <- ua %>% get_available_years_in_the_web(geodatabase = laa[8])
+#'
+#' @export
 get_available_years_in_the_web <- function(ua, geodatabase) {
   UseMethod("get_available_years_in_the_web")
 }
 
 #' @rdname get_available_years_in_the_web
 #' @export
-#' @keywords internal
 get_available_years_in_the_web.uscb_acs_5ye<- function(ua, geodatabase) {
   res <- NULL
   for (year in ua$years) {
@@ -86,9 +118,12 @@ get_available_years_in_the_web.uscb_acs_5ye<- function(ua, geodatabase) {
 
 # get_available_years_downloaded ------------------------------------------------------
 
-#' get layer names
+#' Get available years downloaded
 #'
-#' get layer names.
+#' For the name of a geodatabase, returns a vector with the years for which data
+#' is available on the local folder.
+#'
+#' If the folder is not indicated, it is considered that of the class.
 #'
 #' @param ua A `uscb_acs_5ye` object.
 #' @param geodatabase A string.
@@ -96,14 +131,27 @@ get_available_years_in_the_web.uscb_acs_5ye<- function(ua, geodatabase) {
 #'
 #' @return A vector of years.
 #'
-#' @keywords internal
+#' @family data collection functions
+#' @seealso
+#'
+#' @examples
+#' library(tidyr)
+#'
+#' folder <- "../geodimension/data/us/"
+#' ua <- uscb_acs_5ye(folder = folder)
+#' laa <- ua %>% get_legal_and_administrative_areas()
+#'
+#' # laa[8]
+#' # [1] "State"
+#' # y <- ua %>% get_available_years_downloaded(geodatabase = laa[8])
+#'
+#' @export
 get_available_years_downloaded <- function(ua, geodatabase, folder = NULL) {
   UseMethod("get_available_years_downloaded")
 }
 
 #' @rdname get_available_years_downloaded
 #' @export
-#' @keywords internal
 get_available_years_downloaded.uscb_acs_5ye<- function(ua, geodatabase, folder = NULL) {
   if (is.null(folder)) {
     folder <- ua$folder
@@ -143,14 +191,13 @@ get_available_years_downloaded.uscb_acs_5ye<- function(ua, geodatabase, folder =
 #'
 #' @return A vector of years.
 #'
-#' @keywords internal
+#' @export
 download_geodatabases <- function(ua, geodatabase, years, folder = NULL) {
   UseMethod("download_geodatabases")
 }
 
 #' @rdname download_geodatabases
 #' @export
-#' @keywords internal
 download_geodatabases.uscb_acs_5ye<- function(ua, geodatabase, years, folder = NULL) {
   if (is.null(folder)) {
     folder <- ua$folder

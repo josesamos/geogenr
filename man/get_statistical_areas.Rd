@@ -3,7 +3,7 @@
 \name{get_statistical_areas}
 \alias{get_statistical_areas}
 \alias{get_statistical_areas.uscb_acs_5ye}
-\title{get layer names}
+\title{Get Statistical Area names}
 \usage{
 get_statistical_areas(ua)
 
@@ -16,6 +16,23 @@ get_statistical_areas(ua)
 A vector of names.
 }
 \description{
-get layer names.
+Returns a list of area names for which geodatabases are available.
 }
-\keyword{internal}
+\examples{
+library(tidyr)
+
+folder <- "../geodimension/data/us/"
+ua <- uscb_acs_5ye(folder = folder)
+sa <- ua \%>\% get_statistical_areas()
+
+}
+\seealso{
+
+
+Other data collection functions: 
+\code{\link{get_available_years_downloaded}()},
+\code{\link{get_available_years_in_the_web}()},
+\code{\link{get_legal_and_administrative_areas}()},
+\code{\link{uscb_acs_5ye}()}
+}
+\concept{data collection functions}

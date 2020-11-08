@@ -24,4 +24,3 @@ A vector of years.
 \description{
 get layer names.
 }
-\keyword{internal}

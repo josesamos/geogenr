@@ -13,5 +13,21 @@ uscb_acs_5ye(folder = "")
 A \code{uscb_acs_5ye} object.
 }
 \description{
-A \code{uscb_acs_5ye} object is created from a given
+A \code{uscb_acs_5ye} object is created from a given local folder.
 }
+\examples{
+
+folder <- "../geodimension/data/us/"
+ua <- uscb_acs_5ye(folder = folder)
+
+}
+\seealso{
+
+
+Other data collection functions: 
+\code{\link{get_available_years_downloaded}()},
+\code{\link{get_available_years_in_the_web}()},
+\code{\link{get_legal_and_administrative_areas}()},
+\code{\link{get_statistical_areas}()}
+}
+\concept{data collection functions}

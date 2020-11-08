@@ -94,12 +94,19 @@ new_uscb_acs_5ye <- function(folder = "") {
 
 #' `uscb_acs_5ye` S3 class
 #'
-#' A `uscb_acs_5ye` object is created from a given
+#' A `uscb_acs_5ye` object is created from a given local folder.
 #'
 #' @param folder A string.
 #'
 #' @return A `uscb_acs_5ye` object.
 #'
+#' @family data collection functions
+#' @seealso
+#'
+#' @examples
+#'
+#' folder <- "../geodimension/data/us/"
+#' ua <- uscb_acs_5ye(folder = folder)
 #'
 #' @export
 uscb_acs_5ye <- function(folder = "") {

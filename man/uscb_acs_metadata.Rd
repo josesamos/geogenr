@@ -3,7 +3,7 @@
 \docType{data}
 \name{uscb_acs_metadata}
 \alias{uscb_acs_metadata}
-\title{uscb_acs_metadata}
+\title{\code{uscb_acs_metadata}}
 \format{
 A \code{uscb_metadata}.
 }
@@ -15,7 +15,7 @@ uscb_acs_metadata
 }
 \description{
 Metadata according to subjects included in the American Community Survey
-(ACS).
+(ACS) from the United States Census Bureau (USCB).
 }
 \details{
 They are obtained from the variables defined in the reports, classifying the

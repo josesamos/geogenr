@@ -3,7 +3,7 @@
 \name{get_legal_and_administrative_areas}
 \alias{get_legal_and_administrative_areas}
 \alias{get_legal_and_administrative_areas.uscb_acs_5ye}
-\title{get layer names}
+\title{Get Legal and Administrative Area names}
 \usage{
 get_legal_and_administrative_areas(ua)
 
@@ -16,6 +16,23 @@ get_legal_and_administrative_areas(ua)
 A vector of names.
 }
 \description{
-get layer names.
+Returns a list of area names for which geodatabases are available.
 }
-\keyword{internal}
+\examples{
+library(tidyr)
+
+folder <- "../geodimension/data/us/"
+ua <- uscb_acs_5ye(folder = folder)
+laa <- ua \%>\% get_legal_and_administrative_areas()
+
+}
+\seealso{
+
+
+Other data collection functions: 
+\code{\link{get_available_years_downloaded}()},
+\code{\link{get_available_years_in_the_web}()},
+\code{\link{get_statistical_areas}()},
+\code{\link{uscb_acs_5ye}()}
+}
+\concept{data collection functions}
