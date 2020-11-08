@@ -27,5 +27,7 @@ uscb_metadata(
 A \code{uscb_metadata} object.
 }
 \description{
-A \code{uscb_metadata} object is created from a given
+A \code{uscb_metadata} object is created from a given geodatabase, code, group
+code, short name and existing metadata.
 }
+\keyword{internal}

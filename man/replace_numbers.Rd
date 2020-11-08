@@ -2,7 +2,7 @@
 % Please edit documentation in R/uscb_metadata_reformat_metadata.R
 \name{replace_numbers}
 \alias{replace_numbers}
-\title{replace numbers}
+\title{Replace numbers}
 \usage{
 replace_numbers(docs)
 }
@@ -13,6 +13,6 @@ replace_numbers(docs)
 A character vector.
 }
 \description{
-replace numbers by N.
+Replace numbers by N.
 }
 \keyword{internal}

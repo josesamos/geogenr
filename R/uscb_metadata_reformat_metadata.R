@@ -1,9 +1,9 @@
 
 # reformat_metadata ------------------------------------------------------
 
-#' reformat metadata
+#' Reformat metadata
 #'
-#' reformat the metadata to distribute it in columns according to its topic.
+#' Reformat the metadata to distribute it in columns according to its topic.
 #'
 #' @param um A `uscb_metadata` object.
 #'
@@ -38,9 +38,9 @@ reformat_metadata.uscb_metadata <- function(um) {
 
 # delete_empty_columns ------------------------------------------------------
 
-#' delete empty columns
+#' Delete empty columns
 #'
-#' delete empty columns in metadata table.
+#' Delete empty columns in metadata table.
 #'
 #' @param um A `uscb_metadata` object.
 #'
@@ -63,9 +63,9 @@ delete_empty_columns.uscb_metadata <- function(um) {
 
 # show_fields ------------------------------------------------------
 
-#' show fields
+#' Show fields
 #'
-#' show fields in metadata table.
+#' Show fields in metadata table.
 #'
 #' @param um A `uscb_metadata` object.
 #'
@@ -94,9 +94,9 @@ show_fields.uscb_metadata <- function(um) {
 
 # get_field_values ------------------------------------------------------
 
-#' show fields
+#' get_field_values
 #'
-#' show fields in metadata table.
+#' Get field values.
 #'
 #' @param um A `uscb_metadata` object.
 #'
@@ -131,9 +131,9 @@ get_field_values.uscb_metadata <- function(um) {
   um
 }
 
-#' standardize text
+#' Standardize text
 #'
-#' standardize text making transformations.
+#' Standardize text making transformations.
 #'
 #' @param mdr A character vector.
 #'
@@ -149,9 +149,9 @@ standardize_text <- function(docs) {
   stringr::str_replace_all(docs_red, " ", "_")
 }
 
-#' standardize text 2
+#' Standardize text 2
 #'
-#' standardize text 2 making transformations.
+#' Standardize text 2 making transformations.
 #'
 #' @param mdr A character vector.
 #'
@@ -170,9 +170,9 @@ standardize_text2 <- function(docs) {
 }
 
 
-#' replace numbers
+#' Replace numbers
 #'
-#' replace numbers by N.
+#' Replace numbers by N.
 #'
 #' @param mdr A character vector.
 #'

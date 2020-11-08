@@ -3,7 +3,7 @@
 \name{reformat_metadata}
 \alias{reformat_metadata}
 \alias{reformat_metadata.uscb_metadata}
-\title{reformat metadata}
+\title{Reformat metadata}
 \usage{
 reformat_metadata(um)
 
@@ -16,6 +16,6 @@ reformat_metadata(um)
 A \code{uscb_metadata} object.
 }
 \description{
-reformat the metadata to distribute it in columns according to its topic.
+Reformat the metadata to distribute it in columns according to its topic.
 }
 \keyword{internal}

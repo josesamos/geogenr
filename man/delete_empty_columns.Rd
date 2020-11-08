@@ -3,7 +3,7 @@
 \name{delete_empty_columns}
 \alias{delete_empty_columns}
 \alias{delete_empty_columns.uscb_metadata}
-\title{delete empty columns}
+\title{Delete empty columns}
 \usage{
 delete_empty_columns(um)
 
@@ -16,6 +16,6 @@ delete_empty_columns(um)
 A \code{uscb_metadata} object.
 }
 \description{
-delete empty columns in metadata table.
+Delete empty columns in metadata table.
 }
 \keyword{internal}

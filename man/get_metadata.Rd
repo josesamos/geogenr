@@ -3,7 +3,7 @@
 \name{get_metadata}
 \alias{get_metadata}
 \alias{get_metadata.uscb_metadata}
-\title{get metadata}
+\title{Get metadata}
 \usage{
 get_metadata(um)
 

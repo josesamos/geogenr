@@ -3,7 +3,7 @@
 \name{get_field_values}
 \alias{get_field_values}
 \alias{get_field_values.uscb_metadata}
-\title{show fields}
+\title{get_field_values}
 \usage{
 get_field_values(um)
 
@@ -16,6 +16,6 @@ get_field_values(um)
 A \code{uscb_metadata} object.
 }
 \description{
-show fields in metadata table.
+Get field values.
 }
 \keyword{internal}

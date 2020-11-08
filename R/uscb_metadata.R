@@ -183,7 +183,8 @@ new_uscb_metadata <- function(filepath = NULL, code = NULL, group_code = NULL, s
 
 #' `uscb_metadata` S3 class
 #'
-#' A `uscb_metadata` object is created from a given
+#' A `uscb_metadata` object is created from a given geodatabase, code, group
+#' code, short name and existing metadata.
 #'
 #' @param filepath A string, path to gbd file.
 #' @param code A vector of strings.
@@ -193,8 +194,8 @@ new_uscb_metadata <- function(filepath = NULL, code = NULL, group_code = NULL, s
 #'
 #' @return A `uscb_metadata` object.
 #'
-#'
 #' @export
+#' @keywords internal
 uscb_metadata <-
   function(filepath = NULL, code = NULL, group_code = NULL, short_name = NULL, uscb_acs_metadata = NULL) {
     new_uscb_metadata(filepath, code, group_code, short_name, uscb_acs_metadata)

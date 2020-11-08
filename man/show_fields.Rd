@@ -3,7 +3,7 @@
 \name{show_fields}
 \alias{show_fields}
 \alias{show_fields.uscb_metadata}
-\title{show fields}
+\title{Show fields}
 \usage{
 show_fields(um)
 
@@ -16,6 +16,6 @@ show_fields(um)
 A \code{uscb_metadata} object.
 }
 \description{
-show fields in metadata table.
+Show fields in metadata table.
 }
 \keyword{internal}

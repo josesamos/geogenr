@@ -2,7 +2,7 @@
 % Please edit documentation in R/uscb_metadata_reformat_metadata.R
 \name{standardize_text}
 \alias{standardize_text}
-\title{standardize text}
+\title{Standardize text}
 \usage{
 standardize_text(docs)
 }
@@ -13,6 +13,6 @@ standardize_text(docs)
 A character vector.
 }
 \description{
-standardize text making transformations.
+Standardize text making transformations.
 }
 \keyword{internal}

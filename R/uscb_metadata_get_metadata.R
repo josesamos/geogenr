@@ -1,7 +1,7 @@
 
 # get_metadata ------------------------------------------------------
 
-#' get metadata
+#' Get metadata
 #'
 #' get the metadata to distribute it in columns according to its topic.
 #'
