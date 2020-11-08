@@ -48,7 +48,11 @@ new_uscb_layer <- function(metadata, ua, geodatabase, year, folder = NULL) {
 
 #' `uscb_layer` S3 class
 #'
-#' A `uscb_layer` object is created from a given
+#' A `uscb_layer` object is created from the available metadata, a
+#' `uscb_acs_5ye` object, a geodatabase name, and a year.
+#'
+#' If the folder is not indicated, it is considered that of the `uscb_acs_5ye`
+#' object class.
 #'
 #' @param metadata A metadata object.
 #' @param ua A `uscb_acs_5ye` object.
@@ -58,6 +62,21 @@ new_uscb_layer <- function(metadata, ua, geodatabase, year, folder = NULL) {
 #'
 #' @return A `uscb_layer` object.
 #'
+#' @family data selection functions
+#' @seealso
+#'
+#' @examples
+#' library(tidyr)
+#'
+#' folder <- system.file("extdata", package = "geogenr")
+#' folder <- stringr::str_replace_all(paste(folder, "/", ""), " ", "")
+#' ua <- uscb_acs_5ye(folder = folder)
+#' sa <- ua %>% get_statistical_areas()
+#'
+#' # sa[6]
+#' # [1] "New England City and Town Area Division"
+#'
+#' ul <- uscb_layer(uscb_acs_metadata, ua = ua, geodatabase = sa[6], year = 2018)
 #'
 #' @export
 uscb_layer <-
@@ -66,7 +85,7 @@ uscb_layer <-
   }
 
 
-#' get year from filepath
+#' Get year from filepath
 #'
 #' Get last year from a string.
 #'
@@ -85,9 +104,9 @@ get_year_from_filepath <- function(filepath) {
 
 # get_place ------------------------------------------------------
 
-#' get year from filepath
+#' Get place
 #'
-#' Get last year from a string.
+#' Get geographical layer from a geodatabase.
 #'
 #' @param ul A `uscb_layer` object.
 #'

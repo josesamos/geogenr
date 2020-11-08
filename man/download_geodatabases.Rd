@@ -3,7 +3,7 @@
 \name{download_geodatabases}
 \alias{download_geodatabases}
 \alias{download_geodatabases.uscb_acs_5ye}
-\title{get layer names}
+\title{Download geodatabases}
 \usage{
 download_geodatabases(ua, geodatabase, years, folder = NULL)
 
@@ -14,13 +14,43 @@ download_geodatabases(ua, geodatabase, years, folder = NULL)
 
 \item{geodatabase}{A string.}
 
-\item{years}{A vector of years.}
+\item{years}{A vector of integers.}
 
 \item{folder}{A string.}
 }
 \value{
-A vector of years.
+A vector of integers.
 }
 \description{
-get layer names.
+For the name of a geodatabase and the given years, downloads from the web the
+corresponding geodatabase data files. Returns a vector with the years for
+which data is now available on the folder.
 }
+\details{
+If the folder is not indicated, it is considered that of the class.
+}
+\examples{
+library(tidyr)
+
+folder <- "../geodimension/data/us/"
+ua <- uscb_acs_5ye(folder = folder)
+sa <- ua \%>\% get_statistical_areas()
+
+# sa[6]
+# [1] "New England City and Town Area Division"
+\dontrun{
+y <- ua \%>\% get_available_years_in_the_web(geodatabase = sa[6])
+y_res <- ua \%>\% download_geodatabases(geodatabase = sa[6], years = y)
+}
+}
+\seealso{
+
+
+Other data collection functions: 
+\code{\link{get_available_years_downloaded}()},
+\code{\link{get_available_years_in_the_web}()},
+\code{\link{get_legal_and_administrative_areas}()},
+\code{\link{get_statistical_areas}()},
+\code{\link{uscb_acs_5ye}()}
+}
+\concept{data collection functions}

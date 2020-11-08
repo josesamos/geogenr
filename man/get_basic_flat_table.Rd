@@ -20,4 +20,3 @@ A \code{tibble} object.
 \description{
 get tidy data.
 }
-\keyword{internal}

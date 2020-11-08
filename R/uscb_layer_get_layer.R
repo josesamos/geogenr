@@ -8,14 +8,17 @@
 #'
 #' @return A vector of names.
 #'
-#' @keywords internal
+#' @family data selection functions
+#' @seealso
+#'
+#'
+#' @export
 get_layer_names <- function(ul) {
   UseMethod("get_layer_names")
 }
 
 #' @rdname get_layer_names
 #' @export
-#' @keywords internal
 get_layer_names.uscb_layer <- function(ul) {
 
   ul$layer_names[substr(ul$layer_names, 1, 1) == "X"]
@@ -34,14 +37,13 @@ get_layer_names.uscb_layer <- function(ul) {
 #'
 #' @return A `uscb_layer` object.
 #'
-#' @keywords internal
+#' @export
 get_layer <- function(ul, layer_name) {
   UseMethod("get_layer")
 }
 
 #' @rdname get_layer
 #' @export
-#' @keywords internal
 get_layer.uscb_layer <- function(ul, layer_name) {
   ul$layer_name <- layer_name
   ul$layer <-
@@ -83,14 +85,13 @@ get_layer.uscb_layer <- function(ul, layer_name) {
 #'
 #' @return A vector of names.
 #'
-#' @keywords internal
+#' @export
 get_layer_group_names <- function(ul) {
   UseMethod("get_layer_group_names")
 }
 
 #' @rdname get_layer_group_names
 #' @export
-#' @keywords internal
 get_layer_group_names.uscb_layer <- function(ul) {
 
   ul$layer_group_names
@@ -108,14 +109,13 @@ get_layer_group_names.uscb_layer <- function(ul) {
 #'
 #' @return A `uscb_layer` object.
 #'
-#' @keywords internal
+#' @export
 get_layer_group <- function(ul, layer_group_name) {
   UseMethod("get_layer_group")
 }
 
 #' @rdname get_layer_group
 #' @export
-#' @keywords internal
 get_layer_group.uscb_layer <- function(ul, layer_group_name) {
   ul$layer_group_name <- layer_group_name
   group_code <- substr(layer_group_name, 1, 3)
@@ -141,14 +141,13 @@ get_layer_group.uscb_layer <- function(ul, layer_group_name) {
 #'
 #' @return A `tibble` object.
 #'
-#' @keywords internal
+#' @export
 get_basic_flat_table <- function(ul, remove_zeros = FALSE) {
   UseMethod("get_basic_flat_table")
 }
 
 #' @rdname get_basic_flat_table
 #' @export
-#' @keywords internal
 get_basic_flat_table.uscb_layer <- function(ul, remove_zeros = FALSE) {
   layer <- ul$layer[, ul$layer_group_columns]
   layer <- tidyr::pivot_longer(layer, !c("GEOID"), names_to = "Short_Name", values_to = "value")
@@ -185,14 +184,13 @@ get_basic_flat_table.uscb_layer <- function(ul, remove_zeros = FALSE) {
 #'
 #' @return A `tibble` object.
 #'
-#' @keywords internal
+#' @export
 get_flat_table <- function(ul, remove_zeros = FALSE, remove_geometry = FALSE) {
   UseMethod("get_flat_table")
 }
 
 #' @rdname get_flat_table
 #' @export
-#' @keywords internal
 get_flat_table.uscb_layer <- function(ul, remove_zeros = FALSE, remove_geometry = TRUE) {
   layer <- get_basic_flat_table(ul, remove_zeros)
   names <- names(layer)
@@ -223,14 +221,13 @@ get_flat_table.uscb_layer <- function(ul, remove_zeros = FALSE, remove_geometry 
 #'
 #' @return A `geomultistar` object.
 #'
-#' @keywords internal
+#' @export
 get_geomultistar <- function(ul) {
   UseMethod("get_geomultistar")
 }
 
 #' @rdname get_geomultistar
 #' @export
-#' @keywords internal
 get_geomultistar.uscb_layer <- function(ul) {
   ft <- get_basic_flat_table(ul, remove_zeros = FALSE)
   names_ft <- names(ft)

@@ -20,4 +20,3 @@ A \code{uscb_folder} object.
 \description{
 get layer to interpret variables.
 }
-\keyword{internal}

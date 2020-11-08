@@ -18,4 +18,3 @@ A vector of names.
 \description{
 get layer names.
 }
-\keyword{internal}

@@ -2,7 +2,7 @@
 % Please edit documentation in R/uscb_layer.R
 \name{get_place}
 \alias{get_place}
-\title{get year from filepath}
+\title{Get place}
 \usage{
 get_place(ul)
 }
@@ -13,6 +13,6 @@ get_place(ul)
 A \code{tibble} object.
 }
 \description{
-Get last year from a string.
+Get geographical layer from a geodatabase.
 }
 \keyword{internal}

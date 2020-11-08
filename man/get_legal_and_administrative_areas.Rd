@@ -30,6 +30,7 @@ laa <- ua \%>\% get_legal_and_administrative_areas()
 
 
 Other data collection functions: 
+\code{\link{download_geodatabases}()},
 \code{\link{get_available_years_downloaded}()},
 \code{\link{get_available_years_in_the_web}()},
 \code{\link{get_statistical_areas}()},

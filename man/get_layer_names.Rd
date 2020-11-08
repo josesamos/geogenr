@@ -18,4 +18,10 @@ A vector of names.
 \description{
 get layer names.
 }
-\keyword{internal}
+\seealso{
+
+
+Other data selection functions: 
+\code{\link{uscb_layer}()}
+}
+\concept{data selection functions}

@@ -20,4 +20,3 @@ A \code{uscb_layer} object.
 \description{
 get layer group to interpret variables.
 }
-\keyword{internal}

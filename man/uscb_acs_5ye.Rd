@@ -20,11 +20,16 @@ A \code{uscb_acs_5ye} object is created from a given local folder.
 folder <- "../geodimension/data/us/"
 ua <- uscb_acs_5ye(folder = folder)
 
+folder <- system.file("extdata", package = "geogenr")
+folder <- stringr::str_replace_all(paste(folder, "/", ""), " ", "")
+ua <- uscb_acs_5ye(folder = folder)
+
 }
 \seealso{
 
 
 Other data collection functions: 
+\code{\link{download_geodatabases}()},
 \code{\link{get_available_years_downloaded}()},
 \code{\link{get_available_years_in_the_web}()},
 \code{\link{get_legal_and_administrative_areas}()},

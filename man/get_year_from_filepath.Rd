@@ -2,7 +2,7 @@
 % Please edit documentation in R/uscb_layer.R
 \name{get_year_from_filepath}
 \alias{get_year_from_filepath}
-\title{get year from filepath}
+\title{Get year from filepath}
 \usage{
 get_year_from_filepath(filepath)
 }

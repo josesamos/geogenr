@@ -18,4 +18,3 @@ A \code{geomultistar} object.
 \description{
 get tidy data.
 }
-\keyword{internal}

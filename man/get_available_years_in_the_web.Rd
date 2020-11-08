@@ -26,17 +26,19 @@ library(tidyr)
 
 folder <- "../geodimension/data/us/"
 ua <- uscb_acs_5ye(folder = folder)
-laa <- ua \%>\% get_legal_and_administrative_areas()
+sa <- ua \%>\% get_statistical_areas()
 
-# laa[8]
-# [1] "State"
-# y <- ua \%>\% get_available_years_in_the_web(geodatabase = laa[8])
-
+# sa[6]
+# [1] "New England City and Town Area Division"
+\dontrun{
+y <- ua \%>\% get_available_years_in_the_web(geodatabase = sa[6])
+}
 }
 \seealso{
 
 
 Other data collection functions: 
+\code{\link{download_geodatabases}()},
 \code{\link{get_available_years_downloaded}()},
 \code{\link{get_legal_and_administrative_areas}()},
 \code{\link{get_statistical_areas}()},

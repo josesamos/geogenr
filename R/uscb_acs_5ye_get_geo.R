@@ -83,12 +83,13 @@ get_statistical_areas.uscb_acs_5ye<- function(ua) {
 #'
 #' folder <- "../geodimension/data/us/"
 #' ua <- uscb_acs_5ye(folder = folder)
-#' laa <- ua %>% get_legal_and_administrative_areas()
+#' sa <- ua %>% get_statistical_areas()
 #'
-#' # laa[8]
-#' # [1] "State"
-#' # y <- ua %>% get_available_years_in_the_web(geodatabase = laa[8])
-#'
+#' # sa[6]
+#' # [1] "New England City and Town Area Division"
+#' \dontrun{
+#' y <- ua %>% get_available_years_in_the_web(geodatabase = sa[6])
+#' }
 #' @export
 get_available_years_in_the_web <- function(ua, geodatabase) {
   UseMethod("get_available_years_in_the_web")
@@ -129,7 +130,7 @@ get_available_years_in_the_web.uscb_acs_5ye<- function(ua, geodatabase) {
 #' @param geodatabase A string.
 #' @param folder A string.
 #'
-#' @return A vector of years.
+#' @return A vector of integers.
 #'
 #' @family data collection functions
 #' @seealso
@@ -137,13 +138,15 @@ get_available_years_in_the_web.uscb_acs_5ye<- function(ua, geodatabase) {
 #' @examples
 #' library(tidyr)
 #'
-#' folder <- "../geodimension/data/us/"
+#' folder <- system.file("extdata", package = "geogenr")
+#' folder <- stringr::str_replace_all(paste(folder, "/", ""), " ", "")
 #' ua <- uscb_acs_5ye(folder = folder)
-#' laa <- ua %>% get_legal_and_administrative_areas()
+#' sa <- ua %>% get_statistical_areas()
 #'
-#' # laa[8]
-#' # [1] "State"
-#' # y <- ua %>% get_available_years_downloaded(geodatabase = laa[8])
+#' # sa[6]
+#' # [1] "New England City and Town Area Division"
+#'
+#' y <- ua %>% get_available_years_downloaded(geodatabase = sa[6])
 #'
 #' @export
 get_available_years_downloaded <- function(ua, geodatabase, folder = NULL) {
@@ -180,17 +183,37 @@ get_available_years_downloaded.uscb_acs_5ye<- function(ua, geodatabase, folder =
 
 # download_geodatabases ------------------------------------------------------
 
-#' get layer names
+#' Download geodatabases
 #'
-#' get layer names.
+#' For the name of a geodatabase and the given years, downloads from the web the
+#' corresponding geodatabase data files. Returns a vector with the years for
+#' which data is now available on the folder.
+#'
+#' If the folder is not indicated, it is considered that of the class.
 #'
 #' @param ua A `uscb_acs_5ye` object.
 #' @param geodatabase A string.
-#' @param years A vector of years.
+#' @param years A vector of integers.
 #' @param folder A string.
 #'
-#' @return A vector of years.
+#' @return A vector of integers.
 #'
+#' @family data collection functions
+#' @seealso
+#'
+#' @examples
+#' library(tidyr)
+#'
+#' folder <- "../geodimension/data/us/"
+#' ua <- uscb_acs_5ye(folder = folder)
+#' sa <- ua %>% get_statistical_areas()
+#'
+#' # sa[6]
+#' # [1] "New England City and Town Area Division"
+#' \dontrun{
+#' y <- ua %>% get_available_years_in_the_web(geodatabase = sa[6])
+#' y_res <- ua %>% download_geodatabases(geodatabase = sa[6], years = y)
+#' }
 #' @export
 download_geodatabases <- function(ua, geodatabase, years, folder = NULL) {
   UseMethod("download_geodatabases")

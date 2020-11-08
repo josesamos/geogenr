@@ -21,5 +21,31 @@ uscb_layer(metadata, ua, geodatabase, year, folder = NULL)
 A \code{uscb_layer} object.
 }
 \description{
-A \code{uscb_layer} object is created from a given
+A \code{uscb_layer} object is created from the available metadata, a
+\code{uscb_acs_5ye} object, a geodatabase name, and a year.
 }
+\details{
+If the folder is not indicated, it is considered that of the \code{uscb_acs_5ye}
+object class.
+}
+\examples{
+library(tidyr)
+
+folder <- system.file("extdata", package = "geogenr")
+folder <- stringr::str_replace_all(paste(folder, "/", ""), " ", "")
+ua <- uscb_acs_5ye(folder = folder)
+sa <- ua \%>\% get_statistical_areas()
+
+# sa[6]
+# [1] "New England City and Town Area Division"
+
+ul <- uscb_layer(uscb_acs_metadata, ua = ua, geodatabase = sa[6], year = 2018)
+
+}
+\seealso{
+
+
+Other data selection functions: 
+\code{\link{get_layer_names}()}
+}
+\concept{data selection functions}

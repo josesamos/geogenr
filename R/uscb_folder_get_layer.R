@@ -8,14 +8,13 @@
 #'
 #' @return A vector of names.
 #'
-#' @keywords internal
+#' @export
 get_folder_layer_names <- function(uf) {
   UseMethod("get_folder_layer_names")
 }
 
 #' @rdname get_folder_layer_names
 #' @export
-#' @keywords internal
 get_folder_layer_names.uscb_folder <- function(uf) {
 
   uf$initial %>% get_layer_names()
@@ -34,14 +33,13 @@ get_folder_layer_names.uscb_folder <- function(uf) {
 #'
 #' @return A `uscb_folder` object.
 #'
-#' @keywords internal
+#' @export
 get_folder_layer <- function(uf, layer_name) {
   UseMethod("get_folder_layer")
 }
 
 #' @rdname get_folder_layer
 #' @export
-#' @keywords internal
 get_folder_layer.uscb_folder <- function(uf, layer_name) {
   uf$initial <- uf$initial %>% get_layer(layer_name)
   for (i in seq_along(uf$rest)) {
@@ -62,14 +60,13 @@ get_folder_layer.uscb_folder <- function(uf, layer_name) {
 #'
 #' @return A vector of names.
 #'
-#' @keywords internal
+#' @export
 get_folder_layer_group_names <- function(uf) {
   UseMethod("get_folder_layer_group_names")
 }
 
 #' @rdname get_folder_layer_group_names
 #' @export
-#' @keywords internal
 get_folder_layer_group_names.uscb_folder <- function(uf) {
 
   uf$initial %>% get_layer_group_names()
@@ -87,14 +84,13 @@ get_folder_layer_group_names.uscb_folder <- function(uf) {
 #'
 #' @return A `uscb_folder` object.
 #'
-#' @keywords internal
+#' @export
 get_folder_layer_group <- function(uf, layer_group_name) {
   UseMethod("get_folder_layer_group")
 }
 
 #' @rdname get_folder_layer_group
 #' @export
-#' @keywords internal
 get_folder_layer_group.uscb_folder <- function(uf, layer_group_name) {
   uf$initial <- uf$initial %>% get_layer_group(layer_group_name)
   for (i in seq_along(uf$rest)) {
@@ -117,14 +113,13 @@ get_folder_layer_group.uscb_folder <- function(uf, layer_group_name) {
 #'
 #' @return A `tibble` object.
 #'
-#' @keywords internal
+#' @export
 get_common_flat_table <- function(uf, remove_zeros = TRUE, remove_geometry = FALSE) {
   UseMethod("get_common_flat_table")
 }
 
 #' @rdname get_common_flat_table
 #' @export
-#' @keywords internal
 get_common_flat_table.uscb_folder <- function(uf, remove_zeros = TRUE, remove_geometry = TRUE) {
   tidy <- uf$initial %>% get_flat_table(remove_zeros, remove_geometry)
   for (i in seq_along(uf$rest)) {
@@ -171,14 +166,13 @@ same_layer_group_columns <- function(initial, rest) {
 #'
 #' @return A `geomultistar` object.
 #'
-#' @keywords internal
+#' @export
 get_common_geomultistar <- function(uf) {
   UseMethod("get_common_geomultistar")
 }
 
 #' @rdname get_common_geomultistar
 #' @export
-#' @keywords internal
 get_common_geomultistar.uscb_folder <- function(uf) {
   ft <- get_basic_flat_table(uf$initial, remove_zeros = FALSE)
   names_ft <- names(ft)

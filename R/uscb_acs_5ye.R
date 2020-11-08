@@ -108,6 +108,10 @@ new_uscb_acs_5ye <- function(folder = "") {
 #' folder <- "../geodimension/data/us/"
 #' ua <- uscb_acs_5ye(folder = folder)
 #'
+#' folder <- system.file("extdata", package = "geogenr")
+#' folder <- stringr::str_replace_all(paste(folder, "/", ""), " ", "")
+#' ua <- uscb_acs_5ye(folder = folder)
+#'
 #' @export
 uscb_acs_5ye <- function(folder = "") {
     new_uscb_acs_5ye(folder)

@@ -17,7 +17,7 @@ get_available_years_downloaded(ua, geodatabase, folder = NULL)
 \item{folder}{A string.}
 }
 \value{
-A vector of years.
+A vector of integers.
 }
 \description{
 For the name of a geodatabase, returns a vector with the years for which data
@@ -29,19 +29,22 @@ If the folder is not indicated, it is considered that of the class.
 \examples{
 library(tidyr)
 
-folder <- "../geodimension/data/us/"
+folder <- system.file("extdata", package = "geogenr")
+folder <- stringr::str_replace_all(paste(folder, "/", ""), " ", "")
 ua <- uscb_acs_5ye(folder = folder)
-laa <- ua \%>\% get_legal_and_administrative_areas()
+sa <- ua \%>\% get_statistical_areas()
 
-# laa[8]
-# [1] "State"
-# y <- ua \%>\% get_available_years_downloaded(geodatabase = laa[8])
+# sa[6]
+# [1] "New England City and Town Area Division"
+
+y <- ua \%>\% get_available_years_downloaded(geodatabase = sa[6])
 
 }
 \seealso{
 
 
 Other data collection functions: 
+\code{\link{download_geodatabases}()},
 \code{\link{get_available_years_in_the_web}()},
 \code{\link{get_legal_and_administrative_areas}()},
 \code{\link{get_statistical_areas}()},
