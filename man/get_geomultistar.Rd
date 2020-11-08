@@ -13,7 +13,7 @@ get_geomultistar(ul)
 \item{ul}{A \code{uscb_layer} object.}
 }
 \value{
-A \code{tibble} object.
+A \code{geomultistar} object.
 }
 \description{
 get tidy data.

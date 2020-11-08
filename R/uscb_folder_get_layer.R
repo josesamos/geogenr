@@ -161,4 +161,46 @@ same_layer_group_columns <- function(initial, rest) {
 }
 
 
+# get_common_geomultistar ------------------------------------------------------
+
+#' get tidy data
+#'
+#' get tidy data.
+#'
+#' @param ul A `uscb_folder` object.
+#'
+#' @return A `geomultistar` object.
+#'
+#' @keywords internal
+get_common_geomultistar <- function(uf) {
+  UseMethod("get_common_geomultistar")
+}
+
+#' @rdname get_common_geomultistar
+#' @export
+#' @keywords internal
+get_common_geomultistar.uscb_folder <- function(uf) {
+  ft <- get_basic_flat_table(uf$initial, remove_zeros = FALSE)
+  names_ft <- names(ft)
+  what_ini <- which(names_ft == "Short_Name")
+  fact_ini <- which(names_ft == "Estimate")
+
+  for (i in seq_along(uf$rest)) {
+    if (same_layer_group_columns(uf$initial, uf$rest[[i]])) {
+      ft_rest <- get_basic_flat_table(uf$rest[[i]], remove_zeros = FALSE)
+      ft <- ft %>% tibble::add_row(ft_rest)
+    }
+  }
+
+  place <- get_place(uf$initial)
+  place_names <- names(place)
+  place_names <- place_names[1:(length(place_names) - 1)]
+  ft <- dplyr::left_join(ft, place[, place_names], by = c("GEOID" = "GEOID"))
+
+  define_geomultistar(ft,
+                      fact_name = substr(uf$initial$layer_group_name, 7, nchar(uf$initial$layer_group_name)),
+                      where_names = place_names,
+                      what_names = names_ft[what_ini:(fact_ini - 1)],
+                      place)
+}
 

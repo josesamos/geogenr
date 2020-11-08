@@ -34,7 +34,8 @@ Imports:
     data.table,
     tm,
     utils,
-    httr
+    httr,
+    geomultistar
 Suggests: 
     testthat,
     knitr,

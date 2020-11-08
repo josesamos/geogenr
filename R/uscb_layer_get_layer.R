@@ -173,8 +173,6 @@ get_basic_flat_table.uscb_layer <- function(ul, remove_zeros = FALSE) {
 }
 
 
-
-
 # get_flat_table ------------------------------------------------------
 
 #' get tidy data
@@ -199,23 +197,10 @@ get_flat_table.uscb_layer <- function(ul, remove_zeros = FALSE, remove_geometry 
   layer <- get_basic_flat_table(ul, remove_zeros)
   names <- names(layer)
 
-  oldw <- getOption("warn")
-  options(warn = -1)
-  place <- sf::st_read(
-    dsn = ul$filepath,
-    layer = ul$layer_names[1],
-    options = "METHOD=SKIP",
-    quiet = TRUE,
-    as_tibble = TRUE
-  )
-  options(warn = oldw)
-
+  place <- get_place(ul)
   place_names <- names(place)
-  # in one case the GEOID column name is GEOID10
-  place_names_short <- substr(place_names, 1, 5)
-  place_geoid <- (place_names[place_names_short == "GEOID"])[1]
-  place_names[which(place_names == place_geoid)] <- "GEOID"
-  layer <- dplyr::left_join(layer, place, by = c("GEOID" = place_geoid))
+
+  layer <- dplyr::left_join(layer, place, by = c("GEOID" = "GEOID"))
   names <- c(names[1], place_names[-length(place_names)], names[3:length(names)], place_names[length(place_names)])
   layer <- layer[, names]
   names_layer <- snakecase::to_snake_case(tolower(names(layer)), sep_out = "_")
@@ -228,9 +213,6 @@ get_flat_table.uscb_layer <- function(ul, remove_zeros = FALSE, remove_geometry 
 }
 
 
-
-
-
 # get_geomultistar ------------------------------------------------------
 
 #' get tidy data
@@ -239,7 +221,7 @@ get_flat_table.uscb_layer <- function(ul, remove_zeros = FALSE, remove_geometry 
 #'
 #' @param ul A `uscb_layer` object.
 #'
-#' @return A `tibble` object.
+#' @return A `geomultistar` object.
 #'
 #' @keywords internal
 get_geomultistar <- function(ul) {
@@ -255,22 +237,57 @@ get_geomultistar.uscb_layer <- function(ul) {
   what_ini <- which(names_ft == "Short_Name")
   fact_ini <- which(names_ft == "Estimate")
 
+  place <- get_place(ul)
+  place_names <- names(place)
+  place_names <- place_names[1:(length(place_names) - 1)]
+
+  ft <- dplyr::left_join(ft, place[, place_names], by = c("GEOID" = "GEOID"))
+
+  define_geomultistar(ft,
+                      fact_name = substr(ul$layer_group_name, 7, nchar(ul$layer_group_name)),
+                      where_names = place_names,
+                      what_names = names_ft[what_ini:(fact_ini - 1)],
+                      place)
+}
+
+
+#' define_geomultistar
+#'
+#' Get last year from a string.
+#'
+#'
+#' @param ft A `tibble` object.
+#' @param fact_name A string.
+#' @param where_names A vector of strings.
+#' @param what_names A vector of strings.
+#' @param place A `st` object.
+#'
+#' @return A boolean
+#'
+#' @keywords internal
+define_geomultistar <- function(ft, fact_name, where_names, what_names, place) {
   dm <- starschemar::dimensional_model() %>%
     starschemar::define_fact(
-      name = substr(ul$layer_group_name, 7, nchar(ul$layer_group_name)),
+      name = fact_name,
       measures = c("Estimate", "Margin of Error"),
     ) %>%
     starschemar::define_dimension(name = "when",
                                   attributes = c("year")) %>%
     starschemar::define_dimension(name = "where",
-                                  attributes = c("GEOID")) %>%
+                                  attributes = where_names) %>%
     starschemar::define_dimension(name = "what",
-                                  attributes = names_ft[what_ini:(fact_ini - 1)])
+                                  attributes = what_names)
 
   st <- starschemar::star_schema(ft, dm) %>%
     starschemar::snake_case()
-  st
+
+  gms <-
+    geomultistar::geomultistar(st, geodimension = "where") %>%
+    geomultistar::define_geoattribute(
+      attribute = "geoid",
+      from_layer = place,
+      by = c("geoid" = "GEOID")
+    )
+  gms
 }
-
-
 

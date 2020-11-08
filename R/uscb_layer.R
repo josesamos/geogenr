@@ -83,3 +83,35 @@ get_year_from_filepath <- function(filepath) {
   sprintf("%d", matches[length(matches)])
 }
 
+# get_place ------------------------------------------------------
+
+#' get year from filepath
+#'
+#' Get last year from a string.
+#'
+#' @param ul A `uscb_layer` object.
+#'
+#' @return A `tibble` object.
+#'
+#' @keywords internal
+get_place <- function(ul) {
+  oldw <- getOption("warn")
+  options(warn = -1)
+  place <- sf::st_read(
+    dsn = ul$filepath,
+    layer = ul$layer_names[1],
+    options = "METHOD=SKIP",
+    quiet = TRUE,
+    as_tibble = TRUE
+  )
+  options(warn = oldw)
+
+  place_names <- names(place)
+  # in some cases the GEOID column name is GEOID10, rename it.
+  place_names_short <- substr(place_names, 1, 5)
+  place_geoid <- (place_names[place_names_short == "GEOID"])[1]
+  place_names[which(place_names == place_geoid)] <- "GEOID"
+  names(place) <- place_names
+
+  place
+}
