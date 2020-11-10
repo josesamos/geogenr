@@ -259,7 +259,7 @@ assign_level <- function(mdr, field) {
 #' @param mdr A `tibble`.
 #' @param fields Vector with the name of the field and its levels.
 #' @param field_index Index of the vector of names to consider.
-#' @param values_indices Indices of the tibble positions to move.
+#' @param values_indices Indices of the `tibble` positions to move.
 #' @param index_limit Level limit for the name index.
 #'
 #' @return A `tibble`.

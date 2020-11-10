@@ -13,7 +13,7 @@ scroll_level(mdr, fields, field_index, values_indices, index_limit)
 
 \item{field_index}{Index of the vector of names to consider.}
 
-\item{values_indices}{Indices of the tibble positions to move.}
+\item{values_indices}{Indices of the \code{tibble} positions to move.}
 
 \item{index_limit}{Level limit for the name index.}
 }
