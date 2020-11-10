@@ -49,10 +49,6 @@ uf <- uscb_folder(ul)
 
 
 Other data selection functions: 
-\code{\link{get_common_flat_table}()},
-\code{\link{get_common_geomultistar}()},
-\code{\link{get_flat_table}()},
-\code{\link{get_geomultistar}()},
 \code{\link{get_layer_group_names}()},
 \code{\link{get_layer_group}()},
 \code{\link{get_layer_names}()},

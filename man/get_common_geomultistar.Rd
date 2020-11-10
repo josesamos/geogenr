@@ -49,15 +49,9 @@ gms <- uf \%>\% get_common_geomultistar()
 \seealso{
 
 
-Other data selection functions: 
+Other result generation functions: 
 \code{\link{get_common_flat_table}()},
 \code{\link{get_flat_table}()},
-\code{\link{get_geomultistar}()},
-\code{\link{get_layer_group_names}()},
-\code{\link{get_layer_group}()},
-\code{\link{get_layer_names}()},
-\code{\link{get_layer}()},
-\code{\link{uscb_folder}()},
-\code{\link{uscb_layer}()}
+\code{\link{get_geomultistar}()}
 }
-\concept{data selection functions}
+\concept{result generation functions}

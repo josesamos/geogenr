@@ -1,0 +1,360 @@
+---
+title: "geogenr: geomultistar Generator from American Community Survey (ACS) Geodatabases"
+author: "Jose Samos (jsamos@ugr.es)"
+date: "2020-11-09"
+output: rmarkdown::html_vignette
+bibliography: bibliography.bib
+vignette: >
+  %\VignetteIndexEntry{geogenr: geomultistar Generator from American Community Survey (ACS) Geodatabases}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+```{r setup, echo = FALSE}
+library(geomultistar)
+```
+
+# Introduction
+
+The *multidimensional data model* was defined with the aim of supporting data analysis. In multidimensional systems, data is structured in facts and dimensions[^1]. The star model is widely accepted, it is recommended for use in widely distributed end-user tools. 
+
+[^1]: Basic concepts of dimensional modelling and star schemas are presented in [`starschemar`](https://CRAN.R-project.org/package=starschemar) vignettes.
+
+The *geographical dimension* plays a fundamental role in multidimensional systems. It is very interesting to have the possibility of representing the reports obtained from multidimensional systems, using their geographic dimensions, on a map, or performing spatial analysis on them. This functionality is supported by package [`geomultistar`](https://CRAN.R-project.org/package=geomultistar).
+
+The [American Community Survey (ACS)](https://www.census.gov/programs-surveys/acs), within the [United States Census Bureau (USCB)](https://www.census.gov/en.html), offers databases that can be structured using the multidimensional data model to take advantage of its characteristics to be consulted. A characteristic of these databases is that they have a geographic component in the form of a vector layer. For this reason, the structures offered by package [`geomultistar`](https://CRAN.R-project.org/package=geomultistar) are suitable for representing this data.
+
+The main objective of this package is to automatically generate multidimensional structures based on the [`geomultistar`](https://CRAN.R-project.org/package=geomultistar) package from the geodatabases provided by the ACS, which can be easily queried by users.
+
+Other packages are available that are very useful to access the same data, such as [`tidycensus`](https://CRAN.R-project.org/package=tidycensus), which works in an integrated way with [`tigris`](https://CRAN.R-project.org/package=tigris). The main characteristics of `geogenr` that distinguish it from other proposals are the following: 
+
+- it works locally, once available geodatabases are downloaded (can be downloaded using the package); 
+
+- supports access at the level of group of variables integrated in a layer, instead of at the level of variable or vector of variables; 
+
+- decomposes ACS composite variables into structured fields;
+
+- allows to directly integrate variables of several years;
+
+- and automatically structures the data using the multidimensional data model.
+
+The rest of this document is structured as follows: First, the starting data are presented. Then, an illustrative example of how the package works is developed. Finally, the document ends with conclusions.
+
+# American Community Survey 5-Year Estimates
+
+The package is based on the geodatabases available on the [TIGER/Line with Selected Demographic and Economic Data](https://www.census.gov/geographies/mapping-files/time-series/geo/tiger-data.2018.html) web page. For each year (as of 2010) a list of geodatabases appears under two sections:
+
+- *Legal and Administrative Areas*;
+
+- *Statistical Areas*.
+
+As mentioned there for the year 2018 (the last one accessible at the moment), literally: "These geodatabases bring together geography from the 2018 TIGER/Line Shapefiles and data from the 2014-2018 American Community Survey (ACS) 5-year estimates." Similar data are offered for the previous years for the periods corresponding to each one.
+
+Each geodatabase is structured in layers: a geographic layer, a metadata layer, and the rest are data layers. The data layers have a matrix form, the rows correspond to instances of the geographic layer, the columns to variables defined in the metadata layer, the cells are numeric values. Here are two examples:
+
+`GEOID          B00001e1 B00001m1 B00002e1 B00002m1`
+
+`16000US0200065       60       -1      300       -1`
+
+`16000US0200650       20       -1       20       -1`
+
+`16000US0200760      350       -1      100       -1`
+
+`16000US0200870      250       -1       60       -1`
+
+`16000US0201090      200       -1       30       -1`
+
+`16000US0201200      450       -1      100       -1`
+
+`...`
+
+and
+
+`GEOID          B01001e1 B01001m1 B01001e2 B01001m2 B01001e3 B01001m3 B01001e4 B01001m4 ...`
+
+`16000US0100100      218      165       92      114       10       16       18       30`
+
+`16000US0100124     2582       24     1313       98       45       37       14       19`
+
+`16000US0100460     4374       24     1963      158      144       76      105       68`
+
+`16000US0100484      641      159      326       89       10       17       16       11`
+
+`16000US0100676      295      102      143       55        7       11       14       17`
+
+`16000US0100820    32878       57    16236      453     1159      257     1151      209`
+
+`...`
+
+
+Some of the defined variables are shown below.
+
+`Short Name	Full Name`
+
+`B00001e1	UNWEIGHTED SAMPLE COUNT OF THE POPULATION: Total: Total Population -- (Estimate)`
+
+`B00001m1	UNWEIGHTED SAMPLE COUNT OF THE POPULATION: Total: Total Population -- (Margin of Error)`
+
+`B00002e1	UNWEIGHTED SAMPLE HOUSING UNITS: Total: Housing Units -- (Estimate)`
+
+`B00002m1	UNWEIGHTED SAMPLE HOUSING UNITS: Total: Housing Units -- (Margin of Error)`
+
+`B01001e1	SEX BY AGE: Total: Total Population -- (Estimate)`
+
+`B01001m1	SEX BY AGE: Total: Total Population -- (Margin of Error)`
+
+`B01001e2	SEX BY AGE: Male: Total Population -- (Estimate)`
+
+`B01001m2	SEX BY AGE: Male: Total Population -- (Margin of Error)`
+
+`B01001e3	SEX BY AGE: Male: Under 5 years: Total Population -- (Estimate)`
+
+`B01001m3	SEX BY AGE: Male: Under 5 years: Total Population -- (Margin of Error)`
+
+`B01001e4	SEX BY AGE: Male: 5 to 9 years: Total Population -- (Estimate)`
+
+`B01001m4	SEX BY AGE: Male: 5 to 9 years: Total Population -- (Margin of Error)`
+
+`...`
+
+Each variable (`Short Name`) corresponds to combinations of various field values separated by a separator (`: `), forming a string (`Full Name`). The field name of each value is not available but the topics included are detailed on the web page [Subjects Included in the Survey](https://www.census.gov/programs-surveys/acs/guidance/subjects.html). There are thousands of variables of these characteristics (more than 50,000) that, in addition to the metadata layer, can be found on the [TIGER/Line with Selected Demographic and Economic Data Record Layouts](https://www.census.gov/programs-surveys/geography/technical-documentation/records-layout/tiger-line-demo-record-layouts.html) web page. For each combination of values, one variable associated with the *estimate* and another with the *margin of error* are defined. Within each layer, variables can be considered in groups, defined by the first part of the `Full Name` (for example `UNWEIGHTED SAMPLE HOUSING UNITS` and `SEX BY AGE`).
+
+A module of `geogenr` package analyses the components of `Full_name`, structuring them in fields; and it allows access to variables in groups.
+
+# An illustrative example
+
+To obtain a `geomultistar` structure from the ACS data we can distinguish three phases:
+
+- obtaining the data,
+
+- data selection,
+
+- and generation of results,
+
+which are developed below.
+
+Once the result structure is generated, we can define and execute queries on it.
+
+## Obtaining the data
+
+The data is available in the form of a geodatabase. One geodatabase for each area in each of the two area sections.
+
+To consult the areas of each of the sections we use an object of class `uscb_acs_5ye.` When creating it, we can indicate a folder that will be used as the destination for downloads, if another is not indicated. Below are the operations to get the lists of available areas.
+
+```{r}
+library(tidyr)
+library(geogenr)
+
+ua <- uscb_acs_5ye(folder = "../data/us/")
+
+(laa <- ua %>% get_legal_and_administrative_areas())
+
+(sa <- ua %>% get_statistical_areas())
+```
+
+Since some geodatabases are included in the package, we have selected the area that has the smallest databases. Through the following operations[^2], we obtain the years for which the geodatabases of the chosen area are available on the web, and we download those corresponding to the selected years.
+
+[^2]: These operations are not running in the vignette. The result of executing them locally to obtain the geodatabases included in the package is displayed.
+
+```{r, eval = FALSE}
+sa[6]
+#>  [1] "New England City and Town Area Division"
+
+(y <- ua %>% get_available_years_in_the_web(geodatabase = sa[6]))
+#>  [1] 2013 2014 2015 2016 2017 2018
+
+(y_res <- ua %>% download_geodatabases(geodatabase = sa[6], years = 2016:2018))
+#>  [1] 2016 2017 2018
+
+```
+
+
+## Data selection
+
+Once we have the geodatabases available locally, we move on to selecting the data.
+
+In this case we create a new object of class `uscb_acs_5ye` indicating the folder where the downloaded geodatabases are: the package data folder.
+
+```{r}
+folder <- system.file("extdata", package = "geogenr")
+folder <- stringr::str_replace_all(paste(folder, "/", ""), " ", "")
+ua <- uscb_acs_5ye(folder = folder)
+```
+
+Using the following function, we check the years available locally for the selected area.
+
+```{r}
+sa[6]
+
+(y <- ua %>% get_available_years_downloaded(geodatabase = sa[6]))
+```
+
+Using the metadata included in the package (`uscb_acs_metadata`), the object of class `uscb_acs_5ye` where the data of the areas is included, the area of the selected geodatabase and a reference year, we create an object of class `uscb_layer`, from which we can consult the layer names available for those area and year, as shown below.
+
+```{r}
+ul <- uscb_layer(uscb_acs_metadata, ua = ua, geodatabase = sa[6], year = 2018)
+(layers <- ul %>% get_layer_names())
+```
+
+Of all the available layers, we obtain one from which we can consult the groups of variables that it includes, as shown in the following operations.
+
+```{r}
+layers[3]
+
+ul <- ul %>% get_layer(layers[3])
+(layer_groups <- ul %>% get_layer_group_names())
+```
+
+We obtain one of the groups by indicating its name, as shown below.
+
+```{r}
+layer_groups[2]
+
+ul <- ul %>% get_layer_group(layer_groups[2])
+```
+
+Groups contain sets of variables. The variables of the selected group are shown below.
+
+```{r}
+ul$layer_group_columns
+```
+
+
+## Generation of results
+
+Once we have obtained a group of variables, we can obtain the associated data in various formats.
+
+It offers the possibility of obtaining it as a `tibble`, as shown below (the table is not shown due to the high number of columns it has).
+
+```{r}
+ft <- ul %>% get_flat_table(remove_geometry = FALSE)
+
+names(ft)
+
+nrow(ft)
+```
+
+We can also get an object of the `geomultistar` class.
+
+```{r}
+gms <- ul %>% get_geomultistar()
+```
+
+The first rows of the dimension and fact tables are shown below.
+
+```{r, results = "asis", echo = FALSE}
+pander::pandoc.table(head(gms$dimension$when), split.table = Inf)
+pander::pandoc.table(head(gms$dimension$where), split.table = Inf)
+pander::pandoc.table(head(gms$dimension$what), split.table = Inf)
+pander::pandoc.table(head(gms$fact$detailed_race), split.table = Inf)
+```
+
+Once we have verified that the data for the reference year is what we need, we can expand our database considering the rest of the years available in the folder. The only requirement to consider a year is that its variable structure be the same as that of the reference year.
+
+To do this, we create a class `uscb_folder` object from the reference year object, as shown below.
+
+```{r}
+uf <- uscb_folder(ul)
+```
+
+We can get a `tibble` from the new object. In this case it has more rows. In this case you have more rows than for just one year, as you would expect.
+
+```{r}
+cft <- uf %>% get_common_flat_table()
+
+nrow(cft)
+```
+
+We can also get a `geomultistar` object.
+
+```{r}
+cgms <- uf %>% get_common_geomultistar()
+```
+
+Instead of displaying all the tables, we focus on the table in the *when* dimension.
+
+```{r, results = "asis", echo = FALSE}
+pander::pandoc.table(head(cgms$dimension$when), split.table = Inf)
+```
+
+We note that it does not include the three years whose geodatabases we have available. For some reason the data for 2017 have not been included. As indicated before, the inclusion criterion that has been considered is that they must have the same structure of variables.
+
+We can check if this is really the case, obtaining the variables of the same group for 2017 (as we had previously obtained for 2018).
+
+```{r}
+ul_2017 <- uscb_layer(uscb_acs_metadata, ua = ua, geodatabase = sa[6], year = 2017) %>% 
+  get_layer(layers[3]) %>% 
+  get_layer_group(layer_groups[2])
+
+ul_2017$layer_group_columns
+
+ul$layer_group_columns
+```
+
+Indeed, the variables for 2017 do not coincide with those considered for 2018 (and 2016).
+
+If desired, the data for 2017 can be integrated with those of the other years using the operations available in package [`starschemar`](https://CRAN.R-project.org/package=starschemar).
+
+## Queries with geographic information
+
+Once we have a `geomultistar` object, we can use the functionality of the [`geomultistar`](https://CRAN.R-project.org/package=geomultistar) package.
+
+Specifically, the only field that has geographic information directly associated with is `geoid`. If we want to associate that information to other fields of the dimension, such as the `name` field, we must do it using the operation shown below.
+
+```{r}
+library(geomultistar)
+
+cgms <- cgms  %>%
+  define_geoattribute(
+    attribute = c("name"),
+    from_attribute = "geoid"
+  )
+```
+
+We can define multidimensional queries using the functionality of the [`starschemar`](https://CRAN.R-project.org/package=starschemar) package, as shown below.
+
+```{r}
+library(starschemar)
+
+gdqr <- dimensional_query(cgms) %>%
+  select_dimension(name = "where",
+                   attributes = c("name")) %>%
+  select_dimension(name = "what",
+                   attributes = c("short_name", "demographic_race_spec")) %>%
+  select_fact(name = "detailed_race",
+              measures = c("estimate")) %>%
+  filter_dimension(name = "when", year == "2018") %>%
+  filter_dimension(name = "what", demographic_race_spec == "Asian alone") %>%
+  run_geoquery()
+
+```
+
+The first rows of the result can be seen below in table form.
+
+```{r, results = "asis", echo = FALSE}
+pander::pandoc.table(head(gdqr, 12), split.table = Inf)
+```
+
+The result is a vector layer that we can save, perform spatial analysis or queries on it, or we can see it as a map, using the functions associated with the `sf` class.
+
+```{r}
+class(gdqr)
+
+plot(gdqr[,"estimate"])
+```
+
+
+# Conclusions
+
+The [American Community Survey (ACS)](https://www.census.gov/programs-surveys/acs) offers geodatabases with geographic information and associated data of interest to researchers in the area. These data can be accessed through various alternatives in which you must indicate the year and variable names. Due to the large number of variables and their structure, this operation is not easy.
+
+The `geogenr` package offers an alternative that allows you to download the geodatabases that are considered necessary and access the variables by selecting data layers and logical groups of variables. Additionally, it automatically generates a multidimensional structure that includes the available geographic information. From this structure, multidimensional queries that include the available geographic information can easily be defined.
+
+The data obtained can be processed with the `sf` package to define spatial queries or analysis, be presented in maps or saved as a file to be used by a GIS (*Geographical Information System*).

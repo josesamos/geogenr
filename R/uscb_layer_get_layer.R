@@ -268,7 +268,7 @@ get_basic_flat_table.uscb_layer <- function(ul, remove_zeros = FALSE) {
 #'
 #' @return A `tibble` object.
 #'
-#' @family data selection functions
+#' @family result generation functions
 #' @seealso
 #'
 #' @examples
@@ -293,7 +293,7 @@ get_basic_flat_table.uscb_layer <- function(ul, remove_zeros = FALSE) {
 #' layer <- ul %>% get_flat_table()
 #'
 #' @export
-get_flat_table <- function(ul, remove_zeros = FALSE, remove_geometry = FALSE) {
+get_flat_table <- function(ul, remove_zeros = FALSE, remove_geometry = TRUE) {
   UseMethod("get_flat_table")
 }
 
@@ -333,7 +333,7 @@ get_flat_table.uscb_layer <- function(ul, remove_zeros = FALSE, remove_geometry 
 #'
 #' @return A `geomultistar` object.
 #'
-#' @family data selection functions
+#' @family result generation functions
 #' @seealso
 #'
 #' @examples
