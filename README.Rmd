@@ -19,7 +19,7 @@ knitr::opts_chunk$set(
 [![Travis build status](https://travis-ci.com/josesamos/geogenr.svg?branch=master)](https://travis-ci.com/josesamos/geogenr)
 <!-- badges: end -->
 
-The goal of `geogenr` is to generate `geomultistar` objects.
+The [American Community Survey (ACS)](https://www.census.gov/programs-surveys/acs) offers geodatabases with geographic information and associated data of interest to researchers in the area. The goal of `geogenr` is to generate `geomultistar` objects from those geodatabases automatically, once the focus of attention is selected.
 
 ## Installation
 
@@ -37,10 +37,130 @@ devtools::install_github("josesamos/geogenr")
 ```
 ## Example
 
-This is a basic example which shows you how to solve a common problem:
+Each ACS geodatabase is structured in layers: a geographic layer, a metadata layer, and the rest are data layers. The data layers have a matrix form, the rows are indexed by instances of the geographic layer, the columns by variables defined in the metadata layer, the cells are numeric values. Here we have an example:
+
+
+`GEOID          B01001e1 B01001m1 B01001e2 B01001m2 B01001e3 B01001m3 B01001e4 B01001m4 ...`
+
+`16000US0100100      218      165       92      114       10       16       18       30`
+
+`16000US0100124     2582       24     1313       98       45       37       14       19`
+
+`16000US0100460     4374       24     1963      158      144       76      105       68`
+
+`16000US0100484      641      159      326       89       10       17       16       11`
+
+`16000US0100676      295      102      143       55        7       11       14       17`
+
+`16000US0100820    32878       57    16236      453     1159      257     1151      209`
+
+`...`
+
+
+Some of the defined variables are shown below.
+
+`Short Name	Full Name`
+
+`B01001e1	SEX BY AGE: Total: Total Population -- (Estimate)`
+
+`B01001m1	SEX BY AGE: Total: Total Population -- (Margin of Error)`
+
+`B01001e2	SEX BY AGE: Male: Total Population -- (Estimate)`
+
+`B01001m2	SEX BY AGE: Male: Total Population -- (Margin of Error)`
+
+`B01001e3	SEX BY AGE: Male: Under 5 years: Total Population -- (Estimate)`
+
+`B01001m3	SEX BY AGE: Male: Under 5 years: Total Population -- (Margin of Error)`
+
+`B01001e4	SEX BY AGE: Male: 5 to 9 years: Total Population -- (Estimate)`
+
+`B01001m4	SEX BY AGE: Male: 5 to 9 years: Total Population -- (Margin of Error)`
+
+`...`
+
+First, we select and download the ACS geodatabases using the functions offered by the package. Once we have them in a folder (in this case some examples are included in the package), this is a basic example which shows you how to solve a common problem:
 
 ```{r example}
+library(tidyr)
 library(geogenr)
-## basic example code
+
+folder <- system.file("extdata", package = "geogenr")
+folder <- stringr::str_replace_all(paste(folder, "/", ""), " ", "")
+ua <- uscb_acs_5ye(folder = folder)
+
+(sa <- ua %>% get_statistical_areas())
+
+(y <- ua %>% get_available_years_downloaded(geodatabase = sa[6]))
+
+ul <- uscb_layer(uscb_acs_metadata, ua = ua, geodatabase = sa[6], year = 2018)
+(layers <- ul %>% get_layer_names())
+
+ul <- ul %>% get_layer(layers[2])
+(layer_groups <- ul %>% get_layer_group_names())
+
+ul <- ul %>% get_layer_group(layer_groups[1])
+
+gms <- ul %>% get_geomultistar()
 ```
 
+For a folder, we get the years for which we have one area geodatabases downloaded. We select the geodatabase for a specific year (`uscb_layer`). From among the layers and groups of variables available, we select a layer (`get_layer`) and one of its groups (`get_layer_group`). From the selected variables we generate a `geomultistar` object (`get_geomultistar`).
+
+The first rows of the dimension and fact tables are shown below.
+
+```{r, results = "asis", echo = FALSE}
+pander::pandoc.table(head(gms$dimension$when), split.table = Inf)
+pander::pandoc.table(head(gms$dimension$where), split.table = Inf)
+pander::pandoc.table(head(gms$dimension$what), split.table = Inf)
+pander::pandoc.table(head(gms$fact$sex_by_age), split.table = Inf)
+```
+
+Once we have a `geomultistar` object, we can use the functionality of [`starschemar`](https://CRAN.R-project.org/package=starschemar) and [`geomultistar`](https://CRAN.R-project.org/package=geomultistar) packages to define multidimensional queries with geographic information.
+
+```{r}
+library(starschemar)
+library(geomultistar)
+
+gms <- gms  %>%
+  define_geoattribute(
+    attribute = c("name"),
+    from_attribute = "geoid"
+  )
+
+gdqr <- dimensional_query(gms) %>%
+  select_dimension(name = "where",
+                   attributes = c("name")) %>%
+  select_dimension(
+    name = "what",
+    attributes = c("short_name")
+  ) %>%
+  select_fact(name = "sex_by_age",
+              measures = c("estimate")) %>%
+  filter_dimension(name = "when", year == "2018") %>%
+  filter_dimension(name = "what",
+                   demographic_age == "Under 5 years") %>%
+  run_geoquery()
+
+```
+
+The result is a vector layer that we can save, perform spatial analysis or queries on it, or we can see it as a map, using the functions associated with the `sf` class.
+
+```{r}
+plot(gdqr[,"estimate"])
+```
+
+Once we have verified that the data for the reference year is what we need, we can expand our database considering the rest of the years available in the folder. The only requirement to consider a year is that its variable structure be the same as that of the reference year.
+
+```{r}
+uf <- uscb_folder(ul)
+
+cgms <- uf %>% get_common_geomultistar()
+```
+
+Instead of displaying all the tables, we focus on the table in the *when* dimension.
+
+```{r, results = "asis", echo = FALSE}
+pander::pandoc.table(head(cgms$dimension$when), split.table = Inf)
+```
+
+Includes data for all available years.

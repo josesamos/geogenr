@@ -241,7 +241,7 @@ get_basic_flat_table.uscb_layer <- function(ul, remove_zeros = FALSE) {
   } else {
     spec_code <- layer$spec_code
   }
-  layer$Short_Name <- paste(layer$inf_code, layer$group_code, "_", spec_code, sep = "")
+  layer$Short_Name <- paste(layer$inf_code, layer$group_code, layer$subgroup_code, "_", spec_code, sep = "")
   layer <- dplyr::select(layer, !c("type_code"))
   layer <- tidyr::pivot_wider(layer, names_from = "type", values_from = "value")
 

@@ -57,7 +57,7 @@ The package is based on the geodatabases available on the [TIGER/Line with Selec
 
 As mentioned there for the year 2018 (the last one accessible at the moment), literally: "These geodatabases bring together geography from the 2018 TIGER/Line Shapefiles and data from the 2014-2018 American Community Survey (ACS) 5-year estimates." Similar data are offered for the previous years for the periods corresponding to each one.
 
-Each geodatabase is structured in layers: a geographic layer, a metadata layer, and the rest are data layers. The data layers have a matrix form, the rows correspond to instances of the geographic layer, the columns to variables defined in the metadata layer, the cells are numeric values. Here are two examples:
+Each ACS geodatabase is structured in layers: a geographic layer, a metadata layer, and the rest are data layers. The data layers have a matrix form, the rows are indexed by instances of the geographic layer, the columns by variables defined in the metadata layer, the cells are numeric values. Here are two examples:
 
 `GEOID          B00001e1 B00001m1 B00002e1 B00002m1`
 
