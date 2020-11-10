@@ -5,7 +5,7 @@
 \alias{get_flat_table.uscb_layer}
 \title{Get flat table}
 \usage{
-get_flat_table(ul, remove_zeros = FALSE, remove_geometry = FALSE)
+get_flat_table(ul, remove_zeros = FALSE, remove_geometry = TRUE)
 
 \method{get_flat_table}{uscb_layer}(ul, remove_zeros = FALSE, remove_geometry = TRUE)
 }
