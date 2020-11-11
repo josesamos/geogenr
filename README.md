@@ -1,7 +1,7 @@
 
 <!-- README.md is generated from README.Rmd. Please edit that file -->
 
-# geogenr: geomultistar Generator from American Community Survey (ACS) Geodatabases
+# geogenr: Geomultistar Generator from American Community Survey (ACS) Geodatabases
 
 <!-- badges: start -->
 
