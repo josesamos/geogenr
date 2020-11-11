@@ -21,7 +21,7 @@
 #' sa <- ua %>% get_statistical_areas()
 #' # sa[6]
 #' # [1] "New England City and Town Area Division"
-#' ul <- uscb_layer(uscb_acs_metadata, ua = ua, geodatabase = sa[6], year = 2018)
+#' ul <- uscb_layer(uscb_acs_metadata, ua = ua, geodatabase = sa[6], year = 2015)
 #'
 #' layers <- ul %>% get_layer_names()
 #'
@@ -62,7 +62,7 @@ get_layer_names.uscb_layer <- function(ul) {
 #' sa <- ua %>% get_statistical_areas()
 #' # sa[6]
 #' # [1] "New England City and Town Area Division"
-#' ul <- uscb_layer(uscb_acs_metadata, ua = ua, geodatabase = sa[6], year = 2018)
+#' ul <- uscb_layer(uscb_acs_metadata, ua = ua, geodatabase = sa[6], year = 2015)
 #' layers <- ul %>% get_layer_names()
 #'
 #' # layers[3]
@@ -129,7 +129,7 @@ get_layer.uscb_layer <- function(ul, layer_name) {
 #' sa <- ua %>% get_statistical_areas()
 #' # sa[6]
 #' # [1] "New England City and Town Area Division"
-#' ul <- uscb_layer(uscb_acs_metadata, ua = ua, geodatabase = sa[6], year = 2018)
+#' ul <- uscb_layer(uscb_acs_metadata, ua = ua, geodatabase = sa[6], year = 2015)
 #' layers <- ul %>% get_layer_names()
 #' # layers[3]
 #' # [1] "X02_RACE"
@@ -174,7 +174,7 @@ get_layer_group_names.uscb_layer <- function(ul) {
 #' sa <- ua %>% get_statistical_areas()
 #' # sa[6]
 #' # [1] "New England City and Town Area Division"
-#' ul <- uscb_layer(uscb_acs_metadata, ua = ua, geodatabase = sa[6], year = 2018)
+#' ul <- uscb_layer(uscb_acs_metadata, ua = ua, geodatabase = sa[6], year = 2015)
 #' layers <- ul %>% get_layer_names()
 #' # layers[3]
 #' # [1] "X02_RACE"
@@ -234,6 +234,7 @@ get_basic_flat_table.uscb_layer <- function(ul, remove_zeros = FALSE) {
   if (remove_zeros) {
     layer <- layer[layer$value != 0, ]
   }
+
   layer <- dplyr::left_join(layer, ul$layer_group_metadata, by = c("Short_Name" = "Short_Name"))
   if (all(!grepl("\\D", layer$spec_code))) {
     format <- sprintf("%%0%dd", max(nchar(layer$spec_code)))
@@ -241,7 +242,11 @@ get_basic_flat_table.uscb_layer <- function(ul, remove_zeros = FALSE) {
   } else {
     spec_code <- layer$spec_code
   }
-  layer$Short_Name <- paste(layer$inf_code, layer$group_code, layer$subgroup_code, "_", spec_code, sep = "")
+  if ("subgroup_code" %in% names(layer)) {
+    layer$Short_Name <- paste(layer$inf_code, layer$group_code, layer$subgroup_code, "_", spec_code, sep = "")
+  } else {
+    layer$Short_Name <- paste(layer$inf_code, layer$group_code, "_", spec_code, sep = "")
+  }
   layer <- dplyr::select(layer, !c("type_code"))
   layer <- tidyr::pivot_wider(layer, names_from = "type", values_from = "value")
 
@@ -280,7 +285,7 @@ get_basic_flat_table.uscb_layer <- function(ul, remove_zeros = FALSE) {
 #' sa <- ua %>% get_statistical_areas()
 #' # sa[6]
 #' # [1] "New England City and Town Area Division"
-#' ul <- uscb_layer(uscb_acs_metadata, ua = ua, geodatabase = sa[6], year = 2018)
+#' ul <- uscb_layer(uscb_acs_metadata, ua = ua, geodatabase = sa[6], year = 2015)
 #' layers <- ul %>% get_layer_names()
 #' # layers[3]
 #' # [1] "X02_RACE"
@@ -345,7 +350,7 @@ get_flat_table.uscb_layer <- function(ul, remove_zeros = FALSE, remove_geometry 
 #' sa <- ua %>% get_statistical_areas()
 #' # sa[6]
 #' # [1] "New England City and Town Area Division"
-#' ul <- uscb_layer(uscb_acs_metadata, ua = ua, geodatabase = sa[6], year = 2018)
+#' ul <- uscb_layer(uscb_acs_metadata, ua = ua, geodatabase = sa[6], year = 2015)
 #' layers <- ul %>% get_layer_names()
 #' # layers[3]
 #' # [1] "X02_RACE"

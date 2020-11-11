@@ -13,7 +13,7 @@ knitr::opts_chunk$set(
 )
 ```
 
-# geogenr: geomultistar Generator from American Community Survey (ACS) Geodatabases
+# geogenr: Geomultistar Generator from American Community Survey (ACS) Geodatabases
 
 <!-- badges: start -->
 [![Travis build status](https://travis-ci.com/josesamos/geogenr.svg?branch=master)](https://travis-ci.com/josesamos/geogenr)
@@ -93,7 +93,7 @@ ua <- uscb_acs_5ye(folder = folder)
 
 (y <- ua %>% get_available_years_downloaded(geodatabase = sa[6]))
 
-ul <- uscb_layer(uscb_acs_metadata, ua = ua, geodatabase = sa[6], year = 2018)
+ul <- uscb_layer(uscb_acs_metadata, ua = ua, geodatabase = sa[6], year = 2015)
 (layers <- ul %>% get_layer_names())
 
 ul <- ul %>% get_layer(layers[2])
@@ -136,7 +136,7 @@ gdqr <- dimensional_query(gms) %>%
   ) %>%
   select_fact(name = "sex_by_age",
               measures = c("estimate")) %>%
-  filter_dimension(name = "when", year == "2018") %>%
+  filter_dimension(name = "when", year == "2015") %>%
   filter_dimension(name = "what",
                    demographic_age == "Under 5 years") %>%
   run_geoquery()

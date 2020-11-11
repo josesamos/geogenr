@@ -39,7 +39,7 @@ sa <- ua \%>\% get_statistical_areas()
 # sa[6]
 # [1] "New England City and Town Area Division"
 
-ul <- uscb_layer(uscb_acs_metadata, ua = ua, geodatabase = sa[6], year = 2018)
+ul <- uscb_layer(uscb_acs_metadata, ua = ua, geodatabase = sa[6], year = 2015)
 
 }
 \seealso{

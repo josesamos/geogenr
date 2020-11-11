@@ -76,7 +76,7 @@ new_uscb_layer <- function(metadata, ua, geodatabase, year, folder = NULL) {
 #' # sa[6]
 #' # [1] "New England City and Town Area Division"
 #'
-#' ul <- uscb_layer(uscb_acs_metadata, ua = ua, geodatabase = sa[6], year = 2018)
+#' ul <- uscb_layer(uscb_acs_metadata, ua = ua, geodatabase = sa[6], year = 2015)
 #'
 #' @export
 uscb_layer <-

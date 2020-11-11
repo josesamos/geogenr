@@ -10,5 +10,5 @@ test_that("get_available_years_downloaded works", {
   # [1] "New England City and Town Area Division"
 
   y <- ua %>% get_available_years_downloaded(geodatabase = sa[6])
-  expect_equal(y, 2016:2018)
+  expect_equal(y, 2014:2015)
 })

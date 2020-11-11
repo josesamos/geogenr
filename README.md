@@ -109,9 +109,9 @@ ua <- uscb_acs_5ye(folder = folder)
 #> [10] "Urban Area"
 
 (y <- ua %>% get_available_years_downloaded(geodatabase = sa[6]))
-#> [1] 2016 2017 2018
+#> [1] 2014 2015
 
-ul <- uscb_layer(uscb_acs_metadata, ua = ua, geodatabase = sa[6], year = 2018)
+ul <- uscb_layer(uscb_acs_metadata, ua = ua, geodatabase = sa[6], year = 2015)
 (layers <- ul %>% get_layer_names())
 #>  [1] "X00_COUNTS"                          "X01_AGE_AND_SEX"                    
 #>  [3] "X02_RACE"                            "X03_HISPANIC_OR_LATINO_ORIGIN"      
@@ -127,8 +127,7 @@ ul <- uscb_layer(uscb_acs_metadata, ua = ua, geodatabase = sa[6], year = 2018)
 #> [23] "X22_FOOD_STAMPS"                     "X23_EMPLOYMENT_STATUS"              
 #> [25] "X24_INDUSTRY_OCCUPATION"             "X25_HOUSING_CHARACTERISTICS"        
 #> [27] "X26_GROUP_QUARTERS"                  "X27_HEALTH_INSURANCE"               
-#> [29] "X28_COMPUTER_AND_INTERNET_USE"       "X29_VOTING_AGE_POPULATION"          
-#> [31] "X98_UNWEIGHTED_HOUSING_UNIT_SAMPLE"  "X99_IMPUTATION"
+#> [29] "X99_IMPUTATION"
 
 ul <- ul %>% get_layer(layers[2])
 (layer_groups <- ul %>% get_layer_group_names())
@@ -151,16 +150,16 @@ The first rows of the dimension and fact tables are shown below.
 
 | when\_key | year |
 | :-------: | :--: |
-|     1     | 2018 |
+|     1     | 2015 |
 
-| where\_key | cnectafp | nectafp | nctadvfp |   geoid    |                    name                    |                         namelsad                          | lsad | mtfcc |   aland   |  awater   |   intptlat   |   intptlon    | shape\_length | shape\_area |    geoid\_data    |
-| :--------: | :------: | :-----: | :------: | :--------: | :----------------------------------------: | :-------------------------------------------------------: | :--: | :---: | :-------: | :-------: | :----------: | :-----------: | :-----------: | :---------: | :---------------: |
-|     1      |   715    |  71650  |  71654   | 7165071654 |        Boston-Cambridge-Newton, MA         |        Boston-Cambridge-Newton, MA NECTA Division         |  M7  | G3220 | 3.668e+09 | 713654692 | \+42.2933266 | \-071.0181929 |     7.677     |   0.4783    | 35500US7165071654 |
-|     2      |   715    |  71650  |  72104   | 7165072104 |      Brockton-Bridgewater-Easton, MA       |      Brockton-Bridgewater-Easton, MA NECTA Division       |  M7  | G3220 | 352609426 |  8851761  | \+42.0365355 | \-071.0032765 |     1.078     |   0.0393    | 35500US7165072104 |
-|     3      |   715    |  71650  |  73104   | 7165073104 |               Framingham, MA               |               Framingham, MA NECTA Division               |  M7  | G3220 | 467603749 | 20187033  | \+42.2610685 | \-071.4919571 |     1.978     |   0.05322   | 35500US7165073104 |
-|     4      |   715    |  71650  |  73604   | 7165073604 | Haverhill-Newburyport-Amesbury Town, MA-NH | Haverhill-Newburyport-Amesbury Town, MA-NH NECTA Division |  M7  | G3220 | 702798246 | 40763816  | \+42.8672067 | \-071.0255047 |     1.415     |   0.0819    | 35500US7165073604 |
-|     5      |   715    |  71650  |  74204   | 7165074204 |     Lawrence-Methuen Town-Salem, MA-NH     |     Lawrence-Methuen Town-Salem, MA-NH NECTA Division     |  M7  | G3220 | 207891991 |  9769255  | \+42.7282758 | \-071.1630701 |    0.9082     |   0.02392   | 35500US7165074204 |
-|     6      |   715    |  71650  |  74804   | 7165074804 |     Lowell-Billerica-Chelmsford, MA-NH     |     Lowell-Billerica-Chelmsford, MA-NH NECTA Division     |  M7  | G3220 | 8.63e+08  | 27236414  | \+42.6142036 | \-071.4837856 |     2.459     |   0.09767   | 35500US7165074804 |
+| where\_key | cnectafp | nectafp | nctadvfp |   geoid    |                    name                    |                         namelsad                          | lsad | mtfcc |   aland   |  awater  |   intptlat   |   intptlon    | shape\_length | shape\_area |    geoid\_data    |
+| :--------: | :------: | :-----: | :------: | :--------: | :----------------------------------------: | :-------------------------------------------------------: | :--: | :---: | :-------: | :------: | :----------: | :-----------: | :-----------: | :---------: | :---------------: |
+|     1      |   715    |  71650  |  71654   | 7165071654 |        Boston-Cambridge-Newton, MA         |        Boston-Cambridge-Newton, MA NECTA Division         |  M7  | G3220 | 3.668e+09 | 7.13e+08 | \+42.2933266 | \-071.0181929 |     7.653     |   0.4783    | 35500US7165071654 |
+|     2      |   715    |  71650  |  72104   | 7165072104 |      Brockton-Bridgewater-Easton, MA       |      Brockton-Bridgewater-Easton, MA NECTA Division       |  M7  | G3220 | 352799175 | 8831197  | \+42.0216172 | \-071.0267170 |     1.077     |   0.03932   | 35500US7165072104 |
+|     3      |   715    |  71650  |  73104   | 7165073104 |               Framingham, MA               |               Framingham, MA NECTA Division               |  M7  | G3220 | 532516314 | 24039093 | \+42.2761738 | \-071.4822008 |     1.738     |   0.06073   | 35500US7165073104 |
+|     4      |   715    |  71650  |  73604   | 7165073604 | Haverhill-Newburyport-Amesbury Town, MA-NH | Haverhill-Newburyport-Amesbury Town, MA-NH NECTA Division |  M7  | G3220 | 702086333 | 40447613 | \+42.8671722 | \-071.0254982 |     1.416     |   0.08179   | 35500US7165073604 |
+|     5      |   715    |  71650  |  74204   | 7165074204 |     Lawrence-Methuen Town-Salem, MA-NH     |     Lawrence-Methuen Town-Salem, MA-NH NECTA Division     |  M7  | G3220 | 207735751 | 9917120  | \+42.7282758 | \-071.1630701 |    0.9094     |   0.02392   | 35500US7165074204 |
+|     6      |   715    |  71650  |  74804   | 7165074804 |     Lowell-Billerica-Chelmsford, MA-NH     |     Lowell-Billerica-Chelmsford, MA-NH NECTA Division     |  M7  | G3220 | 863143106 | 27403003 | \+42.6141693 | \-071.4837821 |     2.441     |   0.09771   | 35500US7165074804 |
 
 | what\_key | short\_name |                     full\_name                     | inf\_code | group\_code | subgroup\_code | spec\_code |     inf     |   group    | subgroup | demographic\_age | demographic\_sex | demographic\_race | demographic\_total\_population | demographic\_total\_population\_spec |
 | :-------: | :---------: | :------------------------------------------------: | :-------: | :---------: | :------------: | :--------: | :---------: | :--------: | :------: | :--------------: | :--------------: | :---------------: | :----------------------------: | :----------------------------------: |
@@ -173,12 +172,12 @@ The first rows of the dimension and fact tables are shown below.
 
 | when\_key | where\_key | what\_key | estimate | margin\_of\_error | nrow\_agg |
 | :-------: | :--------: | :-------: | :------: | :---------------: | :-------: |
-|     1     |     1      |     1     | 2924655  |        152        |     1     |
-|     1     |     1      |     2     | 1412577  |       2231        |     1     |
-|     1     |     1      |     3     |  77714   |       1032        |     1     |
-|     1     |     1      |     4     |  77370   |       1554        |     1     |
-|     1     |     1      |     5     |  82786   |       1624        |     1     |
-|     1     |     1      |     6     |  51564   |        784        |     1     |
+|     1     |     1      |     1     | 2846699  |        131        |     1     |
+|     1     |     1      |     2     | 1375801  |       2281        |     1     |
+|     1     |     1      |     3     |  77814   |        988        |     1     |
+|     1     |     1      |     4     |  79159   |       1452        |     1     |
+|     1     |     1      |     5     |  81751   |       1305        |     1     |
+|     1     |     1      |     6     |  50465   |        819        |     1     |
 
 Once we have a `geomultistar` object, we can use the functionality of
 [`starschemar`](https://CRAN.R-project.org/package=starschemar) and
@@ -204,7 +203,7 @@ gdqr <- dimensional_query(gms) %>%
   ) %>%
   select_fact(name = "sex_by_age",
               measures = c("estimate")) %>%
-  filter_dimension(name = "when", year == "2018") %>%
+  filter_dimension(name = "when", year == "2015") %>%
   filter_dimension(name = "what",
                    demographic_age == "Under 5 years") %>%
   run_geoquery()
@@ -236,8 +235,7 @@ Instead of displaying all the tables, we focus on the table in the
 
 | when\_key | year |
 | :-------: | :--: |
-|     1     | 2016 |
-|     2     | 2017 |
-|     3     | 2018 |
+|     1     | 2014 |
+|     2     | 2015 |
 
 Includes data for all available years.

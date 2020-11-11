@@ -13,7 +13,7 @@ test_that("uscb_folder works", {
       uscb_acs_metadata,
       ua = ua,
       geodatabase = sa[6],
-      year = 2018
+      year = 2015
     )
   layers <- ul %>% get_layer_names()
   # layers[3]
@@ -29,7 +29,7 @@ test_that("uscb_folder works", {
 
   expect_equal(
     unique(layer_common$year),
-    c("2018", "2016")
+    c("2015", "2014")
   )
   expect_equal(
     unique(layer_common$name),

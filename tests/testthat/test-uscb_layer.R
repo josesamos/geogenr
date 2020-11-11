@@ -13,7 +13,7 @@ test_that("uscb_layer works", {
       uscb_acs_metadata,
       ua = ua,
       geodatabase = sa[6],
-      year = 2018
+      year = 2015
     )
 
   expect_equal(

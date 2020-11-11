@@ -13,7 +13,7 @@ test_that("get_layer_group_names works", {
       uscb_acs_metadata,
       ua = ua,
       geodatabase = sa[6],
-      year = 2018
+      year = 2015
     )
 
   layers <- ul %>% get_layer_names()

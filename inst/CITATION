@@ -1,7 +1,7 @@
 citHeader("To cite geogenr in publications use:")
 
 citEntry(entry = "Manual",
-  title        = "{geogenr}: geomultistar Generator from American Community Survey (ACS) Geodatabases",
+  title        = "{geogenr}: Geomultistar Generator from American Community Survey (ACS) Geodatabases",
   author       = personList(as.person("Jose Samos")),
   year         = "2020",
   note         = "R package version 1.0.0",
@@ -9,6 +9,6 @@ citEntry(entry = "Manual",
 
   textVersion  =
   paste("Jose Samos (2020).",
-        "geogenr: geomultistar Generator from American Community Survey (ACS) Geodatabases.",
+        "geogenr: Geomultistar Generator from American Community Survey (ACS) Geodatabases.",
         "https://CRAN.R-project.org/package=geogenr.")
 )

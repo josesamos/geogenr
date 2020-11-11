@@ -1,11 +1,11 @@
 ---
-title: "geogenr: geomultistar Generator from American Community Survey (ACS) Geodatabases"
+title: "geogenr: Geomultistar Generator from American Community Survey (ACS) Geodatabases"
 author: "Jose Samos (jsamos@ugr.es)"
 date: "2020-11-09"
 output: rmarkdown::html_vignette
 bibliography: bibliography.bib
 vignette: >
-  %\VignetteIndexEntry{geogenr: geomultistar Generator from American Community Survey (ACS) Geodatabases}
+  %\VignetteIndexEntry{geogenr: Geomultistar Generator from American Community Survey (ACS) Geodatabases}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
@@ -170,8 +170,8 @@ sa[6]
 (y <- ua %>% get_available_years_in_the_web(geodatabase = sa[6]))
 #>  [1] 2013 2014 2015 2016 2017 2018
 
-(y_res <- ua %>% download_geodatabases(geodatabase = sa[6], years = 2016:2018))
-#>  [1] 2016 2017 2018
+(y_res <- ua %>% download_geodatabases(geodatabase = sa[6], years = 2014:2015))
+#>  [1] 2014 2015
 
 ```
 
@@ -199,7 +199,7 @@ sa[6]
 Using the metadata included in the package (`uscb_acs_metadata`), the object of class `uscb_acs_5ye` where the data of the areas is included, the area of the selected geodatabase and a reference year, we create an object of class `uscb_layer`, from which we can consult the layer names available for those area and year, as shown below.
 
 ```{r}
-ul <- uscb_layer(uscb_acs_metadata, ua = ua, geodatabase = sa[6], year = 2018)
+ul <- uscb_layer(uscb_acs_metadata, ua = ua, geodatabase = sa[6], year = 2015)
 (layers <- ul %>% get_layer_names())
 ```
 
@@ -284,23 +284,8 @@ Instead of displaying all the tables, we focus on the table in the *when* dimens
 pander::pandoc.table(head(cgms$dimension$when), split.table = Inf)
 ```
 
-We note that it does not include the three years whose geodatabases we have available. For some reason the data for 2017 have not been included. As indicated before, the inclusion criterion that has been considered is that they must have the same structure of variables.
+Includes data for all available years.
 
-We can check if this is really the case, obtaining the variables of the same group for 2017 (as we had previously obtained for 2018).
-
-```{r}
-ul_2017 <- uscb_layer(uscb_acs_metadata, ua = ua, geodatabase = sa[6], year = 2017) %>% 
-  get_layer(layers[3]) %>% 
-  get_layer_group(layer_groups[2])
-
-ul_2017$layer_group_columns
-
-ul$layer_group_columns
-```
-
-Indeed, the variables for 2017 do not coincide with those considered for 2018 (and 2016).
-
-If desired, the data for 2017 can be integrated with those of the other years using the operations available in package [`starschemar`](https://CRAN.R-project.org/package=starschemar).
 
 ## Queries with geographic information
 
@@ -330,7 +315,7 @@ gdqr <- dimensional_query(cgms) %>%
                    attributes = c("short_name", "demographic_race_spec")) %>%
   select_fact(name = "detailed_race",
               measures = c("estimate")) %>%
-  filter_dimension(name = "when", year == "2018") %>%
+  filter_dimension(name = "when", year == "2015") %>%
   filter_dimension(name = "what", demographic_race_spec == "Asian alone") %>%
   run_geoquery()
 

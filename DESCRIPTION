@@ -1,6 +1,6 @@
 Package: geogenr
 Type: Package
-Title: geomultistar Generator from American Community Survey (ACS) Geodatabases
+Title: Geomultistar Generator from American Community Survey (ACS) Geodatabases
 Version: 1.0.0
 Authors@R: 
     person(given = "Jose",
