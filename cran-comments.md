@@ -5,6 +5,13 @@
 
 ## R CMD check results
 
-0 errors | 0 warnings | 1 note
+0 errors | 0 warnings | 0 note
 
-* This is a new release.
+## Resubmission
+This is a resubmission. In this version I have:
+
+* Converted the DESCRIPTION title to tittle case.
+
+* Changed the external data to reduce the packet size.
+
+* Updated the examples, vignettes, and test to use the new external data.
