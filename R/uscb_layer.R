@@ -114,8 +114,8 @@ get_year_from_filepath <- function(filepath) {
 #'
 #' @keywords internal
 get_place <- function(ul) {
-  oldw <- getOption("warn")
-  options(warn = -1)
+  # oldw <- getOption("warn")
+  # options(warn = -1)
   place <- sf::st_read(
     dsn = ul$filepath,
     layer = ul$layer_names[1],
@@ -123,7 +123,7 @@ get_place <- function(ul) {
     quiet = TRUE,
     as_tibble = TRUE
   )
-  options(warn = oldw)
+  # options(warn = oldw)
 
   place_names <- names(place)
   # in some cases the GEOID column name is GEOID10, rename it.

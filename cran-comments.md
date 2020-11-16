@@ -10,8 +10,11 @@
 ## Resubmission
 This is a resubmission. In this version I have:
 
-* Converted the DESCRIPTION title to tittle case.
+* Added a link to the used webservices to the description field of the DESCRIPTION file.
 
-* Changed the external data to reduce the packet size.
+* Put functions which download data in \donttest{}.
 
-* Updated the examples, vignettes, and test to use the new external data.
+* Eliminated options(warn=-1) when used.
+
+* Also, I have removed the external data that is not strictly necessary for tests and examples to reduce the size of the package.
+

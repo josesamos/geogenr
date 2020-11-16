@@ -30,7 +30,7 @@ sa <- ua \%>\% get_statistical_areas()
 
 # sa[6]
 # [1] "New England City and Town Area Division"
-\dontrun{
+\donttest{
 y <- ua \%>\% get_available_years_in_the_web(geodatabase = sa[6])
 }
 }

@@ -87,7 +87,7 @@ get_statistical_areas.uscb_acs_5ye<- function(ua) {
 #'
 #' # sa[6]
 #' # [1] "New England City and Town Area Division"
-#' \dontrun{
+#' \donttest{
 #' y <- ua %>% get_available_years_in_the_web(geodatabase = sa[6])
 #' }
 #' @export
@@ -210,9 +210,11 @@ get_available_years_downloaded.uscb_acs_5ye<- function(ua, geodatabase, folder =
 #'
 #' # sa[6]
 #' # [1] "New England City and Town Area Division"
-#' \dontrun{
+#' \donttest{
 #' y <- ua %>% get_available_years_in_the_web(geodatabase = sa[6])
+#' \dontrun{
 #' y_res <- ua %>% download_geodatabases(geodatabase = sa[6], years = y)
+#' }
 #' }
 #' @export
 download_geodatabases <- function(ua, geodatabase, years, folder = NULL) {

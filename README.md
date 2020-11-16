@@ -113,21 +113,7 @@ ua <- uscb_acs_5ye(folder = folder)
 
 ul <- uscb_layer(uscb_acs_metadata, ua = ua, geodatabase = sa[6], year = 2015)
 (layers <- ul %>% get_layer_names())
-#>  [1] "X00_COUNTS"                          "X01_AGE_AND_SEX"                    
-#>  [3] "X02_RACE"                            "X03_HISPANIC_OR_LATINO_ORIGIN"      
-#>  [5] "X04_ANCESTRY"                        "X05_FOREIGN_BORN_CITIZENSHIP"       
-#>  [7] "X06_PLACE_OF_BIRTH"                  "X07_MIGRATION"                      
-#>  [9] "X08_COMMUTING"                       "X09_CHILDREN_HOUSEHOLD_RELATIONSHIP"
-#> [11] "X10_GRANDPARENTS_GRANDCHILDREN"      "X11_HOUSEHOLD_FAMILY_SUBFAMILIES"   
-#> [13] "X12_MARITAL_STATUS_AND_HISTORY"      "X13_FERTILITY"                      
-#> [15] "X14_SCHOOL_ENROLLMENT"               "X15_EDUCATIONAL_ATTAINMENT"         
-#> [17] "X16_LANGUAGE_SPOKEN_AT_HOME"         "X17_POVERTY"                        
-#> [19] "X18_DISABILITY"                      "X19_INCOME"                         
-#> [21] "X20_EARNINGS"                        "X21_VETERAN_STATUS"                 
-#> [23] "X22_FOOD_STAMPS"                     "X23_EMPLOYMENT_STATUS"              
-#> [25] "X24_INDUSTRY_OCCUPATION"             "X25_HOUSING_CHARACTERISTICS"        
-#> [27] "X26_GROUP_QUARTERS"                  "X27_HEALTH_INSURANCE"               
-#> [29] "X99_IMPUTATION"
+#> [1] "X00_COUNTS"      "X01_AGE_AND_SEX" "X02_RACE"
 
 ul <- ul %>% get_layer(layers[2])
 (layer_groups <- ul %>% get_layer_group_names())
