@@ -29,31 +29,28 @@ Optionally you can delete the rows whose measurement value is zero and remove
 the geometry column.
 }
 \examples{
-library(tidyr)
 
 folder <- system.file("extdata", package = "geogenr")
 folder <- stringr::str_replace_all(paste(folder, "/", ""), " ", "")
 ua <- uscb_acs_5ye(folder = folder)
-sa <- ua \%>\% get_statistical_areas()
+sa <- ua |> get_statistical_areas()
 # sa[6]
 # [1] "New England City and Town Area Division"
 ul <- uscb_layer(uscb_acs_metadata, ua = ua, geodatabase = sa[6], year = 2015)
-layers <- ul \%>\% get_layer_names()
+layers <- ul |> get_layer_names()
 # layers[3]
 # [1] "X02_RACE"
-ul <- ul \%>\% get_layer(layers[3])
-lg <- ul \%>\% get_layer_group_names()
+ul <- ul |> get_layer(layers[3])
+lg <- ul |> get_layer_group_names()
 # lg[2]
 # [1] "003 - DETAILED RACE"
-ul <- ul \%>\% get_layer_group(lg[2])
+ul <- ul |> get_layer_group(lg[2])
 uf <- uscb_folder(ul)
 
-layer_common <- uf \%>\% get_common_flat_table()
+layer_common <- uf |> get_common_flat_table()
 
 }
 \seealso{
-
-
 Other result generation functions: 
 \code{\link{get_common_geomultistar}()},
 \code{\link{get_flat_table}()},

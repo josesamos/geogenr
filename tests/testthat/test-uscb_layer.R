@@ -5,7 +5,7 @@ test_that("uscb_layer works", {
   folder <-
     stringr::str_replace_all(paste(folder, "/", ""), " ", "")
   ua <- uscb_acs_5ye(folder = folder)
-  sa <- ua %>% get_statistical_areas()
+  sa <- ua |> get_statistical_areas()
   # sa[6]
   # [1] "New England City and Town Area Division"
   ul <-

@@ -19,16 +19,13 @@ A vector of names.
 Returns a list of area names for which geodatabases are available.
 }
 \examples{
-library(tidyr)
 
 folder <- "../geodimension/data/us/"
 ua <- uscb_acs_5ye(folder = folder)
-laa <- ua \%>\% get_legal_and_administrative_areas()
+laa <- ua |> get_legal_and_administrative_areas()
 
 }
 \seealso{
-
-
 Other data collection functions: 
 \code{\link{download_geodatabases}()},
 \code{\link{get_available_years_downloaded}()},

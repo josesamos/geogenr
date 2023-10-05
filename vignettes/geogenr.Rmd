@@ -149,14 +149,13 @@ The data is available in the form of a geodatabase. One geodatabase for each are
 To consult the areas of each of the sections we use an object of class `uscb_acs_5ye.` When creating it, we can indicate a folder that will be used as the destination for downloads, if another is not indicated. Below are the operations to get the lists of available areas.
 
 ```{r}
-library(tidyr)
 library(geogenr)
 
 ua <- uscb_acs_5ye(folder = "../data/us/")
 
-(laa <- ua %>% get_legal_and_administrative_areas())
+(laa <- ua |> get_legal_and_administrative_areas())
 
-(sa <- ua %>% get_statistical_areas())
+(sa <- ua |> get_statistical_areas())
 ```
 
 Since some geodatabases are included in the package, we have selected the area that has the smallest databases. Through the following operations[^2], we obtain the years for which the geodatabases of the chosen area are available on the web, and we download those corresponding to the selected years.
@@ -167,10 +166,10 @@ Since some geodatabases are included in the package, we have selected the area t
 sa[6]
 #>  [1] "New England City and Town Area Division"
 
-(y <- ua %>% get_available_years_in_the_web(geodatabase = sa[6]))
+(y <- ua |> get_available_years_in_the_web(geodatabase = sa[6]))
 #>  [1] 2013 2014 2015 2016 2017 2018
 
-(y_res <- ua %>% download_geodatabases(geodatabase = sa[6], years = 2014:2015))
+(y_res <- ua |> download_geodatabases(geodatabase = sa[6], years = 2014:2015))
 #>  [1] 2014 2015
 
 ```
@@ -193,14 +192,14 @@ Using the following function, we check the years available locally for the selec
 ```{r}
 sa[6]
 
-(y <- ua %>% get_available_years_downloaded(geodatabase = sa[6]))
+(y <- ua |> get_available_years_downloaded(geodatabase = sa[6]))
 ```
 
 Using the metadata included in the package (`uscb_acs_metadata`), the object of class `uscb_acs_5ye` where the data of the areas is included, the area of the selected geodatabase and a reference year, we create an object of class `uscb_layer`, from which we can consult the layer names available for those area and year, as shown below.
 
 ```{r}
 ul <- uscb_layer(uscb_acs_metadata, ua = ua, geodatabase = sa[6], year = 2015)
-(layers <- ul %>% get_layer_names())
+(layers <- ul |> get_layer_names())
 ```
 
 Of all the available layers, we obtain one from which we can consult the groups of variables that it includes, as shown in the following operations.
@@ -208,8 +207,8 @@ Of all the available layers, we obtain one from which we can consult the groups 
 ```{r}
 layers[3]
 
-ul <- ul %>% get_layer(layers[3])
-(layer_groups <- ul %>% get_layer_group_names())
+ul <- ul |> get_layer(layers[3])
+(layer_groups <- ul |> get_layer_group_names())
 ```
 
 We obtain one of the groups by indicating its name, as shown below.
@@ -217,7 +216,7 @@ We obtain one of the groups by indicating its name, as shown below.
 ```{r}
 layer_groups[2]
 
-ul <- ul %>% get_layer_group(layer_groups[2])
+ul <- ul |> get_layer_group(layer_groups[2])
 ```
 
 Groups contain sets of variables. The variables of the selected group are shown below.
@@ -234,7 +233,7 @@ Once we have obtained a group of variables, we can obtain the associated data in
 It offers the possibility of obtaining it as a `tibble`, as shown below (the table is not shown due to the high number of columns it has).
 
 ```{r}
-ft <- ul %>% get_flat_table(remove_geometry = FALSE)
+ft <- ul |> get_flat_table(remove_geometry = FALSE)
 
 names(ft)
 
@@ -244,7 +243,7 @@ nrow(ft)
 We can also get an object of the `geomultistar` class.
 
 ```{r}
-gms <- ul %>% get_geomultistar()
+gms <- ul |> get_geomultistar()
 ```
 
 The first rows of the dimension and fact tables are shown below.
@@ -267,7 +266,7 @@ uf <- uscb_folder(ul)
 We can get a `tibble` from the new object. In this case it has more rows. In this case you have more rows than for just one year, as you would expect.
 
 ```{r}
-cft <- uf %>% get_common_flat_table()
+cft <- uf |> get_common_flat_table()
 
 nrow(cft)
 ```
@@ -275,7 +274,7 @@ nrow(cft)
 We can also get a `geomultistar` object.
 
 ```{r}
-cgms <- uf %>% get_common_geomultistar()
+cgms <- uf |> get_common_geomultistar()
 ```
 
 Instead of displaying all the tables, we focus on the table in the *when* dimension.
@@ -296,7 +295,7 @@ Specifically, the only field that has geographic information directly associated
 ```{r}
 library(geomultistar)
 
-cgms <- cgms  %>%
+cgms <- cgms  |>
   define_geoattribute(
     attribute = c("name"),
     from_attribute = "geoid"
@@ -308,15 +307,15 @@ We can define multidimensional queries using the functionality of the [`starsche
 ```{r}
 library(starschemar)
 
-gdqr <- dimensional_query(cgms) %>%
+gdqr <- dimensional_query(cgms) |>
   select_dimension(name = "where",
-                   attributes = c("name")) %>%
+                   attributes = c("name")) |>
   select_dimension(name = "what",
-                   attributes = c("short_name", "demographic_race_spec")) %>%
+                   attributes = c("short_name", "demographic_race_spec")) |>
   select_fact(name = "detailed_race",
-              measures = c("estimate")) %>%
-  filter_dimension(name = "when", year == "2015") %>%
-  filter_dimension(name = "what", demographic_race_spec == "Asian alone") %>%
+              measures = c("estimate")) |>
+  filter_dimension(name = "when", year == "2015") |>
+  filter_dimension(name = "what", demographic_race_spec == "Asian alone") |>
   run_geoquery()
 
 ```

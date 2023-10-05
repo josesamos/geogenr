@@ -5,7 +5,7 @@ test_that("get_common_geomultistar works", {
   folder <-
     stringr::str_replace_all(paste(folder, "/", ""), " ", "")
   ua <- uscb_acs_5ye(folder = folder)
-  sa <- ua %>% get_statistical_areas()
+  sa <- ua |> get_statistical_areas()
   # sa[6]
   # [1] "New England City and Town Area Division"
   ul <-
@@ -15,17 +15,17 @@ test_that("get_common_geomultistar works", {
       geodatabase = sa[6],
       year = 2015
     )
-  layers <- ul %>% get_layer_names()
+  layers <- ul |> get_layer_names()
   # layers[3]
   # [1] "X02_RACE"
-  ul <- ul %>% get_layer(layers[3])
-  layer_groups <- ul %>% get_layer_group_names()
+  ul <- ul |> get_layer(layers[3])
+  layer_groups <- ul |> get_layer_group_names()
   # layer_groups[2]
   # [1] "003 - DETAILED RACE"
-  ul <- ul %>% get_layer_group(layer_groups[2])
+  ul <- ul |> get_layer_group(layer_groups[2])
   uf <- uscb_folder(ul)
 
-  gms <- uf %>% get_common_geomultistar()
+  gms <- uf |> get_common_geomultistar()
 
   expect_equal(
     names(gms),

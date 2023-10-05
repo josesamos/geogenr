@@ -3,9 +3,6 @@
 #' Internal low-level constructor that creates new objects with the correct
 #' structure.
 #'
-#' @importFrom magrittr %>%
-#' @name %>%
-#'
 #' @param metadata A metadata object.
 #' @param ua A `uscb_acs_5ye` object.
 #' @param geodatabase A string.
@@ -66,12 +63,11 @@ new_uscb_layer <- function(metadata, ua, geodatabase, year, folder = NULL) {
 #' @seealso
 #'
 #' @examples
-#' library(tidyr)
 #'
 #' folder <- system.file("extdata", package = "geogenr")
 #' folder <- stringr::str_replace_all(paste(folder, "/", ""), " ", "")
 #' ua <- uscb_acs_5ye(folder = folder)
-#' sa <- ua %>% get_statistical_areas()
+#' sa <- ua |> get_statistical_areas()
 #'
 #' # sa[6]
 #' # [1] "New England City and Town Area Division"

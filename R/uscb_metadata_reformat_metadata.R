@@ -80,7 +80,7 @@ show_fields <- function(um) {
 #' @export
 #' @keywords internal
 show_fields.uscb_metadata <- function(um) {
-  um2 <- um %>% delete_empty_columns()
+  um2 <- um |> delete_empty_columns()
   metadata <- um2$metadata
   for (k in 9:length(names(metadata))) {
     print("____________________________________________")

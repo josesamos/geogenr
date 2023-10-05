@@ -30,24 +30,21 @@ which data is now available on the folder.
 If the folder is not indicated, it is considered that of the class.
 }
 \examples{
-library(tidyr)
 
 folder <- "../geodimension/data/us/"
 ua <- uscb_acs_5ye(folder = folder)
-sa <- ua \%>\% get_statistical_areas()
+sa <- ua |> get_statistical_areas()
 
 # sa[6]
 # [1] "New England City and Town Area Division"
 \donttest{
-y <- ua \%>\% get_available_years_in_the_web(geodatabase = sa[6])
+y <- ua |> get_available_years_in_the_web(geodatabase = sa[6])
 \dontrun{
-y_res <- ua \%>\% download_geodatabases(geodatabase = sa[6], years = y)
+y_res <- ua |> download_geodatabases(geodatabase = sa[6], years = y)
 }
 }
 }
 \seealso{
-
-
 Other data collection functions: 
 \code{\link{get_available_years_downloaded}()},
 \code{\link{get_available_years_in_the_web}()},

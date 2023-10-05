@@ -27,22 +27,19 @@ is available on the local folder.
 If the folder is not indicated, it is considered that of the class.
 }
 \examples{
-library(tidyr)
 
 folder <- system.file("extdata", package = "geogenr")
 folder <- stringr::str_replace_all(paste(folder, "/", ""), " ", "")
 ua <- uscb_acs_5ye(folder = folder)
-sa <- ua \%>\% get_statistical_areas()
+sa <- ua |> get_statistical_areas()
 
 # sa[6]
 # [1] "New England City and Town Area Division"
 
-y <- ua \%>\% get_available_years_downloaded(geodatabase = sa[6])
+y <- ua |> get_available_years_downloaded(geodatabase = sa[6])
 
 }
 \seealso{
-
-
 Other data collection functions: 
 \code{\link{download_geodatabases}()},
 \code{\link{get_available_years_in_the_web}()},

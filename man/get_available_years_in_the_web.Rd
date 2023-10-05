@@ -22,21 +22,18 @@ For the name of a geodatabase, returns a vector with the years for which data
 is available on the web.
 }
 \examples{
-library(tidyr)
 
 folder <- "../geodimension/data/us/"
 ua <- uscb_acs_5ye(folder = folder)
-sa <- ua \%>\% get_statistical_areas()
+sa <- ua |> get_statistical_areas()
 
 # sa[6]
 # [1] "New England City and Town Area Division"
 \donttest{
-y <- ua \%>\% get_available_years_in_the_web(geodatabase = sa[6])
+y <- ua |> get_available_years_in_the_web(geodatabase = sa[6])
 }
 }
 \seealso{
-
-
 Other data collection functions: 
 \code{\link{download_geodatabases}()},
 \code{\link{get_available_years_downloaded}()},

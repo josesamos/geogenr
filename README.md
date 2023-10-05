@@ -89,7 +89,6 @@ examples are included in the package), this is a basic example which
 shows you how to solve a common problem:
 
 ``` r
-library(tidyr)
 library(geogenr)
 
 folder <- system.file("extdata", package = "geogenr")

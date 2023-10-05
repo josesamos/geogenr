@@ -26,8 +26,6 @@ ua <- uscb_acs_5ye(folder = folder)
 
 }
 \seealso{
-
-
 Other data collection functions: 
 \code{\link{download_geodatabases}()},
 \code{\link{get_available_years_downloaded}()},

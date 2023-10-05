@@ -13,17 +13,16 @@
 #' @seealso
 #'
 #' @examples
-#' library(tidyr)
 #'
 #' folder <- system.file("extdata", package = "geogenr")
 #' folder <- stringr::str_replace_all(paste(folder, "/", ""), " ", "")
 #' ua <- uscb_acs_5ye(folder = folder)
-#' sa <- ua %>% get_statistical_areas()
+#' sa <- ua |> get_statistical_areas()
 #' # sa[6]
 #' # [1] "New England City and Town Area Division"
 #' ul <- uscb_layer(uscb_acs_metadata, ua = ua, geodatabase = sa[6], year = 2015)
 #'
-#' layers <- ul %>% get_layer_names()
+#' layers <- ul |> get_layer_names()
 #'
 #' @export
 get_layer_names <- function(ul) {
@@ -54,20 +53,19 @@ get_layer_names.uscb_layer <- function(ul) {
 #' @seealso
 #'
 #' @examples
-#' library(tidyr)
 #'
 #' folder <- system.file("extdata", package = "geogenr")
 #' folder <- stringr::str_replace_all(paste(folder, "/", ""), " ", "")
 #' ua <- uscb_acs_5ye(folder = folder)
-#' sa <- ua %>% get_statistical_areas()
+#' sa <- ua |> get_statistical_areas()
 #' # sa[6]
 #' # [1] "New England City and Town Area Division"
 #' ul <- uscb_layer(uscb_acs_metadata, ua = ua, geodatabase = sa[6], year = 2015)
-#' layers <- ul %>% get_layer_names()
+#' layers <- ul |> get_layer_names()
 #'
 #' # layers[3]
 #' # [1] "X02_RACE"
-#' ul <- ul %>% get_layer(layers[3])
+#' ul <- ul |> get_layer(layers[3])
 #'
 #' @export
 get_layer <- function(ul, layer_name) {
@@ -81,7 +79,7 @@ get_layer.uscb_layer <- function(ul, layer_name) {
   ul$layer <-
     sf::st_read(dsn = ul$filepath,
                 layer = layer_name,
-                quiet = TRUE) %>%
+                quiet = TRUE) |>
     tibble::as_tibble()
 
   cod <- names(ul$layer)[-1]
@@ -94,7 +92,7 @@ get_layer.uscb_layer <- function(ul, layer_name) {
       short_name = unsel_cod,
       uscb_acs_metadata = ul$metadata
     )
-    um <- um %>% get_metadata()
+    um <- um |> get_metadata()
     ul$metadata$metadata <- um$metadata
   }
 
@@ -121,21 +119,20 @@ get_layer.uscb_layer <- function(ul, layer_name) {
 #' @seealso
 #'
 #' @examples
-#' library(tidyr)
 #'
 #' folder <- system.file("extdata", package = "geogenr")
 #' folder <- stringr::str_replace_all(paste(folder, "/", ""), " ", "")
 #' ua <- uscb_acs_5ye(folder = folder)
-#' sa <- ua %>% get_statistical_areas()
+#' sa <- ua |> get_statistical_areas()
 #' # sa[6]
 #' # [1] "New England City and Town Area Division"
 #' ul <- uscb_layer(uscb_acs_metadata, ua = ua, geodatabase = sa[6], year = 2015)
-#' layers <- ul %>% get_layer_names()
+#' layers <- ul |> get_layer_names()
 #' # layers[3]
 #' # [1] "X02_RACE"
-#' ul <- ul %>% get_layer(layers[3])
+#' ul <- ul |> get_layer(layers[3])
 #'
-#' layer_groups <- ul %>% get_layer_group_names()
+#' layer_groups <- ul |> get_layer_group_names()
 #'
 #' @export
 get_layer_group_names <- function(ul) {
@@ -166,24 +163,23 @@ get_layer_group_names.uscb_layer <- function(ul) {
 #' @seealso
 #'
 #' @examples
-#' library(tidyr)
 #'
 #' folder <- system.file("extdata", package = "geogenr")
 #' folder <- stringr::str_replace_all(paste(folder, "/", ""), " ", "")
 #' ua <- uscb_acs_5ye(folder = folder)
-#' sa <- ua %>% get_statistical_areas()
+#' sa <- ua |> get_statistical_areas()
 #' # sa[6]
 #' # [1] "New England City and Town Area Division"
 #' ul <- uscb_layer(uscb_acs_metadata, ua = ua, geodatabase = sa[6], year = 2015)
-#' layers <- ul %>% get_layer_names()
+#' layers <- ul |> get_layer_names()
 #' # layers[3]
 #' # [1] "X02_RACE"
-#' ul <- ul %>% get_layer(layers[3])
-#' lg <- ul %>% get_layer_group_names()
+#' ul <- ul |> get_layer(layers[3])
+#' lg <- ul |> get_layer_group_names()
 #'
 #' # lg[2]
 #' # [1] "003 - DETAILED RACE"
-#' ul <- ul %>% get_layer_group(lg[2])
+#' ul <- ul |> get_layer_group(lg[2])
 #'
 #' @export
 get_layer_group <- function(ul, layer_group_name) {
@@ -277,25 +273,24 @@ get_basic_flat_table.uscb_layer <- function(ul, remove_zeros = FALSE) {
 #' @seealso
 #'
 #' @examples
-#' library(tidyr)
 #'
 #' folder <- system.file("extdata", package = "geogenr")
 #' folder <- stringr::str_replace_all(paste(folder, "/", ""), " ", "")
 #' ua <- uscb_acs_5ye(folder = folder)
-#' sa <- ua %>% get_statistical_areas()
+#' sa <- ua |> get_statistical_areas()
 #' # sa[6]
 #' # [1] "New England City and Town Area Division"
 #' ul <- uscb_layer(uscb_acs_metadata, ua = ua, geodatabase = sa[6], year = 2015)
-#' layers <- ul %>% get_layer_names()
+#' layers <- ul |> get_layer_names()
 #' # layers[3]
 #' # [1] "X02_RACE"
-#' ul <- ul %>% get_layer(layers[3])
-#' lg <- ul %>% get_layer_group_names()
+#' ul <- ul |> get_layer(layers[3])
+#' lg <- ul |> get_layer_group_names()
 #' # lg[2]
 #' # [1] "003 - DETAILED RACE"
-#' ul <- ul %>% get_layer_group(lg[2])
+#' ul <- ul |> get_layer_group(lg[2])
 #'
-#' layer <- ul %>% get_flat_table()
+#' layer <- ul |> get_flat_table()
 #'
 #' @export
 get_flat_table <- function(ul, remove_zeros = FALSE, remove_geometry = TRUE) {
@@ -342,25 +337,24 @@ get_flat_table.uscb_layer <- function(ul, remove_zeros = FALSE, remove_geometry 
 #' @seealso
 #'
 #' @examples
-#' library(tidyr)
 #'
 #' folder <- system.file("extdata", package = "geogenr")
 #' folder <- stringr::str_replace_all(paste(folder, "/", ""), " ", "")
 #' ua <- uscb_acs_5ye(folder = folder)
-#' sa <- ua %>% get_statistical_areas()
+#' sa <- ua |> get_statistical_areas()
 #' # sa[6]
 #' # [1] "New England City and Town Area Division"
 #' ul <- uscb_layer(uscb_acs_metadata, ua = ua, geodatabase = sa[6], year = 2015)
-#' layers <- ul %>% get_layer_names()
+#' layers <- ul |> get_layer_names()
 #' # layers[3]
 #' # [1] "X02_RACE"
-#' ul <- ul %>% get_layer(layers[3])
-#' lg <- ul %>% get_layer_group_names()
+#' ul <- ul |> get_layer(layers[3])
+#' lg <- ul |> get_layer_group_names()
 #' # lg[2]
 #' # [1] "003 - DETAILED RACE"
-#' ul <- ul %>% get_layer_group(lg[2])
+#' ul <- ul |> get_layer_group(lg[2])
 #'
-#' gms <- ul %>% get_geomultistar()
+#' gms <- ul |> get_geomultistar()
 #'
 #' @export
 get_geomultistar <- function(ul) {
@@ -403,23 +397,23 @@ get_geomultistar.uscb_layer <- function(ul) {
 #'
 #' @keywords internal
 define_geomultistar <- function(ft, fact_name, where_names, what_names, place) {
-  dm <- starschemar::dimensional_model() %>%
+  dm <- starschemar::dimensional_model() |>
     starschemar::define_fact(
       name = fact_name,
       measures = c("Estimate", "Margin of Error"),
-    ) %>%
+    ) |>
     starschemar::define_dimension(name = "when",
-                                  attributes = c("year")) %>%
+                                  attributes = c("year")) |>
     starschemar::define_dimension(name = "where",
-                                  attributes = where_names) %>%
+                                  attributes = where_names) |>
     starschemar::define_dimension(name = "what",
                                   attributes = what_names)
 
-  st <- starschemar::star_schema(ft, dm) %>%
+  st <- starschemar::star_schema(ft, dm) |>
     starschemar::snake_case()
 
   gms <-
-    geomultistar::geomultistar(st, geodimension = "where") %>%
+    geomultistar::geomultistar(st, geodimension = "where") |>
     geomultistar::define_geoattribute(
       attribute = "geoid",
       from_layer = place,

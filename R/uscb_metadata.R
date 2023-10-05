@@ -3,9 +3,6 @@
 #' Internal low-level constructor that creates new objects with the correct
 #' structure.
 #'
-#' @importFrom magrittr %>%
-#' @name %>%
-#'
 #' @param filepath A string, path to gbd file.
 #' @param code A vector of strings.
 #' @param group_code A vector of strings.
@@ -27,7 +24,7 @@ new_uscb_metadata <- function(filepath = NULL, code = NULL, group_code = NULL, s
   metadata <-
     sf::st_read(dsn = filepath,
                 layer = layer_names[2],
-                quiet = TRUE) %>%
+                quiet = TRUE) |>
     tibble::as_tibble()
 
   var_name <- c(

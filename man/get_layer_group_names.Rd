@@ -19,26 +19,23 @@ A vector of names.
 A layer is broken down into groups. Get the name of the layer groups.
 }
 \examples{
-library(tidyr)
 
 folder <- system.file("extdata", package = "geogenr")
 folder <- stringr::str_replace_all(paste(folder, "/", ""), " ", "")
 ua <- uscb_acs_5ye(folder = folder)
-sa <- ua \%>\% get_statistical_areas()
+sa <- ua |> get_statistical_areas()
 # sa[6]
 # [1] "New England City and Town Area Division"
 ul <- uscb_layer(uscb_acs_metadata, ua = ua, geodatabase = sa[6], year = 2015)
-layers <- ul \%>\% get_layer_names()
+layers <- ul |> get_layer_names()
 # layers[3]
 # [1] "X02_RACE"
-ul <- ul \%>\% get_layer(layers[3])
+ul <- ul |> get_layer(layers[3])
 
-layer_groups <- ul \%>\% get_layer_group_names()
+layer_groups <- ul |> get_layer_group_names()
 
 }
 \seealso{
-
-
 Other data selection functions: 
 \code{\link{get_layer_group}()},
 \code{\link{get_layer_names}()},

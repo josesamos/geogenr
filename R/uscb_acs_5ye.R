@@ -5,9 +5,6 @@
 #'
 #' @param folder A string.
 #'
-#' @importFrom magrittr %>%
-#' @name %>%
-#'
 #' @return A `uscb_acs_5ye` object.
 #'
 #' @keywords internal

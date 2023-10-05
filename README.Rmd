@@ -82,26 +82,25 @@ Some of the defined variables are shown below.
 First, we select and download the ACS geodatabases using the functions offered by the package. Once we have them in a folder (in this case some examples are included in the package), this is a basic example which shows you how to solve a common problem:
 
 ```{r example}
-library(tidyr)
 library(geogenr)
 
 folder <- system.file("extdata", package = "geogenr")
 folder <- stringr::str_replace_all(paste(folder, "/", ""), " ", "")
 ua <- uscb_acs_5ye(folder = folder)
 
-(sa <- ua %>% get_statistical_areas())
+(sa <- ua |> get_statistical_areas())
 
-(y <- ua %>% get_available_years_downloaded(geodatabase = sa[6]))
+(y <- ua |> get_available_years_downloaded(geodatabase = sa[6]))
 
 ul <- uscb_layer(uscb_acs_metadata, ua = ua, geodatabase = sa[6], year = 2015)
-(layers <- ul %>% get_layer_names())
+(layers <- ul |> get_layer_names())
 
-ul <- ul %>% get_layer(layers[2])
-(layer_groups <- ul %>% get_layer_group_names())
+ul <- ul |> get_layer(layers[2])
+(layer_groups <- ul |> get_layer_group_names())
 
-ul <- ul %>% get_layer_group(layer_groups[1])
+ul <- ul |> get_layer_group(layer_groups[1])
 
-gms <- ul %>% get_geomultistar()
+gms <- ul |> get_geomultistar()
 ```
 
 For a folder, we get the years for which we have one area geodatabases downloaded. We select the geodatabase for a specific year (`uscb_layer`). From among the layers and groups of variables available, we select a layer (`get_layer`) and one of its groups (`get_layer_group`). From the selected variables we generate a `geomultistar` object (`get_geomultistar`).
@@ -121,24 +120,24 @@ Once we have a `geomultistar` object, we can use the functionality of [`starsche
 library(starschemar)
 library(geomultistar)
 
-gms <- gms  %>%
+gms <- gms  |>
   define_geoattribute(
     attribute = c("name"),
     from_attribute = "geoid"
   )
 
-gdqr <- dimensional_query(gms) %>%
+gdqr <- dimensional_query(gms) |>
   select_dimension(name = "where",
-                   attributes = c("name")) %>%
+                   attributes = c("name")) |>
   select_dimension(
     name = "what",
     attributes = c("short_name")
-  ) %>%
+  ) |>
   select_fact(name = "sex_by_age",
-              measures = c("estimate")) %>%
-  filter_dimension(name = "when", year == "2015") %>%
+              measures = c("estimate")) |>
+  filter_dimension(name = "when", year == "2015") |>
   filter_dimension(name = "what",
-                   demographic_age == "Under 5 years") %>%
+                   demographic_age == "Under 5 years") |>
   run_geoquery()
 
 ```
@@ -154,7 +153,7 @@ Once we have verified that the data for the reference year is what we need, we c
 ```{r}
 uf <- uscb_folder(ul)
 
-cgms <- uf %>% get_common_geomultistar()
+cgms <- uf |> get_common_geomultistar()
 ```
 
 Instead of displaying all the tables, we focus on the table in the *when* dimension.
