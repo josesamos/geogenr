@@ -135,7 +135,7 @@ get_field_values.uscb_metadata <- function(um) {
 #'
 #' Standardize text making transformations.
 #'
-#' @param mdr A character vector.
+#' @param docs A character vector.
 #'
 #' @return A character vector.
 #'
@@ -153,7 +153,7 @@ standardize_text <- function(docs) {
 #'
 #' Standardize text 2 making transformations.
 #'
-#' @param mdr A character vector.
+#' @param docs A character vector.
 #'
 #' @return A character vector.
 #'
@@ -174,7 +174,7 @@ standardize_text2 <- function(docs) {
 #'
 #' Replace numbers by N.
 #'
-#' @param mdr A character vector.
+#' @param docs A character vector.
 #'
 #' @return A character vector.
 #'

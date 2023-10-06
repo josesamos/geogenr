@@ -7,7 +7,7 @@
 url_file_exists(url)
 }
 \arguments{
-\item{mdr}{A string.}
+\item{url}{A string.}
 }
 \value{
 A boolean

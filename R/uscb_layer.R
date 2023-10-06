@@ -84,7 +84,7 @@ uscb_layer <-
 #'
 #' Get last year from a string.
 #'
-#' @param mdr A string.
+#' @param filepath A string.
 #'
 #' @return A string.
 #'

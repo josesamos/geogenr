@@ -121,7 +121,7 @@ uscb_acs_5ye <- function(folder = "") {
 #'
 #' https://stackoverflow.com/questions/60318926/how-to-check-if-file-exists-in-the-url-before-use-download-file-in-r
 #'
-#' @param mdr A string.
+#' @param url A string.
 #'
 #' @return A boolean
 #'
@@ -136,8 +136,11 @@ url_file_exists <- function(url) {
 
 #' get_geodatabase_url
 #'
-#'
-#' @param mdr A string.
+#' @param url A String
+#' @param extension A String
+#' @param names A String
+#' @param name A String
+#' @param year An Integer
 #'
 #' @return A boolean
 #'
@@ -153,8 +156,11 @@ get_geodatabase_url <- function(url, extension, names, name, year) {
 
 #' get_geodatabase_file
 #'
-#'
-#' @param mdr A string.
+#' @param folder A String
+#' @param extension A String
+#' @param names A String
+#' @param name A String
+#' @param year An Integer
 #'
 #' @return A boolean
 #'

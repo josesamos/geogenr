@@ -7,7 +7,15 @@
 get_geodatabase_url(url, extension, names, name, year)
 }
 \arguments{
-\item{mdr}{A string.}
+\item{url}{A String}
+
+\item{extension}{A String}
+
+\item{names}{A String}
+
+\item{name}{A String}
+
+\item{year}{An Integer}
 }
 \value{
 A boolean

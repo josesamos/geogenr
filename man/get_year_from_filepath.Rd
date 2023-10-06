@@ -7,7 +7,7 @@
 get_year_from_filepath(filepath)
 }
 \arguments{
-\item{mdr}{A string.}
+\item{filepath}{A string.}
 }
 \value{
 A string.

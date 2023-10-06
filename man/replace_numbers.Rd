@@ -7,7 +7,7 @@
 replace_numbers(docs)
 }
 \arguments{
-\item{mdr}{A character vector.}
+\item{docs}{A character vector.}
 }
 \value{
 A character vector.
