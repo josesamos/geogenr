@@ -10,7 +10,6 @@
 #' @return A vector of names.
 #'
 #' @family data selection functions
-#' @seealso
 #'
 #' @examples
 #'
@@ -50,7 +49,6 @@ get_layer_names.uscb_layer <- function(ul) {
 #' @return A `uscb_layer` object.
 #'
 #' @family data selection functions
-#' @seealso
 #'
 #' @examples
 #'
@@ -116,7 +114,6 @@ get_layer.uscb_layer <- function(ul, layer_name) {
 #' @return A vector of names.
 #'
 #' @family data selection functions
-#' @seealso
 #'
 #' @examples
 #'
@@ -160,7 +157,6 @@ get_layer_group_names.uscb_layer <- function(ul) {
 #' @return A `uscb_layer` object.
 #'
 #' @family data selection functions
-#' @seealso
 #'
 #' @examples
 #'
@@ -270,7 +266,6 @@ get_basic_flat_table.uscb_layer <- function(ul, remove_zeros = FALSE) {
 #' @return A `tibble` object.
 #'
 #' @family result generation functions
-#' @seealso
 #'
 #' @examples
 #'
@@ -334,7 +329,6 @@ get_flat_table.uscb_layer <- function(ul, remove_zeros = FALSE, remove_geometry 
 #' @return A `geomultistar` object.
 #'
 #' @family result generation functions
-#' @seealso
 #'
 #' @examples
 #'

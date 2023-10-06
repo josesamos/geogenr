@@ -57,7 +57,6 @@ new_uscb_folder <- function(ul, year = NULL) {
 #' @return A `uscb_folder` object.
 #'
 #' @family data selection functions
-#' @seealso
 #'
 #' @examples
 #'

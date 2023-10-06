@@ -9,7 +9,6 @@
 #' @return A vector of names.
 #'
 #' @family data collection functions
-#' @seealso
 #'
 #' @examples
 #'
@@ -40,7 +39,6 @@ get_legal_and_administrative_areas.uscb_acs_5ye<- function(ua) {
 #' @return A vector of names.
 #'
 #' @family data collection functions
-#' @seealso
 #'
 #' @examples
 #'
@@ -74,7 +72,6 @@ get_statistical_areas.uscb_acs_5ye<- function(ua) {
 #' @return A vector of integers.
 #'
 #' @family data collection functions
-#' @seealso
 #'
 #' @examples
 #'
@@ -130,7 +127,6 @@ get_available_years_in_the_web.uscb_acs_5ye<- function(ua, geodatabase) {
 #' @return A vector of integers.
 #'
 #' @family data collection functions
-#' @seealso
 #'
 #' @examples
 #'
@@ -195,7 +191,6 @@ get_available_years_downloaded.uscb_acs_5ye<- function(ua, geodatabase, folder =
 #' @return A vector of integers.
 #'
 #' @family data collection functions
-#' @seealso
 #'
 #' @examples
 #'

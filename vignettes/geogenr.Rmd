@@ -1,11 +1,11 @@
 ---
-title: "geogenr: Geomultistar Generator from American Community Survey (ACS) Geodatabases"
+title: "`geomultistar` Generator from American Community Survey (ACS) Geodatabases"
 author: "Jose Samos (jsamos@ugr.es)"
 date: "2020-11-09"
 output: rmarkdown::html_vignette
 bibliography: bibliography.bib
 vignette: >
-  %\VignetteIndexEntry{geogenr: Geomultistar Generator from American Community Survey (ACS) Geodatabases}
+  %\VignetteIndexEntry{`geomultistar` Generator from American Community Survey (ACS) Geodatabases}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---

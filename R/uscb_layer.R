@@ -60,7 +60,6 @@ new_uscb_layer <- function(metadata, ua, geodatabase, year, folder = NULL) {
 #' @return A `uscb_layer` object.
 #'
 #' @family data selection functions
-#' @seealso
 #'
 #' @examples
 #'

@@ -18,7 +18,6 @@
 #' @return A `tibble` object.
 #'
 #' @family result generation functions
-#' @seealso
 #'
 #' @examples
 #'
@@ -99,7 +98,6 @@ same_layer_group_columns <- function(initial, rest) {
 #' @return A `geomultistar` object.
 #'
 #' @family result generation functions
-#' @seealso
 #'
 #' @examples
 #'

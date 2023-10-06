@@ -98,7 +98,6 @@ new_uscb_acs_5ye <- function(folder = "") {
 #' @return A `uscb_acs_5ye` object.
 #'
 #' @family data collection functions
-#' @seealso
 #'
 #' @examples
 #'
