@@ -3,6 +3,7 @@
 0 errors | 0 warnings | 1 note
 
 * This is a new release.
-* I was required to make some modifications in the package geomultistar on which 
-this depends to keep it in CRAN but at that moment I could not carry them out. 
-Now fortunately I have been able to.
+* I have corrected the points that were indicated to me:
+  Use only undirected quotation marks in the description text.
+  Remove calls to the print function that were not necessary for the functionality.
+Thank you!

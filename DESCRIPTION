@@ -1,6 +1,6 @@
 Type: Package
 Package: geogenr
-Title: `geomultistar` Object Generator from American Community Survey Geodatabases
+Title: 'geomultistar' Object Generator from American Community Survey Geodatabases
 Version: 1.0.1
 Authors@R: 
     person("Jose", "Samos", , "jsamos@ugr.es", role = c("aut", "cre", "cph"),
@@ -8,7 +8,7 @@ Authors@R:
 Description: The American Community Survey (ACS)
     <https://www.census.gov/programs-surveys/acs> offers geodatabases with
     geographic information and associated data of interest to researchers
-    in the area. The goal of this package is to generate `geomultistar`
+    in the area. The goal of this package is to generate 'geomultistar'
     <https://CRAN.R-project.org/package=geomultistar> objects from those
     geodatabases automatically, once the focus of attention is selected.
     Multidimensional queries with geographic information can be easily

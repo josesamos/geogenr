@@ -153,10 +153,8 @@ new_uscb_metadata <- function(filepath = NULL, code = NULL, group_code = NULL, s
   }
   # select only a code
   if (!is.null(code)) {
-    print(sort(unique(metadata$inf_code)))
     metadata <- metadata[metadata$inf_code %in% code, ]
     if (!is.null(group_code)) {
-      print(sort(unique(metadata$group_code)))
       metadata <- metadata[metadata$group_code %in% group_code, ]
     }
   }

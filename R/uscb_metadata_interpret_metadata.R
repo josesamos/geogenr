@@ -29,10 +29,6 @@ interpret_metadata.uscb_metadata <- function(um) {
     res <- interpret_values(um$metadata[i, ], values, um$interpret, um$field_values, other_field)
     um$metadata[i, ] <- res$mdr[1,]
     other_field <- res$other_field
-
-    if (i %% 100 == 0) {
-      print(i)
-    }
   }
   um
 }

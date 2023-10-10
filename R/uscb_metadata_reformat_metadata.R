@@ -20,10 +20,8 @@ reformat_metadata <- function(um) {
 reformat_metadata.uscb_metadata <- function(um) {
   inf_codes <- unique(um$metadata$inf_code)
   for (inf_code in inf_codes) {
-    print(inf_code)
     group_codes <- unique(um$metadata[um$metadata$inf_code == inf_code, "group_code"][[1]])
     for (group_code in group_codes) {
-      print(group_code)
       for (v in um$variables) {
         um$metadata[um$metadata$inf_code == inf_code &
                       um$metadata$group_code == group_code, ] <-
@@ -83,8 +81,6 @@ show_fields.uscb_metadata <- function(um) {
   um2 <- um |> delete_empty_columns()
   metadata <- um2$metadata
   for (k in 9:length(names(metadata))) {
-    print("____________________________________________")
-    print(names(metadata)[k])
     v <- metadata[, k][[1]]
     dput(snakecase::to_snake_case(sort(unique(v)), sep_out = "_"))
   }
@@ -267,9 +263,6 @@ assign_level <- function(mdr, field) {
 #' @keywords internal
 scroll_level <- function(mdr, fields, field_index, values_indices, index_limit) {
   enough_spec_fields <- (field_index + 1 <= index_limit)
-  if (!enough_spec_fields) {
-    print(unique(mdr[values_indices, fields[field_index]]))
-  }
   stopifnot(enough_spec_fields)
   if (all(mdr[values_indices, fields[field_index + 1]] == "")) {
     mdr[values_indices, fields[field_index + 1]] <-
