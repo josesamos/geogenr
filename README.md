@@ -8,10 +8,10 @@
 [![CRAN
 status](https://www.r-pkg.org/badges/version/geogenr)](https://CRAN.R-project.org/package=geogenr)
 [![R-CMD-check](https://github.com/josesamos/geogenr/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/josesamos/geogenr/actions/workflows/R-CMD-check.yaml)
-[![Codecov test
-coverage](https://codecov.io/gh/josesamos/geogenr/branch/master/graph/badge.svg)](https://app.codecov.io/gh/josesamos/geogenr?branch=master)
 [![Downloads](http://cranlogs.r-pkg.org/badges/geogenr?color=brightgreen)](https://www.r-pkg.org:443/pkg/geogenr)
 <!-- badges: end -->
+
+<!-- [![Codecov test coverage](https://codecov.io/gh/josesamos/geogenr/branch/master/graph/badge.svg)](https://app.codecov.io/gh/josesamos/geogenr?branch=master) -->
 
 The [American Community Survey
 (ACS)](https://www.census.gov/programs-surveys/acs) offers geodatabases
