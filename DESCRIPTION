@@ -1,6 +1,7 @@
 Type: Package
 Package: geogenr
-Title: 'geomultistar' Object Generator from American Community Survey Geodatabases
+Title: 'geomultistar' Object Generator from American Community Survey
+    Geodatabases
 Version: 1.0.1.9000
 Authors@R: 
     person("Jose", "Samos", , "jsamos@ugr.es", role = c("aut", "cre", "cph"),

@@ -34,9 +34,15 @@ layers <- ul |> get_layer_names()
 }
 \seealso{
 Other data selection functions: 
+\code{\link{download_area_file}()},
+\code{\link{get_area_file_names}()},
+\code{\link{get_area_groups}()},
+\code{\link{get_area_years}()},
+\code{\link{get_areas}()},
 \code{\link{get_layer_group_names}()},
 \code{\link{get_layer_group}()},
 \code{\link{get_layer}()},
+\code{\link{unzip_area_file}()},
 \code{\link{uscb_folder}()},
 \code{\link{uscb_layer}()}
 }
