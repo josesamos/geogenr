@@ -145,8 +145,6 @@ download_area_file <- function(file = NULL, out_dir = NULL, unzip = TRUE, delete
   stopifnot("'file' must be defined." = !is.null(file))
   stopifnot("'out_dir' must be defined." = !is.null(out_dir))
   out_dir <- name_with_nexus(out_dir)
-  to <- getOption('timeout')
-  options(timeout = to * 100)
   res_files <- NULL
   for (f in file) {
     destfile <- paste0(out_dir, basename(f))
@@ -173,7 +171,6 @@ download_area_file <- function(file = NULL, out_dir = NULL, unzip = TRUE, delete
       }
     }
   }
-  options(timeout = to)
   res_files
 }
 
@@ -301,3 +298,59 @@ name_with_nexus <- function(name) {
   }
   res
 }
+
+
+#' Get gbd files
+#'
+#' Given a folder, we get the gbd files in it, at any level.
+#'
+#' @param name A string.
+#'
+#' @return A string vector.
+#'
+#' @keywords internal
+get_gbd_files <- function(dir) {
+  files <- list.files(path = dir, full.names = TRUE, recursive = TRUE, include.dirs = TRUE)
+  files <- files[dir.exists(files)]
+  n <- nchar(files)
+  files <- files[substr(files, n-3, n) == '.gdb']
+  files
+}
+
+#' Get file year
+#'
+#' Given a file, get the associated year (in the name).
+#'
+#' @param name A string vector.
+#'
+#' @return A string vector.
+#'
+#' @keywords internal
+get_file_year <- function(file) {
+  name <- basename(file)
+  year <- readr::parse_number(name)
+  year
+}
+
+#' Get file code (with year)
+#'
+#' Given a file, get the associated code (in the name), includes the year as the
+#' name of the vector elements..
+#'
+#' @param name A string vector.
+#'
+#' @return A string vector.
+#'
+#' @keywords internal
+get_file_code <- function(file) {
+  name <- basename(file)
+  year <- readr::parse_number(name)
+  pre <- paste0("ACS_", year, "_5YR_")
+  for (i in seq_along(name)) {
+    name[i] <- sub(pre[i], "", name[i])
+    name[i] <- sub('.gdb', "", name[i])
+  }
+  names(name) <- year
+  name
+}
+
