@@ -6,11 +6,14 @@
 \usage{
 get_areas(group = NULL)
 }
+\arguments{
+\item{group}{A string, area group name.}
+}
 \value{
-A vector.
+A vector, area names.
 }
 \description{
-Gets the names of the Demographic and Economic areas of a group or set of groups.
+Gets the names of the Demographic and Economic Areas of a group or set of groups.
 }
 \details{
 If no group is indicated, all available areas are obtained.
@@ -21,17 +24,11 @@ areas <- get_areas(group = "Statistical Areas")
 
 }
 \seealso{
-Other data selection functions: 
+Other data download functions: 
 \code{\link{download_area_file}()},
 \code{\link{get_area_file_names}()},
 \code{\link{get_area_groups}()},
 \code{\link{get_area_years}()},
-\code{\link{get_layer_group_names}()},
-\code{\link{get_layer_group}()},
-\code{\link{get_layer_names}()},
-\code{\link{get_layer}()},
-\code{\link{unzip_area_file}()},
-\code{\link{uscb_folder}()},
-\code{\link{uscb_layer}()}
+\code{\link{unzip_area_file}()}
 }
-\concept{data selection functions}
+\concept{data download functions}

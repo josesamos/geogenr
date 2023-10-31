@@ -4,32 +4,43 @@
 \alias{download_area_file}
 \title{Download area file}
 \usage{
-download_area_file(file = NULL, out_dir = NULL, delete_zip = FALSE)
+download_area_file(
+  file = NULL,
+  out_dir = NULL,
+  unzip = TRUE,
+  delete_zip = FALSE
+)
+}
+\arguments{
+\item{file}{A string or string vector.}
+
+\item{out_dir}{A string, output folder.}
+
+\item{unzip}{A boolean, unzip files.}
+
+\item{delete_zip}{A boolean, delete zip files if correctly unzipped.}
 }
 \value{
 A vector, files correctly obtained.
 }
 \description{
-Download the files whose url is indicated, unzip them and, if everything went
-well and is indicated in the parameter, delete the downloaded files.
+Download the files whose url is indicated, unzip them (if desired) and, if
+everything went well and is indicated in the parameter, delete the downloaded
+files.
 }
 \examples{
 
-groups <- get_area_years()
+dir <- tempdir()
+url <- get_area_file_names("State", 2021)
+files <- download_area_file(url, dir, delete_zip = TRUE)
 
 }
 \seealso{
-Other data selection functions: 
+Other data download functions: 
 \code{\link{get_area_file_names}()},
 \code{\link{get_area_groups}()},
 \code{\link{get_area_years}()},
 \code{\link{get_areas}()},
-\code{\link{get_layer_group_names}()},
-\code{\link{get_layer_group}()},
-\code{\link{get_layer_names}()},
-\code{\link{get_layer}()},
-\code{\link{unzip_area_file}()},
-\code{\link{uscb_folder}()},
-\code{\link{uscb_layer}()}
+\code{\link{unzip_area_file}()}
 }
-\concept{data selection functions}
+\concept{data download functions}

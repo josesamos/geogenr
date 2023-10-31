@@ -4,12 +4,19 @@
 \alias{unzip_area_file}
 \title{Unzip area file}
 \usage{
-unzip_area_file(file, out_dir = NULL, only_show_files = FALSE)
+unzip_area_file(
+  file,
+  out_dir = NULL,
+  delete_zip = FALSE,
+  only_show_files = FALSE
+)
 }
 \arguments{
 \item{file}{A string or string vector.}
 
 \item{out_dir}{A string or string vector, output folder.}
+
+\item{delete_zip}{A boolean, delete zip files if correctly unzipped.}
 
 \item{only_show_files}{A boolean, only show the files that would be unzipped,
 and the destination folders, not unzip them.}
@@ -23,26 +30,19 @@ compressed files, unzip the files to the given output folder.
 }
 \examples{
 
-f <- system.file("extdata", package = "satres")
-r <- sat_untarzip(f, only_show_files = TRUE)
+dir <- tempdir()
+url <- get_area_file_names("State", 2021)
+files <- download_area_file(url, dir, unzip = FALSE)
 
-f1 <- system.file("extdata", "satres.zip", package = "satres")
-f2 <- system.file("extdata", "satres.tar", package = "satres")
-r <- sat_untarzip(c(f1, f2), only_show_files = TRUE)
+res <- unzip_area_file(files, tempdir())
 
 }
 \seealso{
-Other data selection functions: 
+Other data download functions: 
 \code{\link{download_area_file}()},
 \code{\link{get_area_file_names}()},
 \code{\link{get_area_groups}()},
 \code{\link{get_area_years}()},
-\code{\link{get_areas}()},
-\code{\link{get_layer_group_names}()},
-\code{\link{get_layer_group}()},
-\code{\link{get_layer_names}()},
-\code{\link{get_layer}()},
-\code{\link{uscb_folder}()},
-\code{\link{uscb_layer}()}
+\code{\link{get_areas}()}
 }
-\concept{data selection functions}
+\concept{data download functions}

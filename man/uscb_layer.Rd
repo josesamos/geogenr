@@ -43,16 +43,10 @@ ul <- uscb_layer(uscb_acs_metadata, ua = ua, geodatabase = sa[6], year = 2015)
 }
 \seealso{
 Other data selection functions: 
-\code{\link{download_area_file}()},
-\code{\link{get_area_file_names}()},
-\code{\link{get_area_groups}()},
-\code{\link{get_area_years}()},
-\code{\link{get_areas}()},
 \code{\link{get_layer_group_names}()},
 \code{\link{get_layer_group}()},
 \code{\link{get_layer_names}()},
 \code{\link{get_layer}()},
-\code{\link{unzip_area_file}()},
 \code{\link{uscb_folder}()}
 }
 \concept{data selection functions}

@@ -6,30 +6,31 @@
 \usage{
 get_area_file_names(area = NULL, years = NULL)
 }
+\arguments{
+\item{area}{A string, area name.}
+
+\item{years}{A vector, year number.}
+}
 \value{
-A vector.
+A vector, file urls.
 }
 \description{
-Get area file names for the given years. If no year is indicated, all available
-ones are obtained.
+Get area url file names for the given years. If no year is indicated, all
+available ones are obtained.
 }
 \examples{
 
-groups <- get_area_years()
+url <- get_area_file_names("State", 2019:2021)
+
+url <- get_area_file_names("State")
 
 }
 \seealso{
-Other data selection functions: 
+Other data download functions: 
 \code{\link{download_area_file}()},
 \code{\link{get_area_groups}()},
 \code{\link{get_area_years}()},
 \code{\link{get_areas}()},
-\code{\link{get_layer_group_names}()},
-\code{\link{get_layer_group}()},
-\code{\link{get_layer_names}()},
-\code{\link{get_layer}()},
-\code{\link{unzip_area_file}()},
-\code{\link{uscb_folder}()},
-\code{\link{uscb_layer}()}
+\code{\link{unzip_area_file}()}
 }
-\concept{data selection functions}
+\concept{data download functions}

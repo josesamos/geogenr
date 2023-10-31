@@ -8,11 +8,11 @@
 
 #' Get area groups
 #'
-#' Gets the names of the Demographic and Economic area groups where data is available.
+#' Gets the names of the Demographic and Economic Area Groups where data is available.
 #'
-#' @return A vector.
+#' @return A vector, area group names.
 #'
-#' @family data selection functions
+#' @family data download functions
 #'
 #' @examples
 #'
@@ -25,13 +25,15 @@ get_area_groups <- function() {
 
 #' Get area names of a group
 #'
-#' Gets the names of the Demographic and Economic areas of a group or set of groups.
+#' Gets the names of the Demographic and Economic Areas of a group or set of groups.
 #'
 #' If no group is indicated, all available areas are obtained.
 #'
-#' @return A vector.
+#' @param group A string, area group name.
 #'
-#' @family data selection functions
+#' @return A vector, area names.
+#'
+#' @family data download functions
 #'
 #' @examples
 #'
@@ -53,17 +55,20 @@ get_areas <- function(group = NULL) {
 #'
 #' Get the years for which data has been found to be available for an area.
 #'
-#' @return A vector.
+#' @param area A string, area name.
 #'
-#' @family data selection functions
+#' @return A vector, area years.
+#'
+#' @family data download functions
 #'
 #' @examples
 #'
-#' groups <- get_area_years()
+#' years <- get_area_years("State")
 #'
 #' @export
 get_area_years <- function(area = NULL) {
   stopifnot("The area name must be defined." = !is.null(area))
+  stopifnot("We can only select one area." = length(area) == 1)
   area <- validate_names(names(dedata$all_codes), area, 'area')
   cod <- dedata$all_codes[area]
   dedata$years[[cod]]
@@ -72,20 +77,26 @@ get_area_years <- function(area = NULL) {
 
 #' Get area file names
 #'
-#' Get area file names for the given years. If no year is indicated, all available
-#' ones are obtained.
+#' Get area url file names for the given years. If no year is indicated, all
+#' available ones are obtained.
 #'
-#' @return A vector.
+#' @param area A string, area name.
+#' @param years A vector, year number.
 #'
-#' @family data selection functions
+#' @return A vector, file urls.
+#'
+#' @family data download functions
 #'
 #' @examples
 #'
-#' groups <- get_area_years()
+#' url <- get_area_file_names("State", 2019:2021)
+#'
+#' url <- get_area_file_names("State")
 #'
 #' @export
 get_area_file_names <- function(area = NULL, years = NULL) {
   stopifnot("The area name must be defined." = !is.null(area))
+  stopifnot("We can only select one area." = length(area) == 1)
   area <- validate_names(names(dedata$all_codes), area, 'area')
   cod <- dedata$all_codes[area]
   if (is.null(years)) {
@@ -101,19 +112,36 @@ get_area_file_names <- function(area = NULL, years = NULL) {
 
 #' Download area file
 #'
-#' Download the files whose url is indicated, unzip them and, if everything went
-#' well and is indicated in the parameter, delete the downloaded files.
+#' Download the files whose url is indicated, unzip them (if desired) and, if
+#' everything went well and is indicated in the parameter, delete the downloaded
+#' files.
+#'
+#' @param file A string or string vector.
+#' @param out_dir A string, output folder.
+#' @param unzip A boolean, unzip files.
+#' @param delete_zip A boolean, delete zip files if correctly unzipped.
 #'
 #' @return A vector, files correctly obtained.
 #'
-#' @family data selection functions
+#' @family data download functions
 #'
 #' @examples
 #'
-#' groups <- get_area_years()
+#' dir <- tempdir()
+#' url <- get_area_file_names("State", 2021)
+#'
+#' url <-
+#'   paste0(
+#'     'file://',
+#'     system.file("extdata/ACS_2014_5YR_NECTADIV.gdb.zip", package = "geogenr")
+#'   )
+#'
+#' files <- download_area_file(url, dir, unzip = FALSE)
+#'
+#' files <- download_area_file(url, dir, delete_zip = TRUE)
 #'
 #' @export
-download_area_file <- function(file = NULL, out_dir = NULL, delete_zip = FALSE) {
+download_area_file <- function(file = NULL, out_dir = NULL, unzip = TRUE, delete_zip = FALSE) {
   stopifnot("'file' must be defined." = !is.null(file))
   stopifnot("'out_dir' must be defined." = !is.null(out_dir))
   out_dir <- name_with_nexus(out_dir)
@@ -128,16 +156,20 @@ download_area_file <- function(file = NULL, out_dir = NULL, delete_zip = FALSE) 
         1
     )
     if (res != 1) {
-      res <- tryCatch(
-        utils::unzip(destfile, exdir = out_dir),
-        error = function(e)
-          1
-      )
-      if (res[1] != 1) {
-        res_files <- c(res_files, gsub('.zip', '', destfile))
-        if (delete_zip) {
-          unlink(destfile)
+      if (unzip) {
+        res <- tryCatch(
+          utils::unzip(destfile, exdir = out_dir),
+          error = function(e)
+            1
+        )
+        if (res[1] != 1) {
+          res_files <- c(res_files, gsub('.zip', '', destfile))
+          if (delete_zip) {
+            unlink(destfile)
+          }
         }
+      } else {
+        res_files <- c(res_files, destfile)
       }
     }
   }
@@ -153,24 +185,31 @@ download_area_file <- function(file = NULL, out_dir = NULL, delete_zip = FALSE) 
 #'
 #' @param file A string or string vector.
 #' @param out_dir A string or string vector, output folder.
+#' @param delete_zip A boolean, delete zip files if correctly unzipped.
 #' @param only_show_files A boolean, only show the files that would be unzipped,
 #' and the destination folders, not unzip them.
 #'
 #' @return A vector of strings, name of the processed files.
 #'
-#' @family data selection functions
+#' @family data download functions
 #'
 #' @examples
 #'
-#' f <- system.file("extdata", package = "satres")
-#' r <- sat_untarzip(f, only_show_files = TRUE)
+#' dir <- tempdir()
+#' url <- get_area_file_names("State", 2021)
 #'
-#' f1 <- system.file("extdata", "satres.zip", package = "satres")
-#' f2 <- system.file("extdata", "satres.tar", package = "satres")
-#' r <- sat_untarzip(c(f1, f2), only_show_files = TRUE)
+#' url <-
+#'   paste0(
+#'     'file://',
+#'     system.file("extdata/ACS_2014_5YR_NECTADIV.gdb.zip", package = "geogenr")
+#'   )
+#'
+#' files <- download_area_file(url, dir, unzip = FALSE)
+#'
+#' res <- unzip_area_file(files, tempdir())
 #'
 #' @export
-unzip_area_file <- function(file, out_dir = NULL, only_show_files = FALSE) {
+unzip_area_file <- function(file, out_dir = NULL, delete_zip = FALSE, only_show_files = FALSE) {
   stopifnot("'file' must be defined." = !is.null(file))
   stopifnot("'out_dir' must be defined." = !is.null(out_dir))
   if (length(file) == 1) {
@@ -179,6 +218,7 @@ unzip_area_file <- function(file, out_dir = NULL, only_show_files = FALSE) {
         list.files(
           path = file,
           pattern = "*.zip",
+          recursive = TRUE,
           ignore.case = TRUE,
           full.names = TRUE
         )
@@ -201,7 +241,7 @@ unzip_area_file <- function(file, out_dir = NULL, only_show_files = FALSE) {
       stop(sprintf("Unsupported file type: %s", extension[i]))
     }
     if (!only_show_files) {
-      res <- c(res, file[i])
+      res <- c(res, gsub('.zip', '', file[i]))
     } else {
       res <- c(res, sprintf("%s to %s", file[i], out_dir))
     }
