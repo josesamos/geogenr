@@ -32,6 +32,13 @@ compressed files, unzip the files to the given output folder.
 
 dir <- tempdir()
 url <- get_area_file_names("State", 2021)
+
+url <-
+  paste0(
+    'file://',
+    system.file("extdata/ACS_2014_5YR_NECTADIV.gdb.zip", package = "geogenr")
+  )
+
 files <- download_area_file(url, dir, unzip = FALSE)
 
 res <- unzip_area_file(files, tempdir())
