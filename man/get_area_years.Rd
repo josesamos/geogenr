@@ -2,11 +2,16 @@
 % Please edit documentation in R/selection.R
 \name{get_area_years}
 \alias{get_area_years}
+\alias{get_area_years.acs_census}
 \title{Get available area years}
 \usage{
-get_area_years(area = NULL)
+get_area_years(ac, area)
+
+\method{get_area_years}{acs_census}(ac, area = NULL)
 }
 \arguments{
+\item{ac}{A \code{acs_census} object.}
+
 \item{area}{A string, area name.}
 }
 \value{
@@ -17,15 +22,23 @@ Get the years for which data has been found to be available for an area.
 }
 \examples{
 
-years <- get_area_years("State")
+dir <- system.file("extdata", package = "geogenr")
+ac <- acs_census(dir)
+
+years <- ac |>
+  get_area_years("State")
 
 }
 \seealso{
 Other data download functions: 
+\code{\link{acs_census}()},
 \code{\link{download_area_file}()},
 \code{\link{get_area_file_names}()},
 \code{\link{get_area_groups}()},
 \code{\link{get_areas}()},
+\code{\link{get_downloaded_areas}()},
+\code{\link{get_too_heavy_file_names}()},
+\code{\link{select_area_files}()},
 \code{\link{unzip_area_file}()}
 }
 \concept{data download functions}

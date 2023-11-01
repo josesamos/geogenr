@@ -2,11 +2,16 @@
 % Please edit documentation in R/selection.R
 \name{get_area_file_names}
 \alias{get_area_file_names}
+\alias{get_area_file_names.acs_census}
 \title{Get area file names}
 \usage{
-get_area_file_names(area = NULL, years = NULL)
+get_area_file_names(ac, area, years)
+
+\method{get_area_file_names}{acs_census}(ac, area = NULL, years = NULL)
 }
 \arguments{
+\item{ac}{A \code{acs_census} object.}
+
 \item{area}{A string, area name.}
 
 \item{years}{A vector, year number.}
@@ -20,17 +25,26 @@ available ones are obtained.
 }
 \examples{
 
-url <- get_area_file_names("State", 2019:2021)
+dir <- system.file("extdata", package = "geogenr")
+ac <- acs_census(dir)
 
-url <- get_area_file_names("State")
+url <- ac |>
+  get_area_file_names("State", 2019:2021)
+
+url <- ac |>
+  get_area_file_names("State")
 
 }
 \seealso{
 Other data download functions: 
+\code{\link{acs_census}()},
 \code{\link{download_area_file}()},
 \code{\link{get_area_groups}()},
 \code{\link{get_area_years}()},
 \code{\link{get_areas}()},
+\code{\link{get_downloaded_areas}()},
+\code{\link{get_too_heavy_file_names}()},
+\code{\link{select_area_files}()},
 \code{\link{unzip_area_file}()}
 }
 \concept{data download functions}

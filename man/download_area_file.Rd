@@ -5,16 +5,22 @@
 \title{Download area file}
 \usage{
 download_area_file(
+  ac,
   file = NULL,
   out_dir = NULL,
+  subdir = NULL,
   unzip = TRUE,
   delete_zip = FALSE
 )
 }
 \arguments{
+\item{ac}{A \code{acs_census} object.}
+
 \item{file}{A string or string vector.}
 
-\item{out_dir}{A string, output folder.}
+\item{out_dir}{A string, output dir.}
+
+\item{subdir}{NULL/'year'/'area', output subdir.}
 
 \item{unzip}{A boolean, unzip files.}
 
@@ -28,11 +34,16 @@ Download the files whose url is indicated, unzip them (if desired) and, if
 everything went well and is indicated in the parameter, delete the downloaded
 files.
 }
+\details{
+In the \code{subdir} parameter, the values NULL, 'year' or 'area' can be indicated.
+With NULL it does not create any subdirs, with 'year' it creates them by years
+of downloaded files and with 'area' it creates them by areas.
+}
 \examples{
 
 dir <- tempdir()
-url <- get_area_file_names("State", 2021)
-
+url <- get_area_file_names("State", c(2015:2021))
+# to avoid downloading the files
 url <-
   paste0(
     'file://',
@@ -46,10 +57,14 @@ files <- download_area_file(url, dir, delete_zip = TRUE)
 }
 \seealso{
 Other data download functions: 
+\code{\link{acs_census}()},
 \code{\link{get_area_file_names}()},
 \code{\link{get_area_groups}()},
 \code{\link{get_area_years}()},
 \code{\link{get_areas}()},
+\code{\link{get_downloaded_areas}()},
+\code{\link{get_too_heavy_file_names}()},
+\code{\link{select_area_files}()},
 \code{\link{unzip_area_file}()}
 }
 \concept{data download functions}

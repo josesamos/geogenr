@@ -2,11 +2,16 @@
 % Please edit documentation in R/selection.R
 \name{get_areas}
 \alias{get_areas}
+\alias{get_areas.acs_census}
 \title{Get area names of a group}
 \usage{
-get_areas(group = NULL)
+get_areas(ac, group)
+
+\method{get_areas}{acs_census}(ac, group = NULL)
 }
 \arguments{
+\item{ac}{A \code{acs_census} object.}
+
 \item{group}{A string, area group name.}
 }
 \value{
@@ -20,15 +25,23 @@ If no group is indicated, all available areas are obtained.
 }
 \examples{
 
-areas <- get_areas(group = "Statistical Areas")
+dir <- system.file("extdata", package = "geogenr")
+ac <- acs_census(dir)
+
+areas <- ac |>
+  get_areas(group = "Statistical Areas")
 
 }
 \seealso{
 Other data download functions: 
+\code{\link{acs_census}()},
 \code{\link{download_area_file}()},
 \code{\link{get_area_file_names}()},
 \code{\link{get_area_groups}()},
 \code{\link{get_area_years}()},
+\code{\link{get_downloaded_areas}()},
+\code{\link{get_too_heavy_file_names}()},
+\code{\link{select_area_files}()},
 \code{\link{unzip_area_file}()}
 }
 \concept{data download functions}

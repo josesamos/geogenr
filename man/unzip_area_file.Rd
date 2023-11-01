@@ -7,6 +7,7 @@
 unzip_area_file(
   file,
   out_dir = NULL,
+  subdir = NULL,
   delete_zip = FALSE,
   only_show_files = FALSE
 )
@@ -14,19 +15,26 @@ unzip_area_file(
 \arguments{
 \item{file}{A string or string vector.}
 
-\item{out_dir}{A string or string vector, output folder.}
+\item{out_dir}{A string or string vector, output dir.}
+
+\item{subdir}{NULL/'year'/'area', output subdir.}
 
 \item{delete_zip}{A boolean, delete zip files if correctly unzipped.}
 
 \item{only_show_files}{A boolean, only show the files that would be unzipped,
-and the destination folders, not unzip them.}
+and the destination dirs, not unzip them.}
 }
 \value{
 A vector of strings, name of the processed files.
 }
 \description{
-Given a vector of compressed file names or the name of a folder containing
-compressed files, unzip the files to the given output folder.
+Given a vector of compressed file names or the name of a dir containing
+compressed files, unzip the files to the given output dir.
+}
+\details{
+In the \code{subdir} parameter, the values NULL, 'year' or 'area' can be indicated.
+With NULL it does not create any subdirs, with 'year' it creates them by years
+of files and with 'area' it creates them by areas.
 }
 \examples{
 
@@ -46,10 +54,14 @@ res <- unzip_area_file(files, tempdir())
 }
 \seealso{
 Other data download functions: 
+\code{\link{acs_census}()},
 \code{\link{download_area_file}()},
 \code{\link{get_area_file_names}()},
 \code{\link{get_area_groups}()},
 \code{\link{get_area_years}()},
-\code{\link{get_areas}()}
+\code{\link{get_areas}()},
+\code{\link{get_downloaded_areas}()},
+\code{\link{get_too_heavy_file_names}()},
+\code{\link{select_area_files}()}
 }
 \concept{data download functions}

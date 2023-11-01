@@ -13,6 +13,6 @@ get_gbd_files(dir)
 A string vector.
 }
 \description{
-Given a folder, we get the gbd files in it, at any level.
+Given a dir, we get the gbd files in it, at any level.
 }
 \keyword{internal}
