@@ -6,6 +6,40 @@
   )
 }
 
+# -----------------------------------------------------------------------
+
+
+#' `uscb_acs_5ye` S3 class
+#'
+#' A `uscb_acs_5ye` object is created from a given local folder. This folder will
+#' contain the geodatabase files that we download.
+#'
+#' @param folder A string.
+#'
+#' @return A `uscb_acs_5ye` object.
+#'
+#' @family data download functions
+#'
+#' @examples
+#'
+#' folder <- system.file("extdata", package = "geogenr")
+#' ua <- uscb_acs_5ye(folder = folder)
+#'
+#' @export
+uscb_acs_5ye <- function(folder = "") {
+  stopifnot("The folder must exist." = dir.exists(folder))
+  acs <-
+    list(folder = folder,
+         dedata = dedata)
+
+  structure(acs,
+            class = "uscb_acs_5ye")
+}
+
+
+# -----------------------------------------------------------------------
+
+
 #' Get area groups
 #'
 #' Gets the names of the Demographic and Economic Area Groups where data is available.
@@ -104,11 +138,34 @@ get_area_file_names <- function(area = NULL, years = NULL) {
   }
   res <- NULL
   for (y in years) {
-    res <- c(res, sprintf(dedata$url_pattern, y, y, cod))
+    res <- c(res, sprintf(dedata$patterns$url, y, y, cod))
   }
   res
 }
 
+#' Get too heavy file names
+#'
+#' Gets the names of the files that are too heavy to be download with the available
+#' function.
+#'
+#' @return A vector, too heavy file names.
+#'
+#' @family data download functions
+#'
+#' @examples
+#'
+#' groups <- get_area_groups()
+#'
+#' @export
+get_too_heavy_file_names <- function() {
+  res <- NULL
+  for (cod in names(dedata$too_big)) {
+    for (y in dedata$too_big[[cod]]) {
+      res <- c(res, sprintf(dedata$patterns$url, y, y, cod))
+    }
+  }
+  res
+}
 
 #' Download area file
 #'
@@ -116,8 +173,13 @@ get_area_file_names <- function(area = NULL, years = NULL) {
 #' everything went well and is indicated in the parameter, delete the downloaded
 #' files.
 #'
+#' In the `subfolder` parameter, the values NULL, 'year' or 'area' can be indicated.
+#' With NULL it does not create any subfolders, with 'year' it creates them by years
+#' of downloaded files and with 'area' it creates them by areas.
+#'
 #' @param file A string or string vector.
 #' @param out_dir A string, output folder.
+#' @param subfolder NULL/'year'/'area', output subfolder.
 #' @param unzip A boolean, unzip files.
 #' @param delete_zip A boolean, delete zip files if correctly unzipped.
 #'
@@ -128,8 +190,8 @@ get_area_file_names <- function(area = NULL, years = NULL) {
 #' @examples
 #'
 #' dir <- tempdir()
-#' url <- get_area_file_names("State", 2021)
-#'
+#' url <- get_area_file_names("State", c(2015:2021))
+#' # to avoid downloading the files
 #' url <-
 #'   paste0(
 #'     'file://',
@@ -141,33 +203,51 @@ get_area_file_names <- function(area = NULL, years = NULL) {
 #' files <- download_area_file(url, dir, delete_zip = TRUE)
 #'
 #' @export
-download_area_file <- function(file = NULL, out_dir = NULL, unzip = TRUE, delete_zip = FALSE) {
+download_area_file <- function(file = NULL, out_dir = NULL, subfolder = NULL, unzip = TRUE, delete_zip = FALSE) {
   stopifnot("'file' must be defined." = !is.null(file))
   stopifnot("'out_dir' must be defined." = !is.null(out_dir))
   out_dir <- name_with_nexus(out_dir)
   res_files <- NULL
   for (f in file) {
-    destfile <- paste0(out_dir, basename(f))
-    res <- tryCatch(
-      utils::download.file(url = f, destfile = destfile),
-      error = function(e)
-        1
-    )
-    if (res != 1) {
-      if (unzip) {
-        res <- tryCatch(
-          utils::unzip(destfile, exdir = out_dir),
-          error = function(e)
-            1
-        )
-        if (res[1] != 1) {
-          res_files <- c(res_files, gsub('.zip', '', destfile))
-          if (delete_zip) {
-            unlink(destfile)
-          }
-        }
+    year <- get_file_year(f)
+    area <- get_file_area(f)
+    if (year %in% dedata$too_big[[area]]) {
+      cat(sprintf("File '%s' is too heavy to be downloaded by 'utils::download.file' function being used.\n", f))
+    } else {
+      if (subfolder == 'year') {
+        folder <- year
+      } else if (subfolder == 'area') {
+        folder <- area
       } else {
-        res_files <- c(res_files, destfile)
+        folder <- NULL
+      }
+      if (!is.null(folder)) {
+        dir.create(file.path(mainDir = out_dir, subDir = folder), showWarnings = FALSE)
+        folder <- paste0(folder, '/')
+      }
+      exdir <- paste0(out_dir, folder)
+      destfile <- paste0(exdir, basename(f))
+      res <- tryCatch(
+        utils::download.file(url = f, destfile = destfile),
+        error = function(e)
+          1
+      )
+      if (res != 1) {
+        if (unzip) {
+          res <- tryCatch(
+            utils::unzip(destfile, exdir = exdir),
+            error = function(e)
+              1
+          )
+          if (res[1] != 1) {
+            res_files <- c(res_files, gsub('.zip', '', destfile))
+            if (delete_zip) {
+              unlink(destfile)
+            }
+          }
+        } else {
+          res_files <- c(res_files, destfile)
+        }
       }
     }
   }
@@ -180,8 +260,13 @@ download_area_file <- function(file = NULL, out_dir = NULL, unzip = TRUE, delete
 #' Given a vector of compressed file names or the name of a folder containing
 #' compressed files, unzip the files to the given output folder.
 #'
+#' In the `subfolder` parameter, the values NULL, 'year' or 'area' can be indicated.
+#' With NULL it does not create any subfolders, with 'year' it creates them by years
+#' of files and with 'area' it creates them by areas.
+#'
 #' @param file A string or string vector.
 #' @param out_dir A string or string vector, output folder.
+#' @param subfolder NULL/'year'/'area', output subfolder.
 #' @param delete_zip A boolean, delete zip files if correctly unzipped.
 #' @param only_show_files A boolean, only show the files that would be unzipped,
 #' and the destination folders, not unzip them.
@@ -206,7 +291,7 @@ download_area_file <- function(file = NULL, out_dir = NULL, unzip = TRUE, delete
 #' res <- unzip_area_file(files, tempdir())
 #'
 #' @export
-unzip_area_file <- function(file, out_dir = NULL, delete_zip = FALSE, only_show_files = FALSE) {
+unzip_area_file <- function(file, out_dir = NULL, subfolder = NULL, delete_zip = FALSE, only_show_files = FALSE) {
   stopifnot("'file' must be defined." = !is.null(file))
   stopifnot("'out_dir' must be defined." = !is.null(out_dir))
   if (length(file) == 1) {
@@ -228,11 +313,25 @@ unzip_area_file <- function(file, out_dir = NULL, delete_zip = FALSE, only_show_
   if (is.null(out_dir)) {
     out_dir <- path_name
   }
+  out_dir <- name_with_nexus(out_dir)
   res <- NULL
   for (i in 1:length(extension)) {
     if (extension[i] == ".zip" | extension[i] == ".ZIP") {
       if (!only_show_files) {
-        utils::unzip(file[i], exdir = out_dir)
+        f <- file[i]
+        if (subfolder == 'year') {
+          folder <- get_file_year(f)
+        } else if (subfolder == 'area') {
+          folder <- get_file_area(f)
+        } else {
+          folder <- NULL
+        }
+        if (!is.null(folder)) {
+          dir.create(file.path(mainDir = out_dir, subDir = folder), showWarnings = FALSE)
+          folder <- paste0(folder, '/')
+        }
+        exdir <- paste0(out_dir, folder)
+        utils::unzip(f, exdir = exdir)
       }
     } else {
       stop(sprintf("Unsupported file type: %s", extension[i]))
@@ -240,11 +339,41 @@ unzip_area_file <- function(file, out_dir = NULL, delete_zip = FALSE, only_show_
     if (!only_show_files) {
       res <- c(res, gsub('.zip', '', file[i]))
     } else {
-      res <- c(res, sprintf("%s to %s", file[i], out_dir))
+      res <- c(res, sprintf("%s to %s", file[i], exdir))
     }
   }
   res
 }
+
+
+#' Get area names of a group
+#'
+#' Gets the names of the Demographic and Economic Areas of a group or set of groups.
+#'
+#' If no group is indicated, all available areas are obtained.
+#'
+#' @param dir A string, folder containing downloaded files.
+#'
+#' @return A vector, area names.
+#'
+#' @family data download functions
+#'
+#' @examples
+#'
+#' areas <- get_areas(group = "Statistical Areas")
+#'
+#' @export
+get_downloaded_areas <- function(dir = NULL) {
+  files <- get_gbd_files(dir)
+  areas <- get_file_area(file)
+  res <- NULL
+  for (g in group) {
+    cod <- dedata$groups[[g]]
+    res <- c(res, names(dedata[[cod]]))
+  }
+  res
+}
+
 
 
 #-------------------------------------------------------------------------------
@@ -332,7 +461,7 @@ get_file_year <- function(file) {
   year
 }
 
-#' Get file code (with year)
+#' Get file area (with year)
 #'
 #' Given a file, get the associated code (in the name), includes the year as the
 #' name of the vector elements..
@@ -342,7 +471,7 @@ get_file_year <- function(file) {
 #' @return A string vector.
 #'
 #' @keywords internal
-get_file_code <- function(file) {
+get_file_area <- function(file) {
   name <- basename(file)
   year <- readr::parse_number(name)
   pre <- paste0("ACS_", year, "_5YR_")
