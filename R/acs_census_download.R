@@ -420,10 +420,8 @@ download_selected_files <-
 #' ac <- ac |>
 #'   select_area_files("State", 2020:2021)
 #'
-#' \donttest{
 #' files <- ac |>
 #'   download_selected_files(unzip = FALSE)
-#' }
 #' files <- ac |>
 #'   unzip_files()
 #'

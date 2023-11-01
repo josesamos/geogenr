@@ -56,7 +56,7 @@ get_available_areas.acs_census<- function(ac) {
 #' ac <- acs_census(dir)
 #'
 #' years <- ac |>
-#'   get_available_area_years(area = "State")
+#'   get_available_area_years(area = "New England City and Town Area Division")
 #'
 #' @export
 get_available_area_years <- function(ac, area)
@@ -95,10 +95,11 @@ get_available_area_years.acs_census<- function(ac, area) {
 #' ac <- acs_census(dir)
 #'
 #' topics <- ac |>
-#'   get_available_area_topics("State", 2019:2021)
+#'   get_available_area_topics("New England City and Town Area Division",
+#'                             2015)
 #'
 #' topics <- ac |>
-#'   get_available_area_topics("State")
+#'   get_available_area_topics("New England City and Town Area Division")
 #'
 #' @export
 get_available_area_topics <- function(ac, area, years)
@@ -154,14 +155,17 @@ get_available_area_topics.acs_census<- function(ac, area, years = NULL) {
 #'
 #' @examples
 #'
-#' dir <- system.file("extdata", package = "geogenr")
+#' dir <- system.file("extdata/acs", package = "geogenr")
 #' ac <- acs_census(dir)
 #'
 #' act <- ac |>
-#'   as_acs_census_topic("State", 2019:2021, "X01 Age And Sex")
+#'   as_acs_census_topic("New England City and Town Area Division",
+#'                       2015,
+#'                       "X01 Age And Sex")
 #'
 #' act <- ac |>
-#'   as_acs_census_topic("State", topic = "X01 Age And Sex")
+#'   as_acs_census_topic("New England City and Town Area Division",
+#'                       topic = "X01 Age And Sex")
 #'
 #' @export
 as_acs_census_topic <- function(ac, area, years, topic)
