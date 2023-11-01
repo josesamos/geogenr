@@ -404,6 +404,7 @@ download_selected_files <-
 #' With NULL it does not create any subdirs, with 'year' it creates them by years
 #' of files and with 'area' it creates them by areas.
 #'
+#' @param ac A `acs_census` object.
 #' @param subdir NULL/'year'/'area', output subdir.
 #' @param delete_zip A boolean, delete zip files if correctly unzipped.
 #'

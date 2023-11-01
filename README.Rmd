@@ -91,23 +91,6 @@ First, we select and download the ACS geodatabases using the functions offered b
 ```{r example}
 library(geogenr)
 
-folder <- system.file("extdata", package = "geogenr")
-folder <- stringr::str_replace_all(paste(folder, "/", ""), " ", "")
-ua <- uscb_acs_5ye(folder = folder)
-
-(sa <- ua |> get_statistical_areas())
-
-(y <- ua |> get_available_years_downloaded(geodatabase = sa[6]))
-
-ul <- uscb_layer(uscb_acs_metadata, ua = ua, geodatabase = sa[6], year = 2015)
-(layers <- ul |> get_layer_names())
-
-ul <- ul |> get_layer(layers[2])
-(layer_groups <- ul |> get_layer_group_names())
-
-ul <- ul |> get_layer_group(layer_groups[1])
-
-gms <- ul |> get_geomultistar()
 ```
 
 For a folder, we get the years for which we have one area geodatabases downloaded. We select the geodatabase for a specific year (`uscb_layer`). From among the layers and groups of variables available, we select a layer (`get_layer`) and one of its groups (`get_layer_group`). From the selected variables we generate a `geomultistar` object (`get_geomultistar`).
@@ -115,58 +98,27 @@ For a folder, we get the years for which we have one area geodatabases downloade
 The first rows of the dimension and fact tables are shown below.
 
 ```{r, results = "asis", echo = FALSE}
-pander::pandoc.table(head(gms$dimension$when), split.table = Inf)
-pander::pandoc.table(head(gms$dimension$where), split.table = Inf)
-pander::pandoc.table(head(gms$dimension$what), split.table = Inf)
-pander::pandoc.table(head(gms$fact$sex_by_age), split.table = Inf)
 ```
 
 Once we have a `geomultistar` object, we can use the functionality of [`starschemar`](https://CRAN.R-project.org/package=starschemar) and [`geomultistar`](https://CRAN.R-project.org/package=geomultistar) packages to define multidimensional queries with geographic information.
 
 ```{r}
-library(starschemar)
-library(geomultistar)
-
-gms <- gms  |>
-  define_geoattribute(
-    attribute = c("name"),
-    from_attribute = "geoid"
-  )
-
-gdqr <- dimensional_query(gms) |>
-  select_dimension(name = "where",
-                   attributes = c("name")) |>
-  select_dimension(
-    name = "what",
-    attributes = c("short_name")
-  ) |>
-  select_fact(name = "sex_by_age",
-              measures = c("estimate")) |>
-  filter_dimension(name = "when", year == "2015") |>
-  filter_dimension(name = "what",
-                   demographic_age == "Under 5 years") |>
-  run_geoquery()
 
 ```
 
 The result is a vector layer that we can save, perform spatial analysis or queries on it, or we can see it as a map, using the functions associated with the `sf` class.
 
 ```{r}
-plot(gdqr[,"estimate"])
 ```
 
 Once we have verified that the data for the reference year is what we need, we can expand our database considering the rest of the years available in the folder. The only requirement to consider a year is that its variable structure be the same as that of the reference year.
 
 ```{r}
-uf <- uscb_folder(ul)
-
-cgms <- uf |> get_common_geomultistar()
 ```
 
 Instead of displaying all the tables, we focus on the table in the *when* dimension.
 
 ```{r, results = "asis", echo = FALSE}
-pander::pandoc.table(head(cgms$dimension$when), split.table = Inf)
 ```
 
 Includes data for all available years.

@@ -89,40 +89,6 @@ shows you how to solve a common problem:
 
 ``` r
 library(geogenr)
-
-folder <- system.file("extdata", package = "geogenr")
-folder <- stringr::str_replace_all(paste(folder, "/", ""), " ", "")
-ua <- uscb_acs_5ye(folder = folder)
-
-(sa <- ua |> get_statistical_areas())
-#>  [1] "Combined New England City and Town Area"   
-#>  [2] "Combined Statistical Area"                 
-#>  [3] "Metropolitan Division"                     
-#>  [4] "Metropolitan/Micropolitan Statistical Area"
-#>  [5] "New England City and Town Area"            
-#>  [6] "New England City and Town Area Division"   
-#>  [7] "Public Use Microdata Area"                 
-#>  [8] "Tribal Block Group"                        
-#>  [9] "Tribal Census Tract"                       
-#> [10] "Urban Area"
-
-(y <- ua |> get_available_years_downloaded(geodatabase = sa[6]))
-#> [1] 2014 2015
-
-ul <- uscb_layer(uscb_acs_metadata, ua = ua, geodatabase = sa[6], year = 2015)
-(layers <- ul |> get_layer_names())
-#> [1] "X00_COUNTS"      "X01_AGE_AND_SEX" "X02_RACE"
-
-ul <- ul |> get_layer(layers[2])
-(layer_groups <- ul |> get_layer_group_names())
-#> [1] "001 - SEX BY AGE"        "002 - MEDIAN AGE BY SEX"
-#> [3] "003 - TOTAL POPULATION"
-
-ul <- ul |> get_layer_group(layer_groups[1])
-
-gms <- ul |> get_geomultistar()
-#> Warning in CPL_read_ogr(dsn, layer, query, as.character(options), quiet, : GDAL
-#> Message 6: driver OpenFileGDB does not support open option METHOD
 ```
 
 For a folder, we get the years for which we have one area geodatabases
@@ -134,96 +100,21 @@ we select a layer (`get_layer`) and one of its groups
 
 The first rows of the dimension and fact tables are shown below.
 
-| when_key | year |
-|:--------:|:----:|
-|    1     | 2015 |
-
-| where_key | cnectafp | nectafp | nctadvfp |   geoid    |                    name                    |                         namelsad                          | lsad | mtfcc |   aland   |  awater  |  intptlat   |   intptlon   | shape_length | shape_area |    geoid_data     |
-|:---------:|:--------:|:-------:|:--------:|:----------:|:------------------------------------------:|:---------------------------------------------------------:|:----:|:-----:|:---------:|:--------:|:-----------:|:------------:|:------------:|:----------:|:-----------------:|
-|     1     |   715    |  71650  |  71654   | 7165071654 |        Boston-Cambridge-Newton, MA         |        Boston-Cambridge-Newton, MA NECTA Division         |  M7  | G3220 | 3.668e+09 | 7.13e+08 | +42.2933266 | -071.0181929 |    7.653     |   0.4783   | 35500US7165071654 |
-|     2     |   715    |  71650  |  72104   | 7165072104 |      Brockton-Bridgewater-Easton, MA       |      Brockton-Bridgewater-Easton, MA NECTA Division       |  M7  | G3220 | 352799175 | 8831197  | +42.0216172 | -071.0267170 |    1.077     |  0.03932   | 35500US7165072104 |
-|     3     |   715    |  71650  |  73104   | 7165073104 |               Framingham, MA               |               Framingham, MA NECTA Division               |  M7  | G3220 | 532516314 | 24039093 | +42.2761738 | -071.4822008 |    1.738     |  0.06073   | 35500US7165073104 |
-|     4     |   715    |  71650  |  73604   | 7165073604 | Haverhill-Newburyport-Amesbury Town, MA-NH | Haverhill-Newburyport-Amesbury Town, MA-NH NECTA Division |  M7  | G3220 | 702086333 | 40447613 | +42.8671722 | -071.0254982 |    1.416     |  0.08179   | 35500US7165073604 |
-|     5     |   715    |  71650  |  74204   | 7165074204 |     Lawrence-Methuen Town-Salem, MA-NH     |     Lawrence-Methuen Town-Salem, MA-NH NECTA Division     |  M7  | G3220 | 207735751 | 9917120  | +42.7282758 | -071.1630701 |    0.9094    |  0.02392   | 35500US7165074204 |
-|     6     |   715    |  71650  |  74804   | 7165074804 |     Lowell-Billerica-Chelmsford, MA-NH     |     Lowell-Billerica-Chelmsford, MA-NH NECTA Division     |  M7  | G3220 | 863143106 | 27403003 | +42.6141693 | -071.4837821 |    2.441     |  0.09771   | 35500US7165074804 |
-
-| what_key | short_name |                                 full_name                                  | inf_code | group_code | subgroup_code | spec_code |     inf     |   group    |  subgroup   | demographic_age | demographic_sex |      demographic_race      | demographic_total_population | demographic_total_population_spec |
-|:--------:|:----------:|:--------------------------------------------------------------------------:|:--------:|:----------:|:-------------:|:---------:|:-----------:|:----------:|:-----------:|:---------------:|:---------------:|:--------------------------:|:----------------------------:|:---------------------------------:|
-|    1     | B01001A_01 |        SEX BY AGE (WHITE ALONE): Total: People Who Are White Alone         |   B01    |    001     |       A       |     1     | AGE AND SEX | SEX BY AGE | WHITE ALONE |                 |                 | People Who Are White Alone |            Total             |                                   |
-|    2     | B01001A_02 |         SEX BY AGE (WHITE ALONE): Male: People Who Are White Alone         |   B01    |    001     |       A       |     2     | AGE AND SEX | SEX BY AGE | WHITE ALONE |                 |      Male       | People Who Are White Alone |                              |                                   |
-|    3     | B01001A_03 | SEX BY AGE (WHITE ALONE): Male: Under 5 years: People Who Are White Alone  |   B01    |    001     |       A       |     3     | AGE AND SEX | SEX BY AGE | WHITE ALONE |  Under 5 years  |      Male       | People Who Are White Alone |                              |                                   |
-|    4     | B01001A_04 |  SEX BY AGE (WHITE ALONE): Male: 5 to 9 years: People Who Are White Alone  |   B01    |    001     |       A       |     4     | AGE AND SEX | SEX BY AGE | WHITE ALONE |  5 to 9 years   |      Male       | People Who Are White Alone |                              |                                   |
-|    5     | B01001A_05 | SEX BY AGE (WHITE ALONE): Male: 10 to 14 years: People Who Are White Alone |   B01    |    001     |       A       |     5     | AGE AND SEX | SEX BY AGE | WHITE ALONE | 10 to 14 years  |      Male       | People Who Are White Alone |                              |                                   |
-|    6     | B01001A_06 | SEX BY AGE (WHITE ALONE): Male: 15 to 17 years: People Who Are White Alone |   B01    |    001     |       A       |     6     | AGE AND SEX | SEX BY AGE | WHITE ALONE | 15 to 17 years  |      Male       | People Who Are White Alone |                              |                                   |
-
-| when_key | where_key | what_key | estimate | margin_of_error | nrow_agg |
-|:--------:|:---------:|:--------:|:--------:|:---------------:|:--------:|
-|    1     |     1     |    1     | 2134196  |      4429       |    1     |
-|    1     |     1     |    2     | 1033634  |      3014       |    1     |
-|    1     |     1     |    3     |  51671   |      1007       |    1     |
-|    1     |     1     |    4     |  54932   |      1209       |    1     |
-|    1     |     1     |    5     |  57585   |      1243       |    1     |
-|    1     |     1     |    6     |  36139   |       771       |    1     |
-
 Once we have a `geomultistar` object, we can use the functionality of
 [`starschemar`](https://CRAN.R-project.org/package=starschemar) and
 [`geomultistar`](https://CRAN.R-project.org/package=geomultistar)
 packages to define multidimensional queries with geographic information.
 
-``` r
-library(starschemar)
-library(geomultistar)
-
-gms <- gms  |>
-  define_geoattribute(
-    attribute = c("name"),
-    from_attribute = "geoid"
-  )
-
-gdqr <- dimensional_query(gms) |>
-  select_dimension(name = "where",
-                   attributes = c("name")) |>
-  select_dimension(
-    name = "what",
-    attributes = c("short_name")
-  ) |>
-  select_fact(name = "sex_by_age",
-              measures = c("estimate")) |>
-  filter_dimension(name = "when", year == "2015") |>
-  filter_dimension(name = "what",
-                   demographic_age == "Under 5 years") |>
-  run_geoquery()
-```
-
 The result is a vector layer that we can save, perform spatial analysis
 or queries on it, or we can see it as a map, using the functions
 associated with the `sf` class.
-
-``` r
-plot(gdqr[,"estimate"])
-```
-
-<img src="man/figures/README-unnamed-chunk-4-1.png" width="100%" />
 
 Once we have verified that the data for the reference year is what we
 need, we can expand our database considering the rest of the years
 available in the folder. The only requirement to consider a year is that
 its variable structure be the same as that of the reference year.
 
-``` r
-uf <- uscb_folder(ul)
-
-cgms <- uf |> get_common_geomultistar()
-#> Warning in CPL_read_ogr(dsn, layer, query, as.character(options), quiet, : GDAL
-#> Message 6: driver OpenFileGDB does not support open option METHOD
-```
-
 Instead of displaying all the tables, we focus on the table in the
 *when* dimension.
-
-| when_key | year |
-|:--------:|:----:|
-|    1     | 2014 |
-|    2     | 2015 |
 
 Includes data for all available years.

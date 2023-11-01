@@ -9,6 +9,8 @@ unzip_files(ac, subdir = NULL, delete_zip = FALSE)
 unzip_files(ac, subdir = NULL, delete_zip = FALSE)
 }
 \arguments{
+\item{ac}{A \code{acs_census} object.}
+
 \item{subdir}{NULL/'year'/'area', output subdir.}
 
 \item{delete_zip}{A boolean, delete zip files if correctly unzipped.}
