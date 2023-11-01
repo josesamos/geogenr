@@ -3,7 +3,7 @@
 \docType{data}
 \name{dedata}
 \alias{dedata}
-\title{Selected Demographic and Economic Data}
+\title{Titles and Years of Selected Demographic and Economic Data}
 \format{
 A vector list.
 }
@@ -15,6 +15,6 @@ dedata
 }
 \description{
 Available selected Demographic and Economic Data from the American Community
-Survey (ACS) 5-year estimates data.
+Survey (ACS) 5-year estimates data titles and years.
 }
-\keyword{internal}
+\keyword{datasets}
