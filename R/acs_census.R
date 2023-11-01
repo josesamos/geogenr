@@ -131,7 +131,7 @@ get_area_years <- function(ac, area)
 
 #' @rdname get_area_years
 #' @export
-get_area_years.acs_census<- function(ac, area = NULL) {
+get_area_years.acs_census<- function(ac, area) {
   stopifnot("The area name must be defined." = !is.null(area))
   stopifnot("We can only select one area." = length(area) == 1)
   area <- validate_names(names(ac$dedata$all_codes), area, 'area')
@@ -182,14 +182,12 @@ get_area_file_names <- function(ac, area, years)
 
 #' @rdname get_area_file_names
 #' @export
-get_area_file_names.acs_census<- function(ac, area = NULL, years = NULL) {
+get_area_file_names.acs_census<- function(ac, area, years = NULL) {
   stopifnot("The area name must be defined." = !is.null(area))
   stopifnot("We can only select one area." = length(area) == 1)
   area <- validate_names(names(ac$dedata$all_codes), area, 'area')
   cod <- ac$dedata$all_codes[area]
-  if (is.null(years)) {
-    years <- ac$dedata$years[[cod]]
-  }
+  years <- validate_names(ac$dedata$years[[cod]], years, 'year')
   res <- NULL
   for (y in years) {
     res <- c(res, sprintf(ac$dedata$patterns$url, y, y, cod))
@@ -228,7 +226,7 @@ select_area_files <- function(ac, area, years)
 
 #' @rdname select_area_files
 #' @export
-select_area_files.acs_census<- function(ac, area = NULL, years = NULL) {
+select_area_files.acs_census<- function(ac, area, years = NULL) {
   ac$selected_files <- get_area_file_names(ac, area, years)
 
   cod <- ac$dedata$all_codes[area]
@@ -245,6 +243,34 @@ select_area_files.acs_census<- function(ac, area = NULL, years = NULL) {
     }
   }
   ac
+}
+
+#' Get selected file names
+#'
+#' Gets the names of the files selected to be downloaded.
+#'
+#' @param ac A `acs_census` object.
+#'
+#' @return A vector, file names.
+#'
+#' @family data download functions
+#'
+#' @examples
+#'
+#' dir <- system.file("extdata", package = "geogenr")
+#' ac <- acs_census(dir)
+#'
+#' groups <- ac |>
+#'   get_selected_file_names()
+#'
+#' @export
+get_selected_file_names <- function(ac)
+  UseMethod("get_selected_file_names")
+
+#' @rdname get_selected_file_names
+#' @export
+get_selected_file_names.acs_census<- function(ac) {
+  ac$selected_files
 }
 
 
@@ -282,12 +308,11 @@ get_too_heavy_file_names.acs_census<- function(ac) {
   }
   res
 }
-get_too_heavy_file_names <- function() {
-}
 
-#' Download area file
+
+#' Download selected files
 #'
-#' Download the files whose url is indicated, unzip them (if desired) and, if
+#' Download the files that have been selected, unzip them (if desired) and, if
 #' everything went well and is indicated in the parameter, delete the downloaded
 #' files.
 #'
@@ -296,8 +321,6 @@ get_too_heavy_file_names <- function() {
 #' of downloaded files and with 'area' it creates them by areas.
 #'
 #' @param ac A `acs_census` object.
-#' @param file A string or string vector.
-#' @param out_dir A string, output dir.
 #' @param subdir NULL/'year'/'area', output subdir.
 #' @param unzip A boolean, unzip files.
 #' @param delete_zip A boolean, delete zip files if correctly unzipped.
@@ -309,76 +332,62 @@ get_too_heavy_file_names <- function() {
 #' @examples
 #'
 #' dir <- tempdir()
-#' url <- get_area_file_names("State", c(2015:2021))
-#' # to avoid downloading the files
-#' url <-
-#'   paste0(
-#'     'file://',
-#'     system.file("extdata/ACS_2014_5YR_NECTADIV.gdb.zip", package = "geogenr")
-#'   )
+#' ac <- acs_census(dir)
 #'
-#' files <- download_area_file(url, dir, unzip = FALSE)
+#' ac <- ac |>
+#'   select_area_files("State", 2020:2021)
 #'
-#' files <- download_area_file(url, dir, delete_zip = TRUE)
+#' \donttest{
+#' files <- ac |>
+#'   download_selected_files(unzip = FALSE)
+#' }
 #'
 #' @export
-download_area_file <-
+download_selected_files <-
   function(ac,
-           file = NULL,
-           out_dir = NULL,
            subdir = NULL,
            unzip = TRUE,
            delete_zip = FALSE) {
-    stopifnot("'file' must be defined." = !is.null(file))
-    stopifnot("'out_dir' must be defined." = !is.null(out_dir))
-    out_dir <- name_with_nexus(out_dir)
+    stopifnot("There are no files selected." = length(ac$selected_files) > 0)
+    out_dir <- name_with_nexus(ac$dir)
     res_files <- NULL
-    for (f in file) {
+    for (f in ac$selected_files) {
       year <- get_file_year(f)
       area <- get_file_area(f)
-      if (year %in% ac$dedata$too_big[[area]]) {
-        cat(
-          sprintf(
-            "File '%s' is too heavy to be downloaded by 'utils::download.file' function being used.\n",
-            f
-          )
-        )
+      if (subdir == 'year') {
+        dir <- year
+      } else if (subdir == 'area') {
+        dir <- area
       } else {
-        if (subdir == 'year') {
-          dir <- year
-        } else if (subdir == 'area') {
-          dir <- area
-        } else {
-          dir <- NULL
-        }
-        if (!is.null(dir)) {
-          dir.create(file.path(mainDir = out_dir, subDir = dir),
-                     showWarnings = FALSE)
-          dir <- paste0(dir, '/')
-        }
-        exdir <- paste0(out_dir, dir)
-        destfile <- paste0(exdir, basename(f))
-        res <- tryCatch(
-          utils::download.file(url = f, destfile = destfile),
-          error = function(e)
-            1
-        )
-        if (res != 1) {
-          if (unzip) {
-            res <- tryCatch(
-              utils::unzip(destfile, exdir = exdir),
-              error = function(e)
-                1
-            )
-            if (res[1] != 1) {
-              res_files <- c(res_files, gsub('.zip', '', destfile))
-              if (delete_zip) {
-                unlink(destfile)
-              }
+        dir <- NULL
+      }
+      if (!is.null(dir)) {
+        dir.create(file.path(mainDir = out_dir, subDir = dir),
+                   showWarnings = FALSE)
+        dir <- paste0(dir, '/')
+      }
+      exdir <- paste0(out_dir, dir)
+      destfile <- paste0(exdir, basename(f))
+      res <- tryCatch(
+        utils::download.file(url = f, destfile = destfile),
+        error = function(e)
+          1
+      )
+      if (res != 1) {
+        if (unzip) {
+          res <- tryCatch(
+            utils::unzip(destfile, exdir = exdir),
+            error = function(e)
+              1
+          )
+          if (res[1] != 1) {
+            res_files <- c(res_files, gsub('.zip', '', destfile))
+            if (delete_zip) {
+              unlink(destfile)
             }
-          } else {
-            res_files <- c(res_files, destfile)
           }
+        } else {
+          res_files <- c(res_files, destfile)
         }
       }
     }
@@ -386,21 +395,17 @@ download_area_file <-
   }
 
 
-#' Unzip area file
+#' Unzip files
 #'
-#' Given a vector of compressed file names or the name of a dir containing
-#' compressed files, unzip the files to the given output dir.
+#' Unzip files that are not already unzipped in the object and, if everything
+#' went well and is indicated in the parameter, delete the zipped files.
 #'
 #' In the `subdir` parameter, the values NULL, 'year' or 'area' can be indicated.
 #' With NULL it does not create any subdirs, with 'year' it creates them by years
 #' of files and with 'area' it creates them by areas.
 #'
-#' @param file A string or string vector.
-#' @param out_dir A string or string vector, output dir.
 #' @param subdir NULL/'year'/'area', output subdir.
 #' @param delete_zip A boolean, delete zip files if correctly unzipped.
-#' @param only_show_files A boolean, only show the files that would be unzipped,
-#' and the destination dirs, not unzip them.
 #'
 #' @return A vector of strings, name of the processed files.
 #'
@@ -409,102 +414,271 @@ download_area_file <-
 #' @examples
 #'
 #' dir <- tempdir()
-#' url <- get_area_file_names("State", 2021)
+#' ac <- acs_census(dir)
 #'
-#' url <-
-#'   paste0(
-#'     'file://',
-#'     system.file("extdata/ACS_2014_5YR_NECTADIV.gdb.zip", package = "geogenr")
-#'   )
+#' ac <- ac |>
+#'   select_area_files("State", 2020:2021)
 #'
-#' files <- download_area_file(url, dir, unzip = FALSE)
-#'
-#' res <- unzip_area_file(files, tempdir())
+#' \donttest{
+#' files <- ac |>
+#'   download_selected_files(unzip = FALSE)
+#' }
+#' files <- ac |>
+#'   unzip_files()
 #'
 #' @export
-unzip_area_file <- function(file, out_dir = NULL, subdir = NULL, delete_zip = FALSE, only_show_files = FALSE) {
-  stopifnot("'file' must be defined." = !is.null(file))
-  stopifnot("'out_dir' must be defined." = !is.null(out_dir))
-  if (length(file) == 1) {
-    if (dir.exists(file)) {
-      file <-
-        list.files(
-          path = file,
-          pattern = "*.zip",
-          recursive = TRUE,
-          ignore.case = TRUE,
-          full.names = TRUE
-        )
-    }
-  }
+unzip_files <- function(ac, subdir = NULL, delete_zip = FALSE) {
+  file <-
+    list.files(
+      path = ac$dir,
+      pattern = "*.zip",
+      recursive = TRUE,
+      ignore.case = TRUE,
+      full.names = TRUE
+    )
   file_name <- basename(file)
   path_name <- dirname(file)
   n <- nchar(file_name)
   extension <- substr(file_name, n - 3, n)
-  if (is.null(out_dir)) {
-    out_dir <- path_name
-  }
-  out_dir <- name_with_nexus(out_dir)
+  file_name <- substr(file_name, 1, n - 4)
+  out_dir <- name_with_nexus(path_name)
   res <- NULL
   for (i in 1:length(extension)) {
-    if (extension[i] == ".zip" | extension[i] == ".ZIP") {
-      if (!only_show_files) {
-        f <- file[i]
-        if (subdir == 'year') {
-          dir <- get_file_year(f)
-        } else if (subdir == 'area') {
-          dir <- get_file_area(f)
-        } else {
-          dir <- NULL
-        }
-        if (!is.null(dir)) {
-          dir.create(file.path(mainDir = out_dir, subDir = dir), showWarnings = FALSE)
-          dir <- paste0(dir, '/')
-        }
-        exdir <- paste0(out_dir, dir)
-        utils::unzip(f, exdir = exdir)
-      }
+    f <- file[i]
+    if (subdir == 'year') {
+      dir <- get_file_year(f)
+    } else if (subdir == 'area') {
+      dir <- get_file_area(f)
     } else {
-      stop(sprintf("Unsupported file type: %s", extension[i]))
+      dir <- NULL
     }
-    if (!only_show_files) {
-      res <- c(res, gsub('.zip', '', file[i]))
-    } else {
-      res <- c(res, sprintf("%s to %s", file[i], exdir))
+    if (!is.null(dir)) {
+      dir.create(file.path(mainDir = out_dir, subDir = dir), showWarnings = FALSE)
+      dir <- paste0(dir, '/')
+    }
+    exdir <- paste0(out_dir, dir)
+    dir_res <- paste0(exdir, file_name)
+    if (!dir.exists(dir_res)) {
+      utils::unzip(f, exdir = exdir)
+      res <- c(res, dir_res)
+      if (delete_zip) {
+        unlink(f)
+      }
     }
   }
   res
 }
 
 
-#' Get area names of a group
+#' Get available area names
 #'
-#' Gets the names of the Demographic and Economic Areas of a group or set of groups.
+#' Gets the names of the Demographic and Economic Areas that are downloaded and
+#' unzipped, available to be queried.
 #'
-#' If no group is indicated, all available areas are obtained.
-#'
-#' @param dir A string, dir containing downloaded files.
+#' @param ac A `acs_census` object.
 #'
 #' @return A vector, area names.
 #'
-#' @family data download functions
+#' @family data selection functions
 #'
 #' @examples
 #'
-#' areas <- get_areas(group = "Statistical Areas")
+#' dir <- system.file("extdata", package = "geogenr")
+#' ac <- acs_census(dir)
+#'
+#' areas <- ac |>
+#'   get_available_areas()
 #'
 #' @export
-get_downloaded_areas <- function(dir = NULL) {
-  files <- get_gbd_files(dir)
-  areas <- get_file_area(file)
+get_available_areas <- function(ac)
+  UseMethod("get_available_areas")
+
+#' @rdname get_available_areas
+#' @export
+get_available_areas.acs_census<- function(ac) {
+  files <- get_gbd_files(ac$dir)
+  areas <- get_file_area(files)
+  ua <- unique(areas)
   res <- NULL
-  for (g in group) {
-    cod <- ac$dedata$groups[[g]]
-    res <- c(res, names(ac$dedata[[cod]]))
+  for (a in ac$dedata$all_codes) {
+    if (a %in% ua) {
+      res <- c(res, ac$dedata$all_names[a])
+    }
   }
   res
 }
 
+
+#' Get available area years
+#'
+#' Gets the years of the Demographic and Economic Areas that are downloaded and
+#' unzipped, available to be queried.
+#'
+#' @param ac A `acs_census` object.
+#' @param area A string, area name.
+#'
+#' @return A vector, area years.
+#'
+#' @family data selection functions
+#'
+#' @examples
+#'
+#' dir <- system.file("extdata", package = "geogenr")
+#' ac <- acs_census(dir)
+#'
+#' years <- ac |>
+#'   get_available_area_years(area = "State")
+#'
+#' @export
+get_available_area_years <- function(ac, area)
+  UseMethod("get_available_area_years")
+
+#' @rdname get_available_area_years
+#' @export
+get_available_area_years.acs_census<- function(ac, area) {
+  stopifnot("The area name must be defined." = !is.null(area))
+  stopifnot("We can only select one area." = length(area) == 1)
+  area <- validate_names(names(ac$dedata$all_codes), area, 'area')
+  cod <- ac$dedata$all_codes[area]
+
+  files <- get_gbd_files(ac$dir)
+  areas <- get_file_area(files)
+  sort(names(areas[areas == cod]))
+}
+
+
+#' Get available area topics (report groups)
+#'
+#' Gets the topics (report groups) for the given years of the Demographic and
+#' Economic Areas that are downloaded and unzipped, available to be queried.
+#'
+#' @param ac A `acs_census` object.
+#' @param area A string, area name.
+#' @param years A vector, year number.
+#'
+#' @return A vector, available report groups.
+#'
+#' @family data selection functions
+#'
+#' @examples
+#'
+#' dir <- system.file("extdata", package = "geogenr")
+#' ac <- acs_census(dir)
+#'
+#' topics <- ac |>
+#'   get_available_area_topics("State", 2019:2021)
+#'
+#' topics <- ac |>
+#'   get_available_area_topics("State")
+#'
+#' @export
+get_available_area_topics <- function(ac, area, years)
+  UseMethod("get_available_area_topics")
+
+#' @rdname get_available_area_topics
+#' @export
+get_available_area_topics.acs_census<- function(ac, area, years = NULL) {
+  stopifnot("The area name must be defined." = !is.null(area))
+  stopifnot("We can only select one area." = length(area) == 1)
+  area <- validate_names(names(ac$dedata$all_codes), area, 'area')
+  cod <- ac$dedata$all_codes[area]
+
+  files <- get_gbd_files(ac$dir)
+  areas <- get_file_area(files)
+  av_years <- sort(names(areas[areas == cod]))
+  years <- validate_names(av_years, years, 'year')
+  names(files) <- areas
+  files <- files[names(files) == cod]
+  areas <- get_file_area(files)
+  names(files) <- names(areas)
+  files <- files[names(files) %in% years]
+  res <- NULL
+  for (f in files) {
+    layers <- sf::st_layers(f)
+    layers <- layers$name
+    layers <- layers[substr(layers, 1, 1) == 'X']
+    if (is.null(res)) {
+      res <- layers
+    } else {
+      res <- intersect(res, layers)
+    }
+  }
+  name_to_title(res)
+}
+
+
+
+#' As ACS census topic (report group)
+#'
+#' Gets an ACS census topic object (report group) for the given years of the
+#' Demographic and Economic Areas that are downloaded and unzipped, available to
+#' be queried.
+#'
+#' @param ac A `acs_census` object.
+#' @param area A string, area name.
+#' @param years A vector, year number.
+#' @param topic A string, topic name.
+#'
+#' @return A `acs_census_topic` object.
+#'
+#' @family data selection functions
+#'
+#' @examples
+#'
+#' dir <- system.file("extdata", package = "geogenr")
+#' ac <- acs_census(dir)
+#'
+#' act <- ac |>
+#'   as_acs_census_topic("State", 2019:2021, "X01 Age And Sex")
+#'
+#' act <- ac |>
+#'   as_acs_census_topic("State", topic = "X01 Age And Sex")
+#'
+#' @export
+as_acs_census_topic <- function(ac, area, years, topic)
+  UseMethod("as_acs_census_topic")
+
+#' @rdname as_acs_census_topic
+#' @export
+as_acs_census_topic.acs_census<- function(ac, area, years = NULL, topic) {
+  stopifnot("The area name must be defined." = !is.null(area))
+  stopifnot("We can only select one area." = length(area) == 1)
+  area <- validate_names(names(ac$dedata$all_codes), area, 'area')
+  cod <- ac$dedata$all_codes[area]
+
+  files <- get_gbd_files(ac$dir)
+  areas <- get_file_area(files)
+  av_years <- sort(names(areas[areas == cod]))
+  years <- validate_names(av_years, years, 'year')
+  names(files) <- areas
+  files <- files[names(files) == cod]
+  areas <- get_file_area(files)
+  names(files) <- names(areas)
+  files <- files[names(files) %in% years]
+  res <- NULL
+  for (f in files) {
+    layers <- sf::st_layers(f)
+    layers <- layers$name
+    layers <- layers[substr(layers, 1, 1) == 'X']
+    if (is.null(res)) {
+      res <- layers
+    } else {
+      res <- intersect(res, layers)
+    }
+  }
+  topics <- name_to_title(res)
+  topic <- validate_names(topics, topic, 'topic')
+  names(res) <- topics
+  topic_name <- res[topic]
+
+  structure(list(
+    area = cod,
+    years = years,
+    topic = topic_name,
+    files = files
+  ),
+  class = "acs_census_topic")
+}
 
 
 #-------------------------------------------------------------------------------
@@ -629,3 +803,14 @@ url_file_exists <- function(url) {
   (head_url$all_headers[[1]]$status == 200)
 }
 
+
+#' Name to title
+#'
+#' @param name A string.
+#'
+#' @return A string
+#'
+#' @keywords internal
+name_to_title <- function(name) {
+  stringr::str_trim(stringr::str_to_title(string = gsub('_', ' ', name), locale = "en"))
+}

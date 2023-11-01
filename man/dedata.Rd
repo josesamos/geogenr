@@ -17,4 +17,4 @@ dedata
 Available selected Demographic and Economic Data from the American Community
 Survey (ACS) 5-year estimates data.
 }
-\keyword{datasets}
+\keyword{internal}
