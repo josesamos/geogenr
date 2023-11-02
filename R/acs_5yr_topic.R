@@ -90,7 +90,7 @@ select_topic.acs_5yr_topic<- function(act, topic = NULL) {
   }
   topic_name <- act$area_topics[topic]
   act$topic <- topic_name
-  act
+  get_topic_data(act)
 }
 
 
@@ -261,8 +261,8 @@ get_layer_data <- function(layer, file) {
 
   sel_layer <- sf::st_read(file, layer = layer, quiet = TRUE)
   sel_layer <- transform_layer(layer, sel_layer, metadata)
-  sel_layer$year <- as.character(get_file_year(file))
-  sel_layer
+  year <- as.character(get_file_year(file))
+  cbind(year = year, sel_layer)
 }
 
 #' Select topic (report group)
