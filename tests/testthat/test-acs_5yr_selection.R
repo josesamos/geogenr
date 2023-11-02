@@ -93,6 +93,7 @@ test_that("get_available_areas()", {
       area = c(`Alaska Native Regional Corporation` = "ANRC"),
       years = 2021,
       topic = c(`X01 Age And Sex` = "X01_AGE_AND_SEX"),
+      area_topics = res,
       files = c(`2021` = "ACS_2021_5YR_ANRC.gdb")
     ), class = "acs_5yr_topic")
   })
@@ -110,6 +111,7 @@ test_that("get_available_areas()", {
       area = c(`Alaska Native Regional Corporation` = "ANRC"),
       years = c("2020", "2021"),
       topic = c(`X01 Age And Sex` = "X01_AGE_AND_SEX"),
+      area_topics = res,
       files = c(`2020` = "ACS_2020_5YR_ANRC.gdb",
                 `2021` = "ACS_2021_5YR_ANRC.gdb")
     ), class = "acs_5yr_topic")

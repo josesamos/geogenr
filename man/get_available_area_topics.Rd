@@ -46,6 +46,7 @@ topics <- ac |>
 Other data selection functions: 
 \code{\link{as_acs_5yr_topic}()},
 \code{\link{get_available_area_years}()},
-\code{\link{get_available_areas}()}
+\code{\link{get_available_areas}()},
+\code{\link{get_other_topics}()}
 }
 \concept{data selection functions}

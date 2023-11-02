@@ -126,41 +126,18 @@ get_available_area_topics <- function(ac, area, years)
 #' @rdname get_available_area_topics
 #' @export
 get_available_area_topics.acs_5yr<- function(ac, area, years = NULL) {
-  stopifnot("The area name must be defined." = !is.null(area))
-  stopifnot("We can only select one area." = length(area) == 1)
-  area <- validate_names(names(ac$acs_5yr_md$all_codes), area, 'area')
-  cod <- ac$acs_5yr_md$all_codes[area]
-
-  files <- get_gbd_files(ac$dir)
-  areas <- get_file_area(files)
-  av_years <- sort(names(areas[areas == cod]))
-  years <- validate_names(av_years, years, 'year')
-  names(files) <- areas
-  files <- files[names(files) == cod]
-  areas <- get_file_area(files)
-  names(files) <- names(areas)
-  files <- files[names(files) %in% years]
-  res <- NULL
-  for (f in files) {
-    layers <- sf::st_layers(f)
-    layers <- layers$name
-    layers <- layers[substr(layers, 1, 1) == 'X']
-    if (is.null(res)) {
-      res <- layers
-    } else {
-      res <- intersect(res, layers)
-    }
-  }
-  sort(name_to_title(res))
+  act <- as_acs_5yr_topic(ac, area, years, topic = NULL)
+  act$area_topics
 }
-
-
 
 #' As ACS census topic (report group)
 #'
 #' Gets an ACS census topic object (report group) for the given years of the
 #' Demographic and Economic Areas that are downloaded and unzipped, available to
 #' be queried.
+#'
+#' If no year is indicated, all available years are taken. If no topic is given,
+#' the first one that appears in the files is taken.
 #'
 #' @param ac A `acs_5yr` object.
 #' @param area A string, area name.
@@ -197,7 +174,7 @@ as_acs_5yr_topic <- function(ac, area, years, topic)
 
 #' @rdname as_acs_5yr_topic
 #' @export
-as_acs_5yr_topic.acs_5yr<- function(ac, area, years = NULL, topic) {
+as_acs_5yr_topic.acs_5yr<- function(ac, area, years = NULL, topic = NULL) {
   stopifnot("The area name must be defined." = !is.null(area))
   stopifnot("We can only select one area." = length(area) == 1)
   area <- validate_names(names(ac$acs_5yr_md$all_codes), area, 'area')
@@ -205,13 +182,21 @@ as_acs_5yr_topic.acs_5yr<- function(ac, area, years = NULL, topic) {
 
   files <- get_gbd_files(ac$dir)
   areas <- get_file_area(files)
-  av_years <- sort(names(areas[areas == cod]))
+  av_years <- sort(unique(names(areas[areas == cod])))
   years <- validate_names(av_years, years, 'year')
   names(files) <- areas
   files <- files[names(files) == cod]
   areas <- get_file_area(files)
   names(files) <- names(areas)
   files <- files[names(files) %in% years]
+  if (length(files) > length(years)) {
+    nf <- NULL
+    for (y in years) {
+      nf <- c(nf, files[names(files) == y][1])
+    }
+    names(nf) <- years
+    files <- nf
+  }
   res <- NULL
   for (f in files) {
     layers <- sf::st_layers(f)
@@ -224,14 +209,20 @@ as_acs_5yr_topic.acs_5yr<- function(ac, area, years = NULL, topic) {
     }
   }
   topics <- name_to_title(res)
-  topic <- validate_names(topics, topic, 'topic')
   names(res) <- topics
+  topics <- sort(topics)
+  if (is.null(topic)) {
+    topic <- topics[1]
+  } else {
+    topic <- validate_names(topics, topic, 'topic')
+  }
   topic_name <- res[topic]
 
   structure(list(
     area = cod,
     years = years,
     topic = topic_name,
+    area_topics = topics,
     files = files
   ),
   class = "acs_5yr_topic")

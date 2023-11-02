@@ -7,7 +7,7 @@
 \usage{
 as_acs_5yr_topic(ac, area, years, topic)
 
-\method{as_acs_5yr_topic}{acs_5yr}(ac, area, years = NULL, topic)
+\method{as_acs_5yr_topic}{acs_5yr}(ac, area, years = NULL, topic = NULL)
 }
 \arguments{
 \item{ac}{A \code{acs_5yr} object.}
@@ -25,6 +25,10 @@ A \code{acs_5yr_topic} object.
 Gets an ACS census topic object (report group) for the given years of the
 Demographic and Economic Areas that are downloaded and unzipped, available to
 be queried.
+}
+\details{
+If no year is indicated, all available years are taken. If no topic is given,
+the first one that appears in the files is taken.
 }
 \examples{
 
@@ -51,6 +55,7 @@ act <- ac |>
 Other data selection functions: 
 \code{\link{get_available_area_topics}()},
 \code{\link{get_available_area_years}()},
-\code{\link{get_available_areas}()}
+\code{\link{get_available_areas}()},
+\code{\link{get_other_topics}()}
 }
 \concept{data selection functions}

@@ -248,8 +248,6 @@ test_that("unzip_files()", {
 })
 
 
-
-
 test_that("unzip_files()", {
   laa_names <- c(
     "American Indian/Alaska Native/Native Hawaiian Area",
