@@ -1,8 +1,8 @@
-# structure(list(
+# act <- structure(list(
 #   area = cod,
 #   years = years,
 #   topic = topic_name,
-#   area_topics = topics,
+#   area_topics = res,
 #   files = files,
 #   data = list()
 # ),
@@ -179,16 +179,24 @@ transform_metadata <- function(metadata) {
     dplyr::inner_join(full_name, by = "Full_Name")
 
   metadata$report <- substr(metadata$Short_Name, 1, 6)
+  metadata$subreport <- substr(metadata$Short_Name, 7, 7)
+  metadata$subreport[is.na(metadata$subreport)] <- '-'
+  metadata$subreport[metadata$subreport == 'e' | metadata$subreport == 'm'] <- '-'
+  v <- unique(metadata$subreport)
+  if (length(v) == 1) {
+    metadata$subreport <- NULL
+  }
+  metadata$rep_var <- readr::parse_number(substr(metadata$Short_Name, 7, 12))
   # metadata$report_desc <- delete_last_parenthesis(metadata$report_group)
   metadata
 }
 
 
-#' Transform layer according to metada
+#' Transform layer according to metadata
 #'
-#' @param layer
-#' @param sel_layer
-#' @param metadata
+#' @param layer A string, layer name.
+#' @param sel_layer A `tibble`, layer data.
+#' @param metadata A `tibble`, layer metadata.
 #'
 #' @return A vector
 #'
@@ -262,8 +270,28 @@ get_layer_data <- function(layer, file) {
   sel_layer <- sf::st_read(file, layer = layer, quiet = TRUE)
   sel_layer <- transform_layer(layer, sel_layer, metadata)
   year <- as.character(get_file_year(file))
-  cbind(year = year, sel_layer)
+
+  tibble::add_column(sel_layer,year := year, .before = 1)
 }
+
+
+
+#' Get geo layer
+#'
+#' @param file A string, file name.
+#'
+#' @return A `st`, geo data.
+#'
+#' @keywords internal
+get_geo_layer <- function(file) {
+  layers <- sf::st_layers(file)
+  layers <- layers$name
+  rest <- layers[substr(layers, 1, 1) != 'X']
+  geo_name <- rest[!grepl('METADATA', rest, fixed = TRUE)]
+
+  sf::st_read(file, layer = geo_name, quiet = TRUE)
+}
+
 
 #' Select topic (report group)
 #'
@@ -281,5 +309,9 @@ get_topic_data <-  function(act) {
   for (i in seq_along(act$files)) {
     act$data[[i]] <- get_layer_data(act$topic, act$files[i])
   }
+  sel <- max(names(act$files))
+  act$geo <- get_geo_layer(act$files[sel])
+
   act
 }
+
