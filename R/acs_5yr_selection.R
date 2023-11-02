@@ -218,12 +218,15 @@ as_acs_5yr_topic.acs_5yr<- function(ac, area, years = NULL, topic = NULL) {
   }
   topic_name <- res[topic]
 
-  structure(list(
+  act <- structure(list(
     area = cod,
     years = years,
     topic = topic_name,
     area_topics = res,
-    files = files
+    files = files,
+    data = list()
   ),
   class = "acs_5yr_topic")
+
+  get_topic_data(act)
 }
