@@ -127,7 +127,7 @@ get_available_area_topics <- function(ac, area, years)
 #' @export
 get_available_area_topics.acs_5yr<- function(ac, area, years = NULL) {
   act <- as_acs_5yr_topic(ac, area, years, topic = NULL)
-  act$area_topics
+  names(act$area_topics)
 }
 
 #' As ACS census topic (report group)
@@ -210,7 +210,7 @@ as_acs_5yr_topic.acs_5yr<- function(ac, area, years = NULL, topic = NULL) {
   }
   topics <- name_to_title(res)
   names(res) <- topics
-  topics <- sort(topics)
+  res <- sort(res)
   if (is.null(topic)) {
     topic <- topics[1]
   } else {
@@ -222,7 +222,7 @@ as_acs_5yr_topic.acs_5yr<- function(ac, area, years = NULL, topic = NULL) {
     area = cod,
     years = years,
     topic = topic_name,
-    area_topics = topics,
+    area_topics = res,
     files = files
   ),
   class = "acs_5yr_topic")

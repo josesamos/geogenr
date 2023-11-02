@@ -56,6 +56,7 @@ Other data selection functions:
 \code{\link{get_available_area_topics}()},
 \code{\link{get_available_area_years}()},
 \code{\link{get_available_areas}()},
-\code{\link{get_other_topics}()}
+\code{\link{get_other_topics}()},
+\code{\link{select_topic}()}
 }
 \concept{data selection functions}

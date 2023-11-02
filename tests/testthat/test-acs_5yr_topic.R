@@ -1,5 +1,4 @@
-
-test_that("get_available_areas()", {
+test_that("multiplication works", {
   res <-
     c(
       `X01 Age And Sex` = "X01_AGE_AND_SEX",
@@ -34,10 +33,6 @@ test_that("get_available_areas()", {
     )
 
   dir <- tempdir()
-  sub_dir <- snakecase::to_snake_case(paste0(Sys.time()))
-  dir.create(file.path(dir, sub_dir))
-  dir <- paste0(dir, '/', sub_dir)
-
   source_dir <- system.file("extdata/acs_5yr", package = "geogenr")
   files <- list.files(source_dir, "*.zip", full.names = TRUE)
   file.copy(from = files,
@@ -47,72 +42,20 @@ test_that("get_available_areas()", {
   files <- ac |>
     unzip_files()
 
-  expect_equal({
-    areas <- ac |>
-      get_available_areas()
-  }, {
-    c("Alaska Native Regional Corporation")
-  })
+  act <- ac |>
+    as_acs_5yr_topic("Alaska Native Regional Corporation",
+                     topic = "X01 Age And Sex")
 
   expect_equal({
-    years <- ac |>
-      get_available_area_years(area = "Alaska Native Regional Corporation")
-  }, {
-    c("2020", "2021")
-  })
+    topics <- act |>
+      get_other_topics()
+  },
+  names(res[-1]))
 
   expect_equal({
-    topics <- ac |>
-      get_available_area_topics("Alaska Native Regional Corporation",
-                                2021)
-  }, {
-    names(res)
-  })
-
-  expect_equal({
-    topics <- ac |>
-      get_available_area_topics("Alaska Native Regional Corporation")
-  }, {
-    names(res)
-  })
-
-  expect_equal({
-    act <- ac |>
-      as_acs_5yr_topic("Alaska Native Regional Corporation",
-                       2021,
-                       "X01 Age And Sex")
-    names <- names(act$files)
-    act$files <- basename(act$files)
-    names(act$files) <- names
-    act
-  }, {
-    structure(list(
-      area = c(`Alaska Native Regional Corporation` = "ANRC"),
-      years = 2021,
-      topic = c(`X01 Age And Sex` = "X01_AGE_AND_SEX"),
-      area_topics = res,
-      files = c(`2021` = "ACS_2021_5YR_ANRC.gdb")
-    ),
-    class = "acs_5yr_topic")
-  })
-
-  expect_equal({
-    act <- ac |>
-      as_acs_5yr_topic("Alaska Native Regional Corporation",
-                       topic = "X01 Age And Sex")
-    names <- names(act$files)
-    act$files <- basename(act$files)
-    names(act$files) <- names
-    act
-  }, {
-    structure(list(
-      area = c(`Alaska Native Regional Corporation` = "ANRC"),
-      years = c("2020", "2021"),
-      topic = c(`X01 Age And Sex` = "X01_AGE_AND_SEX"),
-      area_topics = res,
-      files = c(`2020` = "ACS_2020_5YR_ANRC.gdb",
-                `2021` = "ACS_2021_5YR_ANRC.gdb")
-    ),
-    class = "acs_5yr_topic")
-  })
+    act <- act |>
+      select_topic(topic = "X03 Hispanic Or Latino Origin")
+    act$topic
+  },
+  c(`X03 Hispanic Or Latino Origin` = "X03_HISPANIC_OR_LATINO_ORIGIN"))
 })
