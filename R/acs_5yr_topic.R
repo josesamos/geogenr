@@ -4,4 +4,4 @@
 #   topic = topic_name,
 #   files = files
 # ),
-# class = "acs_census_topic")
+# class = "acs_5yr_topic")

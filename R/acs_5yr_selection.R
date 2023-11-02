@@ -4,7 +4,7 @@
 #' Gets the names of the Demographic and Economic Areas that are downloaded and
 #' unzipped, available to be queried.
 #'
-#' @param ac A `acs_census` object.
+#' @param ac A `acs_5yr` object.
 #'
 #' @return A vector, area names.
 #'
@@ -12,8 +12,14 @@
 #'
 #' @examples
 #'
-#' dir <- system.file("extdata", package = "geogenr")
-#' ac <- acs_census(dir)
+#' dir <- tempdir()
+#' source_dir <- system.file("extdata/acs_5yr", package = "geogenr")
+#' files <- list.files(source_dir, "*.zip", full.names = TRUE)
+#' file.copy(from = files, to = dir, overwrite = TRUE)
+#' ac <- acs_5yr(dir)
+#'
+#' files <- ac |>
+#'   unzip_files()
 #'
 #' areas <- ac |>
 #'   get_available_areas()
@@ -24,17 +30,17 @@ get_available_areas <- function(ac)
 
 #' @rdname get_available_areas
 #' @export
-get_available_areas.acs_census<- function(ac) {
+get_available_areas.acs_5yr<- function(ac) {
   files <- get_gbd_files(ac$dir)
   areas <- get_file_area(files)
   ua <- unique(areas)
   res <- NULL
-  for (a in ac$dedata$all_codes) {
+  for (a in ac$acs_5yr_md$all_codes) {
     if (a %in% ua) {
-      res <- c(res, ac$dedata$all_names[a])
+      res <- c(res, ac$acs_5yr_md$all_names[a])
     }
   }
-  res
+  sort(unique(res))
 }
 
 
@@ -43,7 +49,7 @@ get_available_areas.acs_census<- function(ac) {
 #' Gets the years of the Demographic and Economic Areas that are downloaded and
 #' unzipped, available to be queried.
 #'
-#' @param ac A `acs_census` object.
+#' @param ac A `acs_5yr` object.
 #' @param area A string, area name.
 #'
 #' @return A vector, area years.
@@ -52,11 +58,17 @@ get_available_areas.acs_census<- function(ac) {
 #'
 #' @examples
 #'
-#' dir <- system.file("extdata", package = "geogenr")
-#' ac <- acs_census(dir)
+#' dir <- tempdir()
+#' source_dir <- system.file("extdata/acs_5yr", package = "geogenr")
+#' files <- list.files(source_dir, "*.zip", full.names = TRUE)
+#' file.copy(from = files, to = dir, overwrite = TRUE)
+#' ac <- acs_5yr(dir)
+#'
+#' files <- ac |>
+#'   unzip_files()
 #'
 #' years <- ac |>
-#'   get_available_area_years(area = "New England City and Town Area Division")
+#'   get_available_area_years(area = "Alaska Native Regional Corporation")
 #'
 #' @export
 get_available_area_years <- function(ac, area)
@@ -64,15 +76,15 @@ get_available_area_years <- function(ac, area)
 
 #' @rdname get_available_area_years
 #' @export
-get_available_area_years.acs_census<- function(ac, area) {
+get_available_area_years.acs_5yr<- function(ac, area) {
   stopifnot("The area name must be defined." = !is.null(area))
   stopifnot("We can only select one area." = length(area) == 1)
-  area <- validate_names(names(ac$dedata$all_codes), area, 'area')
-  cod <- ac$dedata$all_codes[area]
+  area <- validate_names(names(ac$acs_5yr_md$all_codes), area, 'area')
+  cod <- ac$acs_5yr_md$all_codes[area]
 
   files <- get_gbd_files(ac$dir)
   areas <- get_file_area(files)
-  sort(names(areas[areas == cod]))
+  sort(unique(names(areas[areas == cod])))
 }
 
 
@@ -81,7 +93,7 @@ get_available_area_years.acs_census<- function(ac, area) {
 #' Gets the topics (report groups) for the given years of the Demographic and
 #' Economic Areas that are downloaded and unzipped, available to be queried.
 #'
-#' @param ac A `acs_census` object.
+#' @param ac A `acs_5yr` object.
 #' @param area A string, area name.
 #' @param years A vector, year number.
 #'
@@ -91,15 +103,21 @@ get_available_area_years.acs_census<- function(ac, area) {
 #'
 #' @examples
 #'
-#' dir <- system.file("extdata", package = "geogenr")
-#' ac <- acs_census(dir)
+#' dir <- tempdir()
+#' source_dir <- system.file("extdata/acs_5yr", package = "geogenr")
+#' files <- list.files(source_dir, "*.zip", full.names = TRUE)
+#' file.copy(from = files, to = dir, overwrite = TRUE)
+#' ac <- acs_5yr(dir)
+#'
+#' files <- ac |>
+#'   unzip_files()
 #'
 #' topics <- ac |>
-#'   get_available_area_topics("New England City and Town Area Division",
-#'                             2015)
+#'   get_available_area_topics("Alaska Native Regional Corporation",
+#'                             2021)
 #'
 #' topics <- ac |>
-#'   get_available_area_topics("New England City and Town Area Division")
+#'   get_available_area_topics("Alaska Native Regional Corporation")
 #'
 #' @export
 get_available_area_topics <- function(ac, area, years)
@@ -107,11 +125,11 @@ get_available_area_topics <- function(ac, area, years)
 
 #' @rdname get_available_area_topics
 #' @export
-get_available_area_topics.acs_census<- function(ac, area, years = NULL) {
+get_available_area_topics.acs_5yr<- function(ac, area, years = NULL) {
   stopifnot("The area name must be defined." = !is.null(area))
   stopifnot("We can only select one area." = length(area) == 1)
-  area <- validate_names(names(ac$dedata$all_codes), area, 'area')
-  cod <- ac$dedata$all_codes[area]
+  area <- validate_names(names(ac$acs_5yr_md$all_codes), area, 'area')
+  cod <- ac$acs_5yr_md$all_codes[area]
 
   files <- get_gbd_files(ac$dir)
   areas <- get_file_area(files)
@@ -133,7 +151,7 @@ get_available_area_topics.acs_census<- function(ac, area, years = NULL) {
       res <- intersect(res, layers)
     }
   }
-  name_to_title(res)
+  sort(name_to_title(res))
 }
 
 
@@ -144,40 +162,46 @@ get_available_area_topics.acs_census<- function(ac, area, years = NULL) {
 #' Demographic and Economic Areas that are downloaded and unzipped, available to
 #' be queried.
 #'
-#' @param ac A `acs_census` object.
+#' @param ac A `acs_5yr` object.
 #' @param area A string, area name.
 #' @param years A vector, year number.
 #' @param topic A string, topic name.
 #'
-#' @return A `acs_census_topic` object.
+#' @return A `acs_5yr_topic` object.
 #'
 #' @family data selection functions
 #'
 #' @examples
 #'
-#' dir <- system.file("extdata/acs", package = "geogenr")
-#' ac <- acs_census(dir)
+#' dir <- tempdir()
+#' source_dir <- system.file("extdata/acs_5yr", package = "geogenr")
+#' files <- list.files(source_dir, "*.zip", full.names = TRUE)
+#' file.copy(from = files, to = dir, overwrite = TRUE)
+#' ac <- acs_5yr(dir)
+#'
+#' files <- ac |>
+#'   unzip_files()
 #'
 #' act <- ac |>
-#'   as_acs_census_topic("New England City and Town Area Division",
-#'                       2015,
-#'                       "X01 Age And Sex")
+#'   as_acs_5yr_topic("Alaska Native Regional Corporation",
+#'                    2021,
+#'                    "X01 Age And Sex")
 #'
 #' act <- ac |>
-#'   as_acs_census_topic("New England City and Town Area Division",
-#'                       topic = "X01 Age And Sex")
+#'   as_acs_5yr_topic("Alaska Native Regional Corporation",
+#'                    topic = "X01 Age And Sex")
 #'
 #' @export
-as_acs_census_topic <- function(ac, area, years, topic)
-  UseMethod("as_acs_census_topic")
+as_acs_5yr_topic <- function(ac, area, years, topic)
+  UseMethod("as_acs_5yr_topic")
 
-#' @rdname as_acs_census_topic
+#' @rdname as_acs_5yr_topic
 #' @export
-as_acs_census_topic.acs_census<- function(ac, area, years = NULL, topic) {
+as_acs_5yr_topic.acs_5yr<- function(ac, area, years = NULL, topic) {
   stopifnot("The area name must be defined." = !is.null(area))
   stopifnot("We can only select one area." = length(area) == 1)
-  area <- validate_names(names(ac$dedata$all_codes), area, 'area')
-  cod <- ac$dedata$all_codes[area]
+  area <- validate_names(names(ac$acs_5yr_md$all_codes), area, 'area')
+  cod <- ac$acs_5yr_md$all_codes[area]
 
   files <- get_gbd_files(ac$dir)
   areas <- get_file_area(files)
@@ -210,5 +234,5 @@ as_acs_census_topic.acs_census<- function(ac, area, years = NULL, topic) {
     topic = topic_name,
     files = files
   ),
-  class = "acs_census_topic")
+  class = "acs_5yr_topic")
 }

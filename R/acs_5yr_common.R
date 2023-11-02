@@ -41,10 +41,11 @@ validate_names <- function(defined_names, names, concept = 'name', repeated = FA
 name_with_nexus <- function(name) {
   l <- nchar(name)
   c <- substr(name, start = l, stop = l)
-  if (c == "/") {
-    res <- name
-  } else {
-    res <- paste0(name, "/")
+  res <- name
+  for (i in seq_along(c)) {
+    if (c[i] != "/") {
+      res[i] <- paste0(name[i], "/")
+    }
   }
   res
 }
@@ -99,6 +100,7 @@ get_file_area <- function(file) {
   for (i in seq_along(name)) {
     name[i] <- sub(pre[i], "", name[i])
     name[i] <- sub('.gdb', "", name[i])
+    name[i] <- sub('.zip', "", name[i])
   }
   names(name) <- year
   name
