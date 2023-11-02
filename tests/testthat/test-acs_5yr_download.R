@@ -249,3 +249,54 @@ test_that("unzip_files()", {
 
 
 
+
+test_that("unzip_files()", {
+  laa_names <- c(
+    "American Indian/Alaska Native/Native Hawaiian Area",
+    "Alaska Native Regional Corporation",
+    "Congressional District (116th Congress)",
+    "County",
+    "Place",
+    "Elementary School District",
+    "Secondary School District",
+    "Unified School District",
+    "State",
+    "State Legislative Districts Upper Chamber",
+    "State Legislative Districts Lower Chamber",
+    "Code Tabulation Area")
+
+  laa_codes <- c(
+    'AIARES',
+    'ANRC',
+    'CD_116',
+    'COUNTY',
+    'PLACE',
+    'SDE',
+    'SDS',
+    'SDU',
+    'STATE',
+    'SLDU',
+    'SLDL',
+    'ZCTA'
+  )
+  names(laa_codes) <- laa_names
+  names(laa_names) <- laa_codes
+
+  dir <- system.file("extdata/acs_5yr", package = "geogenr")
+  ac <- acs_5yr(dir = dir)
+
+  expect_equal({
+    ac |>
+      get_code_from_area_name(area = laa_names)
+  }, {
+    laa_codes
+  })
+
+  expect_equal({
+    ac |>
+      get_name_from_area_code(area = laa_codes)
+  }, {
+    laa_names
+  })
+})
+

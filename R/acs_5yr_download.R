@@ -475,3 +475,68 @@ unzip_files <- function(ac, subdir = NULL, delete_zip = FALSE) {
   }
   res
 }
+
+
+#' Get code from area name
+#'
+#' Obtain the code that appears in the name of the file associated with the area.
+#'
+#' @param ac A `acs_5yr` object.
+#' @param area A string, area name.
+#'
+#' @return A vector, area code.
+#'
+#' @family information functions
+#'
+#' @examples
+#'
+#' dir <- system.file("extdata/acs_5yr", package = "geogenr")
+#' ac <- acs_5yr(dir)
+#'
+#' code <- ac |>
+#'   get_code_from_area_name(area = "State")
+#'
+#' @export
+get_code_from_area_name <- function(ac, area)
+  UseMethod("get_code_from_area_name")
+
+#' @rdname get_code_from_area_name
+#' @export
+get_code_from_area_name.acs_5yr<- function(ac, area) {
+  stopifnot("The area name must be defined." = !is.null(area))
+  area <- validate_names(names(ac$acs_5yr_md$all_codes), area, 'area')
+  cod <- ac$acs_5yr_md$all_codes[area]
+}
+
+
+#' Get name from area code
+#'
+#' Get the name of the area from the code that appears in the name of the area
+#' files.
+#'
+#' @param ac A `acs_5yr` object.
+#' @param area A string, area name.
+#'
+#' @return A vector, area code.
+#'
+#' @family information functions
+#'
+#' @examples
+#'
+#' dir <- system.file("extdata/acs_5yr", package = "geogenr")
+#' ac <- acs_5yr(dir)
+#'
+#' name <- ac |>
+#'   get_name_from_area_code(area = "METDIV")
+#'
+#' @export
+get_name_from_area_code <- function(ac, area)
+  UseMethod("get_name_from_area_code")
+
+#' @rdname get_name_from_area_code
+#' @export
+get_name_from_area_code.acs_5yr<- function(ac, area) {
+  stopifnot("The area code must be defined." = !is.null(area))
+  area <- validate_names(ac$acs_5yr_md$all_codes, area, 'area')
+  name <- ac$acs_5yr_md$all_names[area]
+}
