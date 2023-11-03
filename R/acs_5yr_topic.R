@@ -8,7 +8,45 @@
 # class = "acs_5yr_topic")
 
 
-#' Get other topics (report groups)
+#' Get topic name (report groups)
+#'
+#' Get the selected topic.
+#'
+#' @param act A `acs_5yr_topic` object.
+#'
+#' @return A vector, topic name.
+#'
+#' @family data selection functions
+#'
+#' @examples
+#'
+#' dir <- tempdir()
+#' source_dir <- system.file("extdata/acs_5yr", package = "geogenr")
+#' files <- list.files(source_dir, "*.zip", full.names = TRUE)
+#' file.copy(from = files, to = dir, overwrite = TRUE)
+#' ac <- acs_5yr(dir)
+#' files <- ac |>
+#'   unzip_files()
+#'
+#' act <- ac |>
+#'   as_acs_5yr_topic("Alaska Native Regional Corporation",
+#'                    topic = "X01 Age And Sex")
+#'
+#' topic <- act |>
+#'   get_topic_name()
+#'
+#' @export
+get_topic_name <- function(act)
+  UseMethod("get_topic_name")
+
+#' @rdname get_topic_name
+#' @export
+get_topic_name.acs_5yr_topic<- function(act) {
+  names(act$topic)
+}
+
+
+#' Get names of other topics (report groups)
 #'
 #' Get the rest of the available topics with the one that is selected.
 #'
@@ -33,16 +71,16 @@
 #'                    topic = "X01 Age And Sex")
 #'
 #' topics <- act |>
-#'   get_other_topics()
+#'   get_names_of_other_topics()
 #'
 #' @export
-get_other_topics <- function(act)
-  UseMethod("get_other_topics")
+get_names_of_other_topics <- function(act)
+  UseMethod("get_names_of_other_topics")
 
-#' @rdname get_other_topics
+#' @rdname get_names_of_other_topics
 #' @export
-get_other_topics.acs_5yr_topic<- function(act) {
-  sort(names(act$area_topics[act$area_topics != act$topic]))
+get_names_of_other_topics.acs_5yr_topic<- function(act) {
+  sort(names(act$area_topics[!(act$area_topics %in% act$topic)]))
 }
 
 
@@ -90,6 +128,91 @@ select_topic.acs_5yr_topic<- function(act, topic = NULL) {
   topic_name <- act$area_topics[topic]
   act$topic <- topic_name
   get_topic_data(act)
+}
+
+
+
+
+#' Get topic (report groups)
+#'
+#' Get the selected topic.
+#'
+#' @param act A `acs_5yr_topic` object.
+#'
+#' @return A vector, topic name.
+#'
+#' @family data selection functions
+#'
+#' @examples
+#'
+#' dir <- tempdir()
+#' source_dir <- system.file("extdata/acs_5yr", package = "geogenr")
+#' files <- list.files(source_dir, "*.zip", full.names = TRUE)
+#' file.copy(from = files, to = dir, overwrite = TRUE)
+#' ac <- acs_5yr(dir)
+#' files <- ac |>
+#'   unzip_files()
+#'
+#' act <- ac |>
+#'   as_acs_5yr_topic("Alaska Native Regional Corporation",
+#'                    topic = "X01 Age And Sex")
+#'
+#' reports <- act |>
+#'   get_report_names()
+#'
+#' @export
+get_report_names <- function(act)
+  UseMethod("get_report_names")
+
+#' @rdname get_report_names
+#' @export
+get_report_names.acs_5yr_topic<- function(act) {
+  r <- act$data[act$data$subreport == '-', c('report', "subreport", "report_desc")]
+  sort(unique(paste0(r$report, r$subreport, r$report_desc)))
+}
+
+
+#' Get topic (report groups)
+#'
+#' Get the selected topic.
+#'
+#' @param act A `acs_5yr_topic` object.
+#'
+#' @return A vector, topic name.
+#'
+#' @family data selection functions
+#'
+#' @examples
+#'
+#' dir <- tempdir()
+#' source_dir <- system.file("extdata/acs_5yr", package = "geogenr")
+#' files <- list.files(source_dir, "*.zip", full.names = TRUE)
+#' file.copy(from = files, to = dir, overwrite = TRUE)
+#' ac <- acs_5yr(dir)
+#' files <- ac |>
+#'   unzip_files()
+#'
+#' act <- ac |>
+#'   as_acs_5yr_topic("Alaska Native Regional Corporation",
+#'                    topic = "X01 Age And Sex")
+#'
+#' reports <- act |>
+#'   get_subreport_names()
+#'
+#' @export
+get_subreport_names <- function(act, report)
+  UseMethod("get_subreport_names")
+
+#' @rdname get_subreport_names
+#' @export
+get_subreport_names.acs_5yr_topic<- function(act, report = NULL) {
+  if (is.null(report)) {
+    r <- act$data[ , c('report', "subreport", "report_desc")]
+  } else {
+    report <- substr(report, 1, 6)
+    r <- act$data[act$data$report %in% report, c('report', "subreport", "report_desc")]
+  }
+  sort(unique(paste0(r$report, '-', r$subreport, '-', r$report_desc)))
 }
 
 
@@ -250,10 +373,11 @@ transform_metadata_basic <- function(metadata) {
 #'
 #' @keywords internal
 transform_layer <- function(layer, metadata) {
-  layer <- tidyr::gather(layer, Short_Name, "value", 2:length(names(layer)))
+  layer <- tibble::as_tibble(layer)
+  layer <- tidyr::gather(layer, "Short_Name", "value", 2:length(names(layer)))
   layer$value <- as.character(layer$value)
 
-  layer <- dplyr::inner_join(variables, layer, by = "Short_Name")
+  layer <- dplyr::inner_join(layer, metadata, by = "Short_Name")
 
   layer[, 'Short_Name'] <- lapply(
     layer[, 'Short_Name'],
@@ -272,9 +396,9 @@ transform_layer <- function(layer, metadata) {
   )
 
   layer <- layer |>
-    tidyr::spread("measure", "value")
+    tidyr::spread(tidyselect::all_of("measure"), tidyselect::all_of("value"))
 
-  layer
+  layer[stats::complete.cases(layer), ]
 }
 
 
@@ -303,7 +427,6 @@ get_layer_data <- function(layer, file) {
   year <- as.character(get_file_year(file))
   tibble::add_column(sel_layer, year = year, .before = 1)
 }
-
 
 
 #' Get geo layer
@@ -335,10 +458,12 @@ get_geo_layer <- function(file) {
 #' @keywords internal
 get_topic_data <-  function(act) {
   for (i in seq_along(act$files)) {
-    if (is.null(act$data)) {
-      act$data <- get_layer_data(layer = act$topic, file = act$files[i])
-    } else {
-      act$data <- rbind(act$data, get_layer_data(act$topic, act$files[i]))
+    for (t in act$topic) {
+      if (is.null(act$data)) {
+        act$data <- get_layer_data(layer = t, file = act$files[i])
+      } else {
+        act$data <- rbind(act$data, get_layer_data(t, act$files[i]))
+      }
     }
   }
   sel <- max(names(act$files))

@@ -84,6 +84,8 @@ test_that("get_available_areas()", {
     names <- names(act$files)
     act$files <- basename(act$files)
     names(act$files) <- names
+    act$data <- NULL
+    act$geo <- NULL
     act
   }, {
     structure(list(
@@ -91,8 +93,7 @@ test_that("get_available_areas()", {
       years = 2021,
       topic = c(`X01 Age And Sex` = "X01_AGE_AND_SEX"),
       area_topics = res,
-      files = c(`2021` = "ACS_2021_5YR_ANRC.gdb"),
-      data = list()
+      files = c(`2021` = "ACS_2021_5YR_ANRC.gdb")
     ),
     class = "acs_5yr_topic")
   })
@@ -104,6 +105,8 @@ test_that("get_available_areas()", {
     names <- names(act$files)
     act$files <- basename(act$files)
     names(act$files) <- names
+    act$data <- NULL
+    act$geo <- NULL
     act
   }, {
     structure(list(
@@ -112,8 +115,7 @@ test_that("get_available_areas()", {
       topic = c(`X01 Age And Sex` = "X01_AGE_AND_SEX"),
       area_topics = res,
       files = c(`2020` = "ACS_2020_5YR_ANRC.gdb",
-                `2021` = "ACS_2021_5YR_ANRC.gdb"),
-      data = list()
+                `2021` = "ACS_2021_5YR_ANRC.gdb")
     ),
     class = "acs_5yr_topic")
   })

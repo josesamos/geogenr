@@ -126,7 +126,7 @@ get_available_area_topics <- function(ac, area, years)
 #' @rdname get_available_area_topics
 #' @export
 get_available_area_topics.acs_5yr<- function(ac, area, years = NULL) {
-  act <- as_acs_5yr_topic(ac, area, years, topic = NULL)
+  act <- new_acs_5yr_topic(ac, area, years, topic = NULL)
   names(act$area_topics)
 }
 
@@ -142,7 +142,7 @@ get_available_area_topics.acs_5yr<- function(ac, area, years = NULL) {
 #' @param ac A `acs_5yr` object.
 #' @param area A string, area name.
 #' @param years A vector, year number.
-#' @param topic A string, topic name.
+#' @param topic A vector, topic name.
 #'
 #' @return A `acs_5yr_topic` object.
 #'
@@ -174,7 +174,23 @@ as_acs_5yr_topic <- function(ac, area, years, topic)
 
 #' @rdname as_acs_5yr_topic
 #' @export
-as_acs_5yr_topic.acs_5yr<- function(ac, area, years = NULL, topic = NULL) {
+as_acs_5yr_topic.acs_5yr <- function(ac, area, years = NULL, topic = NULL) {
+  act <- new_acs_5yr_topic(ac, area, years, topic)
+  get_topic_data(act)
+}
+
+
+#' New acs_5yr_topic object
+#'
+#' @param ac A `acs_5yr` object.
+#' @param area A string, area name.
+#' @param years A vector, year number.
+#' @param topic A string, topic name.
+#'
+#' @return A `acs_5yr_topic` object.
+#'
+#' @keywords internal
+new_acs_5yr_topic <- function(ac, area, years = NULL, topic = NULL) {
   stopifnot("The area name must be defined." = !is.null(area))
   stopifnot("We can only select one area." = length(area) == 1)
   area <- validate_names(names(ac$acs_5yr_md$all_codes), area, 'area')
@@ -227,6 +243,4 @@ as_acs_5yr_topic.acs_5yr<- function(ac, area, years = NULL, topic = NULL) {
     files = files
   ),
   class = "acs_5yr_topic")
-
-  get_topic_data(act)
 }
