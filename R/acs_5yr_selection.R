@@ -189,6 +189,7 @@ as_acs_5yr_topic.acs_5yr<- function(ac, area, years = NULL, topic = NULL) {
   areas <- get_file_area(files)
   names(files) <- names(areas)
   files <- files[names(files) %in% years]
+  # multiple files downloaded
   if (length(files) > length(years)) {
     nf <- NULL
     for (y in years) {
@@ -223,8 +224,7 @@ as_acs_5yr_topic.acs_5yr<- function(ac, area, years = NULL, topic = NULL) {
     years = years,
     topic = topic_name,
     area_topics = res,
-    files = files,
-    data = list()
+    files = files
   ),
   class = "acs_5yr_topic")
 

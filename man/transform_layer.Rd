@@ -4,12 +4,10 @@
 \alias{transform_layer}
 \title{Transform layer according to metadata}
 \usage{
-transform_layer(layer, sel_layer, metadata)
+transform_layer(layer, metadata)
 }
 \arguments{
-\item{layer}{A string, layer name.}
-
-\item{sel_layer}{A \code{tibble}, layer data.}
+\item{layer}{A \code{tibble}, layer data.}
 
 \item{metadata}{A \code{tibble}, layer metadata.}
 }

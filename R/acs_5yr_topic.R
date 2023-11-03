@@ -3,8 +3,7 @@
 #   years = years,
 #   topic = topic_name,
 #   area_topics = res,
-#   files = files,
-#   data = list()
+#   files = files
 # ),
 # class = "acs_5yr_topic")
 
@@ -192,61 +191,90 @@ transform_metadata <- function(metadata) {
 }
 
 
+#' Transform metadata layer
+#'
+#' @param metadata A vector
+#'
+#' @return A vector
+#'
+#' @keywords internal
+transform_metadata_basic <- function(metadata) {
+  metadata <- tibble::as_tibble(metadata)
+
+  metadata$Full_Name <- name_to_title(metadata$Full_Name)
+  metadata$Full_Name <- gsub("\\s+", " ", metadata$Full_Name)
+
+  metadata <- metadata |>
+    dplyr::mutate(measure = "estimate")
+
+  metadata$measure[lapply(metadata[, 'Full_Name'],
+                          grepl,
+                          pattern = ' -- (Margin Of Error)',
+                          fixed = TRUE)[[1]]] <- 'margin_of_error'
+
+  metadata[, 'Full_Name'] <- lapply(
+    metadata[, 'Full_Name'],
+    gsub,
+    pattern = ' -- (Estimate)',
+    replacement = '',
+    fixed = TRUE
+  )
+
+  metadata[, 'Full_Name'] <- lapply(
+    metadata[, 'Full_Name'],
+    gsub,
+    pattern = ' -- (Margin Of Error)',
+    replacement = '',
+    fixed = TRUE
+  )
+
+  metadata$report <- substr(metadata$Short_Name, 1, 6)
+  metadata$subreport <- substr(metadata$Short_Name, 7, 7)
+  metadata$subreport[is.na(metadata$subreport)] <- '-'
+  metadata$subreport[metadata$subreport == 'e' | metadata$subreport == 'm'] <- '-'
+
+  pos <- regexpr(":", metadata$Full_Name)
+  metadata$report_desc <- substr(metadata$Full_Name, 1, pos - 1)
+  metadata$report_desc <- stringr::str_trim(metadata$report_desc)
+
+  metadata
+}
+
+
 #' Transform layer according to metadata
 #'
-#' @param layer A string, layer name.
-#' @param sel_layer A `tibble`, layer data.
+#' @param layer A `tibble`, layer data.
 #' @param metadata A `tibble`, layer metadata.
 #'
 #' @return A vector
 #'
 #' @keywords internal
-transform_layer <- function(layer, sel_layer, metadata) {
-  sel_layer <- tidyr::gather(sel_layer, "Short_Name", "value", 2:length(names(sel_layer)))
-  sel_layer$value <- as.character(sel_layer$value)
+transform_layer <- function(layer, metadata) {
+  layer <- tidyr::gather(layer, Short_Name, "value", 2:length(names(layer)))
+  layer$value <- as.character(layer$value)
 
-  variables <- sel_layer |>
-    dplyr::select(Short_Name) |>
-    dplyr::group_by(Short_Name) |>
-    dplyr::summarise() |>
-    dplyr::inner_join(metadata, by = "Short_Name")
+  layer <- dplyr::inner_join(variables, layer, by = "Short_Name")
 
-  variables$topic <- name_to_title(layer)
-  var_names <- names(variables)
-  items <- var_names[grep('item', var_names)]
-  res <- NULL
-  for (i in items) {
-    val <- unique(variables[, i])
-    if (nrow(val) == 1) {
-      if (val[[1]] == "Total") {
-        res <- c(res, i)
-      }
-    }
-  }
-  variables <- variables[ , setdiff(var_names, res)]
-
-  sel_layer <- dplyr::inner_join(variables, sel_layer, by = "Short_Name")
-
-  sel_layer[, 'Short_Name'] <- lapply(
-    sel_layer[, 'Short_Name'],
+  layer[, 'Short_Name'] <- lapply(
+    layer[, 'Short_Name'],
     gsub,
     pattern = 'e',
     replacement = '_',
     fixed = TRUE
   )
 
-  sel_layer[, 'Short_Name'] <- lapply(
-    sel_layer[, 'Short_Name'],
+  layer[, 'Short_Name'] <- lapply(
+    layer[, 'Short_Name'],
     gsub,
     pattern = 'm',
     replacement = '_',
     fixed = TRUE
   )
 
-  sel_layer <- sel_layer |>
-    tidyr::spread(measure, value)
+  layer <- layer |>
+    tidyr::spread("measure", "value")
 
-  sel_layer
+  layer
 }
 
 
@@ -265,13 +293,15 @@ get_layer_data <- function(layer, file) {
   meta_name <- rest[grepl('METADATA', rest, fixed = TRUE)]
 
   metadata <- sf::st_read(file, layer = meta_name, quiet = TRUE)
-  metadata <- transform_metadata(metadata)
+  metadata <- transform_metadata_basic(metadata)
 
   sel_layer <- sf::st_read(file, layer = layer, quiet = TRUE)
-  sel_layer <- transform_layer(layer, sel_layer, metadata)
-  year <- as.character(get_file_year(file))
+  sel_layer <- transform_layer(layer = sel_layer, metadata)
 
-  tibble::add_column(sel_layer,year := year, .before = 1)
+  tibble::add_column(sel_layer, topic = name_to_title(layer), .before = 1)
+
+  year <- as.character(get_file_year(file))
+  tibble::add_column(sel_layer, year = year, .before = 1)
 }
 
 
@@ -304,10 +334,12 @@ get_geo_layer <- function(file) {
 #'
 #' @keywords internal
 get_topic_data <-  function(act) {
-  act$data <- vector(mode = "list", length = length(act$files))
-  names(act$data) <- names(act$files)
   for (i in seq_along(act$files)) {
-    act$data[[i]] <- get_layer_data(act$topic, act$files[i])
+    if (is.null(act$data)) {
+      act$data <- get_layer_data(layer = act$topic, file = act$files[i])
+    } else {
+      act$data <- rbind(act$data, get_layer_data(act$topic, act$files[i]))
+    }
   }
   sel <- max(names(act$files))
   act$geo <- get_geo_layer(act$files[sel])
