@@ -6,6 +6,7 @@
 #'
 #'
 #' @param act A `acs_5yr_topic` object.
+#' @param geo_attribute_names A string vector.
 #'
 #' @return A `flat_table` object.
 #'
@@ -32,12 +33,43 @@
 #'                    topic = "X01 Age And Sex")
 #'
 #' @export
-as_flat_table <- function(act)
+as_flat_table <- function(act, geo_attribute_names)
   UseMethod("as_flat_table")
 
 #' @rdname as_flat_table
 #' @export
-as_flat_table.acs_5yr <- function(act) {
+as_flat_table.acs_5yr <- function(act, geo_attribute_names = NULL) {
+  geo <- sf::st_drop_geometry(act$geo)
+  names <- names(geo)
+  if (is.null(geo_attribute_names)) {
+    i <- grep('ALAND|AWATER|INTPTLAT|INTPTLON|FUNCSTAT|Shape', names, ignore.case = TRUE)
+    geo_attribute_names <- names[-i]
+  } else {
+    geo_attribute_names <- validate_names(names, geo_attribute_names, 'attribute')
+  }
+  geo <- tibble::as_tibble(geo[, geo_attribute_names])
+
+  data <- act$data
+  data <- transform_metadata_rest(data)
+  names <- names(data)
+  i <- grep('GEOID', names, ignore.case = TRUE)
+  names[i] <- 'GEOID_Data'
+  names(data) <- names
+  i <- grep('estimate|margin_of_error', names)
+  names <- c(names[-i], 'estimate', 'margin_of_error')
+  data <- data[, names]
+  data$estimate <- as.numeric(data$estimate)
+  data$margin_of_error <- as.numeric(data$margin_of_error)
+
+  data <- dplyr::inner_join(geo, data, by = "GEOID_Data")
+
+  ft <-
+    rolap::flat_table(name = act$area,
+                      instances = data,
+                      unknown_value = "Not available")
+  ft <- ft |>
+    rolap::transform_to_attribute("report_var", width = 2)
+  ft
 }
 
 
