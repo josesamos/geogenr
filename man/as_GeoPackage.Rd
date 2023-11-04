@@ -5,12 +5,12 @@
 \alias{as_GeoPackage.acs_5yr_geo}
 \title{Save as GeoPackage}
 \usage{
-as_GeoPackage(act, dir, name)
+as_GeoPackage(geo, dir, name)
 
-\method{as_GeoPackage}{acs_5yr_geo}(act, dir = NULL, name = NULL)
+\method{as_GeoPackage}{acs_5yr_geo}(geo, dir = NULL, name = NULL)
 }
 \arguments{
-\item{act}{A \code{acs_5yr_geo} object.}
+\item{geo}{A \code{acs_5yr_geo} object.}
 
 \item{dir}{A string.}
 

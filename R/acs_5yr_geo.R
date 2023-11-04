@@ -37,7 +37,7 @@ as_acs_5yr_geo <- function(act)
 
 #' @rdname as_acs_5yr_geo
 #' @export
-as_acs_5yr_geo.acs_5yr <- function(act) {
+as_acs_5yr_geo.acs_5yr_topic <- function(act) {
   data <- act$data
   data <-
     tidyr::gather(data, "measure", "value", (length(names(data)) - 1):length(names(data)))
@@ -53,14 +53,17 @@ as_acs_5yr_geo.acs_5yr <- function(act) {
     data$Short_Name[data$measure == 'margin_of_error'],
     fixed = TRUE
   )
-  data <- tibble::add_column(
-    data,
-    variable = paste0('Y', data$year, '_', data$Short_Name),
-    .before = 1
-  )
+
   metadata <- data |>
     dplyr::select(-tidyselect::all_of(c("GEOID", "value")))
   metadata <- transform_metadata_rest(metadata)
+  n <- as.character(nrow(metadata))
+  l <- nchar(n)
+  metadata <- tibble::add_column(
+    metadata,
+    variable = paste0('V', sprintf(sprintf("%%0%dd", l), 1:as.integer(n))),
+    .before = 1
+  )
 
   data <- data |>
     dplyr::select(tidyselect::all_of(c("GEOID", "variable", "value")))
@@ -128,7 +131,7 @@ get_geo_layer.acs_5yr_geo<- function(act) {
 #'
 #' Get the names of the geographic layer attributes (except for the geometry field).
 #'
-#' @param act A `acs_5yr_geo` object.
+#' @param geo A `acs_5yr_geo` object.
 #' @param dir A string.
 #' @param name A string, file name.
 #'
@@ -154,41 +157,50 @@ get_geo_layer.acs_5yr_geo<- function(act) {
 #'   as_GeoPackage()
 #'
 #' @export
-as_GeoPackage <- function(act, dir, name)
+as_GeoPackage <- function(geo, dir, name)
   UseMethod("as_GeoPackage")
 
 #' @rdname as_GeoPackage
 #' @export
-as_GeoPackage.acs_5yr_geo<- function(act, dir = NULL, name = NULL) {
+as_GeoPackage.acs_5yr_geo<- function(geo, dir = NULL, name = NULL) {
   if (is.null(name)) {
-    name <- act$origin[1, "area_code"]
+    name <- geo$origin[1, "area_code"]
   }
   if (!is.null(dir)) {
     dir <- name_with_nexus(dir)
   }
   name <- tools::file_path_sans_ext(name)
   file <- paste0(dir, name, '.gpkg')
+  file2 <- paste0(dir, name, '.shp')
+  sf::st_write(
+    obj = geo$data,
+    dsn = file2,
+    layer = "data",
+    append = FALSE,
+    quiet = TRUE
+  )
 
   sf::st_write(
-    obj = act$data,
+    obj = geo$data,
     dsn = file,
     layer = "data",
     append = FALSE,
     quiet = TRUE
   )
   sf::st_write(
-    obj = act$metadata,
+    obj = geo$metadata,
     dsn = file,
     layer = "metadata",
     append = FALSE,
     quiet = TRUE
   )
   sf::st_write(
-    obj = act$origin,
+    obj = geo$origin,
     dsn = file,
     layer = "origin",
     append = FALSE,
     quiet = TRUE
   )
+  geo
 }
 

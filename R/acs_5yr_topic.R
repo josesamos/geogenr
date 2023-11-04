@@ -391,6 +391,14 @@ transform_metadata_rest <- function(metadata) {
   metadata <- metadata |>
     dplyr::group_by_at(dplyr::vars(tidyselect::all_of(names(metadata)))) |>
     dplyr::summarise(.groups = "drop")
+  metadata$report_var <- as.integer(readr::parse_number(substr(metadata$Short_Name, 7, 12)))
+
+  var_names <- names(metadata)
+  i <- grep('report_var', var_names, fixed = TRUE)
+  var_names <- var_names[-i]
+  i <- grep('subreport', var_names, fixed = TRUE)
+  var_names <- c(var_names[1:i], 'report_var', var_names[(i + 1):length(var_names)])
+  metadata <- metadata[, var_names]
 
   fn <- unique(metadata$Full_Name)
   fn2 <- name_to_title(fn)
@@ -422,7 +430,6 @@ transform_metadata_rest <- function(metadata) {
   if (length(v) == 1) {
     metadata$subreport <- NULL
   }
-  metadata$report_var <- as.integer(readr::parse_number(substr(metadata$Short_Name, 7, 12)))
   metadata
 }
 

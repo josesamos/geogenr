@@ -2,12 +2,12 @@
 % Please edit documentation in R/acs_5yr_geo.R
 \name{as_acs_5yr_geo}
 \alias{as_acs_5yr_geo}
-\alias{as_acs_5yr_geo.acs_5yr}
+\alias{as_acs_5yr_geo.acs_5yr_topic}
 \title{As ACS census geo}
 \usage{
 as_acs_5yr_geo(act)
 
-\method{as_acs_5yr_geo}{acs_5yr}(act)
+\method{as_acs_5yr_geo}{acs_5yr_topic}(act)
 }
 \arguments{
 \item{act}{A \code{acs_5yr_topic} object.}
