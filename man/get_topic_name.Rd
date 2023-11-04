@@ -16,23 +16,14 @@ get_topic_name(act)
 A vector, topic name.
 }
 \description{
-Get the selected topic.
+Get the selected topic by which this object has been defined.
+}
+\details{
+A topic is made up of a set of reports.
 }
 \examples{
 
-dir <- tempdir()
-source_dir <- system.file("extdata/acs_5yr", package = "geogenr")
-files <- list.files(source_dir, "*.zip", full.names = TRUE)
-file.copy(from = files, to = dir, overwrite = TRUE)
-ac <- acs_5yr(dir)
-files <- ac |>
-  unzip_files()
-
-act <- ac |>
-  as_acs_5yr_topic("Alaska Native Regional Corporation",
-                   topic = "X01 Age And Sex")
-
-topic <- act |>
+topic <- anrc_2021_x01 |>
   get_topic_name()
 
 }

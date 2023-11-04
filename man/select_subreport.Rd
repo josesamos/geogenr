@@ -20,19 +20,7 @@ Get the selected topic.
 }
 \examples{
 
-dir <- tempdir()
-source_dir <- system.file("extdata/acs_5yr", package = "geogenr")
-files <- list.files(source_dir, "*.zip", full.names = TRUE)
-file.copy(from = files, to = dir, overwrite = TRUE)
-ac <- acs_5yr(dir)
-files <- ac |>
-  unzip_files()
-
-act <- ac |>
-  as_acs_5yr_topic("Alaska Native Regional Corporation",
-                   topic = "X01 Age And Sex")
-
-reports <- act |>
+reports <- anrc_2021_x01 |>
   select_subreport()
 
 }

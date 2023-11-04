@@ -13,26 +13,16 @@ get_names_of_other_topics(act)
 \item{act}{A \code{acs_5yr_topic} object.}
 }
 \value{
-A vector, available report groups.
+A vector, available topics.
 }
 \description{
-Get the rest of the available topics with the one that is selected.
+The area that we have downloaded has a set of defined topics, we have selected
+one of them, this function shows us the rest of the available topics in the
+area.
 }
 \examples{
 
-dir <- tempdir()
-source_dir <- system.file("extdata/acs_5yr", package = "geogenr")
-files <- list.files(source_dir, "*.zip", full.names = TRUE)
-file.copy(from = files, to = dir, overwrite = TRUE)
-ac <- acs_5yr(dir)
-files <- ac |>
-  unzip_files()
-
-act <- ac |>
-  as_acs_5yr_topic("Alaska Native Regional Corporation",
-                   topic = "X01 Age And Sex")
-
-topics <- act |>
+topics <- anrc_2021_x01 |>
   get_names_of_other_topics()
 
 }

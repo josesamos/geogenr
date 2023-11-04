@@ -1,93 +1,9 @@
-# act <- structure(list(
-#   area = cod,
-#   years = years,
-#   topic = topic_name,
-#   area_topics = res,
-#   files = files
-# ),
-# class = "acs_5yr_topic")
-
-
-#' Get geographical attributes
-#'
-#' Get the names of the geographic layer attributes (except for the geometry field).
-#'
-#' @param act A `acs_5yr_topic` object.
-#'
-#' @return A vector, geographical attribute names.
-#'
-#' @family data selection functions
-#'
-#' @examples
-#'
-#' dir <- tempdir()
-#' source_dir <- system.file("extdata/acs_5yr", package = "geogenr")
-#' files <- list.files(source_dir, "*.zip", full.names = TRUE)
-#' file.copy(from = files, to = dir, overwrite = TRUE)
-#' ac <- acs_5yr(dir)
-#' files <- ac |>
-#'   unzip_files()
-#'
-#' act <- ac |>
-#'   as_acs_5yr_topic("Alaska Native Regional Corporation",
-#'                    topic = "X01 Age And Sex")
-#'
-#' names <- act |>
-#'   get_geo_attribute_names()
-#'
-#' @export
-get_geo_attribute_names <- function(act)
-  UseMethod("get_geo_attribute_names")
-
-#' @rdname get_geo_attribute_names
-#' @export
-get_geo_attribute_names.acs_5yr_topic<- function(act) {
-  names <- names(act$geo)
-  names <- names[-length(names)]
-}
-
-
-#' Get geographic layer
-#'
-#' Get the geographic layer.
-#'
-#' @param glc A `acs_5yr_topic` or `acs_5yr_geo` object.
-#'
-#' @return A `sf` object.
-#'
-#' @family data selection functions
-#'
-#' @examples
-#'
-#' dir <- tempdir()
-#' source_dir <- system.file("extdata/acs_5yr", package = "geogenr")
-#' files <- list.files(source_dir, "*.zip", full.names = TRUE)
-#' file.copy(from = files, to = dir, overwrite = TRUE)
-#' ac <- acs_5yr(dir)
-#' files <- ac |>
-#'   unzip_files()
-#'
-#' act <- ac |>
-#'   as_acs_5yr_topic("Alaska Native Regional Corporation",
-#'                    topic = "X01 Age And Sex")
-#'
-#' names <- act |>
-#'   get_geo_layer()
-#'
-#' @export
-get_geo_layer <- function(glc)
-  UseMethod("get_geo_layer")
-
-#' @rdname get_geo_layer
-#' @export
-get_geo_layer.acs_5yr_topic <- function(glc) {
-  glc$data
-}
-
 
 #' Get topic name (report groups)
 #'
-#' Get the selected topic.
+#' Get the selected topic by which this object has been defined.
+#'
+#' A topic is made up of a set of reports.
 #'
 #' @param act A `acs_5yr_topic` object.
 #'
@@ -97,19 +13,7 @@ get_geo_layer.acs_5yr_topic <- function(glc) {
 #'
 #' @examples
 #'
-#' dir <- tempdir()
-#' source_dir <- system.file("extdata/acs_5yr", package = "geogenr")
-#' files <- list.files(source_dir, "*.zip", full.names = TRUE)
-#' file.copy(from = files, to = dir, overwrite = TRUE)
-#' ac <- acs_5yr(dir)
-#' files <- ac |>
-#'   unzip_files()
-#'
-#' act <- ac |>
-#'   as_acs_5yr_topic("Alaska Native Regional Corporation",
-#'                    topic = "X01 Age And Sex")
-#'
-#' topic <- act |>
+#' topic <- anrc_2021_x01 |>
 #'   get_topic_name()
 #'
 #' @export
@@ -125,29 +29,19 @@ get_topic_name.acs_5yr_topic<- function(act) {
 
 #' Get names of other topics (report groups)
 #'
-#' Get the rest of the available topics with the one that is selected.
+#' The area that we have downloaded has a set of defined topics, we have selected
+#' one of them, this function shows us the rest of the available topics in the
+#' area.
 #'
 #' @param act A `acs_5yr_topic` object.
 #'
-#' @return A vector, available report groups.
+#' @return A vector, available topics.
 #'
 #' @family data selection functions
 #'
 #' @examples
 #'
-#' dir <- tempdir()
-#' source_dir <- system.file("extdata/acs_5yr", package = "geogenr")
-#' files <- list.files(source_dir, "*.zip", full.names = TRUE)
-#' file.copy(from = files, to = dir, overwrite = TRUE)
-#' ac <- acs_5yr(dir)
-#' files <- ac |>
-#'   unzip_files()
-#'
-#' act <- ac |>
-#'   as_acs_5yr_topic("Alaska Native Regional Corporation",
-#'                    topic = "X01 Age And Sex")
-#'
-#' topics <- act |>
+#' topics <- anrc_2021_x01 |>
 #'   get_names_of_other_topics()
 #'
 #' @export
@@ -163,8 +57,8 @@ get_names_of_other_topics.acs_5yr_topic<- function(act) {
 
 #' Select topic (report group)
 #'
-#' Select the given topic with. If no topic is given, the first one that appears
-#' in the files is taken.
+#' Select the given topic. If no topic is given, the first one that appears
+#' in the area is taken.
 #'
 #' @param act A `acs_5yr_topic` object.
 #' @param topic A string, topic name.
@@ -180,12 +74,14 @@ get_names_of_other_topics.acs_5yr_topic<- function(act) {
 #' files <- list.files(source_dir, "*.zip", full.names = TRUE)
 #' file.copy(from = files, to = dir, overwrite = TRUE)
 #' ac <- acs_5yr(dir)
+#'
 #' files <- ac |>
 #'   unzip_files()
 #'
 #' act <- ac |>
 #'   as_acs_5yr_topic("Alaska Native Regional Corporation",
-#'                    topic = "X01 Age And Sex")
+#'                    2021,
+#'                    "X01 Age And Sex")
 #'
 #' act <- act |>
 #'   select_topic(topic = "X03 Hispanic Or Latino Origin")
@@ -208,12 +104,11 @@ select_topic.acs_5yr_topic<- function(act, topic = NULL) {
 }
 
 
-
-
 #' Get report names
 #'
-#' Get the names of the reports. The report code is included with the name. Each
-#' report can contain multiple subreports.
+#' Each topic includes several reports. Once a topic has been selected, using this
+#' function we obtain the name of the available reports. The report code is
+#' included with the name. Each report can contain multiple subreports.
 #'
 #' @param act A `acs_5yr_topic` object.
 #'
@@ -223,19 +118,7 @@ select_topic.acs_5yr_topic<- function(act, topic = NULL) {
 #'
 #' @examples
 #'
-#' dir <- tempdir()
-#' source_dir <- system.file("extdata/acs_5yr", package = "geogenr")
-#' files <- list.files(source_dir, "*.zip", full.names = TRUE)
-#' file.copy(from = files, to = dir, overwrite = TRUE)
-#' ac <- acs_5yr(dir)
-#' files <- ac |>
-#'   unzip_files()
-#'
-#' act <- ac |>
-#'   as_acs_5yr_topic("Alaska Native Regional Corporation",
-#'                    topic = "X01 Age And Sex")
-#'
-#' reports <- act |>
+#' reports <- anrc_2021_x01 |>
 #'   get_report_names()
 #'
 #' @export
@@ -262,19 +145,7 @@ get_report_names.acs_5yr_topic<- function(act) {
 #'
 #' @examples
 #'
-#' dir <- tempdir()
-#' source_dir <- system.file("extdata/acs_5yr", package = "geogenr")
-#' files <- list.files(source_dir, "*.zip", full.names = TRUE)
-#' file.copy(from = files, to = dir, overwrite = TRUE)
-#' ac <- acs_5yr(dir)
-#' files <- ac |>
-#'   unzip_files()
-#'
-#' act <- ac |>
-#'   as_acs_5yr_topic("Alaska Native Regional Corporation",
-#'                    topic = "X01 Age And Sex")
-#'
-#' reports <- act |>
+#' reports <- anrc_2021_x01 |>
 #'   get_subreport_names()
 #'
 #' @export
@@ -307,19 +178,7 @@ get_subreport_names.acs_5yr_topic<- function(act, report = NULL) {
 #'
 #' @examples
 #'
-#' dir <- tempdir()
-#' source_dir <- system.file("extdata/acs_5yr", package = "geogenr")
-#' files <- list.files(source_dir, "*.zip", full.names = TRUE)
-#' file.copy(from = files, to = dir, overwrite = TRUE)
-#' ac <- acs_5yr(dir)
-#' files <- ac |>
-#'   unzip_files()
-#'
-#' act <- ac |>
-#'   as_acs_5yr_topic("Alaska Native Regional Corporation",
-#'                    topic = "X01 Age And Sex")
-#'
-#' reports <- act |>
+#' reports <- anrc_2021_x01 |>
 #'   select_report()
 #'
 #' @export
@@ -348,19 +207,7 @@ select_report.acs_5yr_topic<- function(act, report = NULL) {
 #'
 #' @examples
 #'
-#' dir <- tempdir()
-#' source_dir <- system.file("extdata/acs_5yr", package = "geogenr")
-#' files <- list.files(source_dir, "*.zip", full.names = TRUE)
-#' file.copy(from = files, to = dir, overwrite = TRUE)
-#' ac <- acs_5yr(dir)
-#' files <- ac |>
-#'   unzip_files()
-#'
-#' act <- ac |>
-#'   as_acs_5yr_topic("Alaska Native Regional Corporation",
-#'                    topic = "X01 Age And Sex")
-#'
-#' reports <- act |>
+#' reports <- anrc_2021_x01 |>
 #'   select_subreport()
 #'
 #' @export
@@ -374,6 +221,58 @@ select_subreport.acs_5yr_topic<- function(act, subreport = NULL) {
   subreport <- substr(subreport, 1, 8)
   sr <- paste0(act$data$report, '-', act$data$subreport)
   act$data <- act$data[sr %in% subreport, ]
+}
+
+#' Get geographical attributes
+#'
+#' Get the names of the geographic layer attributes (except for the geometry field).
+#'
+#' @param act A `acs_5yr_topic` object.
+#'
+#' @return A vector, geographical attribute names.
+#'
+#' @family data selection functions
+#'
+#' @examples
+#'
+#' names <- anrc_2021_x01 |>
+#'   get_geo_attribute_names()
+#'
+#' @export
+get_geo_attribute_names <- function(act)
+  UseMethod("get_geo_attribute_names")
+
+#' @rdname get_geo_attribute_names
+#' @export
+get_geo_attribute_names.acs_5yr_topic<- function(act) {
+  names <- names(act$geo)
+  names <- names[-length(names)]
+}
+
+
+#' Get geographic layer
+#'
+#' Get the geographic layer.
+#'
+#' @param glc A `acs_5yr_topic` or `acs_5yr_geo` object.
+#'
+#' @return A `sf` object.
+#'
+#' @family data selection functions
+#'
+#' @examples
+#'
+#' names <- anrc_2021_x01 |>
+#'   get_geo_layer()
+#'
+#' @export
+get_geo_layer <- function(glc)
+  UseMethod("get_geo_layer")
+
+#' @rdname get_geo_layer
+#' @export
+get_geo_layer.acs_5yr_topic <- function(glc) {
+  glc$data
 }
 
 

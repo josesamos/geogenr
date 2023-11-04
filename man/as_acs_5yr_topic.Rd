@@ -41,14 +41,14 @@ ac <- acs_5yr(dir)
 files <- ac |>
   unzip_files()
 
-act <- ac |>
+anrc_2021_x01 <- ac |>
   as_acs_5yr_topic("Alaska Native Regional Corporation",
                    2021,
                    "X01 Age And Sex")
 
-act <- ac |>
+anrc_2021_2022_x01_x07 <- ac |>
   as_acs_5yr_topic("Alaska Native Regional Corporation",
-                   topic = "X01 Age And Sex")
+                   topic = c("X01 Age And Sex", "X07 Migration"))
 
 }
 \seealso{

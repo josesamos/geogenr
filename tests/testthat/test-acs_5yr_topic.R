@@ -1,4 +1,4 @@
-test_that("multiplication works", {
+test_that("as_acs_5yr_topic()", {
   res <-
     c(
       `X01 Age And Sex` = "X01_AGE_AND_SEX",
@@ -48,7 +48,13 @@ test_that("multiplication works", {
 
   expect_equal({
     topics <- act |>
-      get_other_topics()
+      get_topic_name()
+  },
+  "X01 Age And Sex")
+
+  expect_equal({
+    topics <- act |>
+      get_names_of_other_topics()
   },
   names(res[-1]))
 

@@ -18,8 +18,8 @@ select_topic(act, topic)
 A \code{acs_5yr_topic} object.
 }
 \description{
-Select the given topic with. If no topic is given, the first one that appears
-in the files is taken.
+Select the given topic. If no topic is given, the first one that appears
+in the area is taken.
 }
 \examples{
 
@@ -28,12 +28,14 @@ source_dir <- system.file("extdata/acs_5yr", package = "geogenr")
 files <- list.files(source_dir, "*.zip", full.names = TRUE)
 file.copy(from = files, to = dir, overwrite = TRUE)
 ac <- acs_5yr(dir)
+
 files <- ac |>
   unzip_files()
 
 act <- ac |>
   as_acs_5yr_topic("Alaska Native Regional Corporation",
-                   topic = "X01 Age And Sex")
+                   2021,
+                   "X01 Age And Sex")
 
 act <- act |>
   select_topic(topic = "X03 Hispanic Or Latino Origin")
