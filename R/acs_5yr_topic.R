@@ -51,7 +51,7 @@ get_geo_attribute_names.acs_5yr_topic<- function(act) {
 #'
 #' Get the geographic layer.
 #'
-#' @param act A `acs_5yr_topic` object.
+#' @param glc A `acs_5yr_topic` or `acs_5yr_geo` object.
 #'
 #' @return A `sf` object.
 #'
@@ -75,13 +75,13 @@ get_geo_attribute_names.acs_5yr_topic<- function(act) {
 #'   get_geo_layer()
 #'
 #' @export
-get_geo_layer <- function(act)
+get_geo_layer <- function(glc)
   UseMethod("get_geo_layer")
 
 #' @rdname get_geo_layer
 #' @export
-get_geo_layer.acs_5yr_topic<- function(act) {
-  act$geo
+get_geo_layer.acs_5yr_topic <- function(glc) {
+  glc$data
 }
 
 
@@ -556,7 +556,7 @@ get_layer_data <- function(layer, file) {
 #' @return A `st`, geo data.
 #'
 #' @keywords internal
-get_geo_layer <- function(file) {
+get_geo_layer_from_file <- function(file) {
   layers <- sf::st_layers(file)
   layers <- layers$name
   rest <- layers[substr(layers, 1, 1) != 'X']
@@ -587,7 +587,7 @@ get_topic_data <-  function(act) {
     }
   }
   sel <- max(names(act$files))
-  act$geo <- get_geo_layer(file = act$files[sel])
+  act$geo <- get_geo_layer_from_file(file = act$files[sel])
 
   act
 }

@@ -24,6 +24,7 @@ Imports:
     dplyr,
     httr,
     readr,
+    rolap,
     sf,
     stats,
     stringr,

@@ -48,11 +48,13 @@ Other data selection functions:
 \code{\link{get_available_areas}()},
 \code{\link{get_geo_attribute_names}()},
 \code{\link{get_geo_layer.acs_5yr_geo}()},
+\code{\link{get_metadata}()},
 \code{\link{get_names_of_other_topics}()},
 \code{\link{get_report_names}()},
 \code{\link{get_subreport_names}()},
 \code{\link{get_topic_name}()},
 \code{\link{select_report}()},
-\code{\link{select_topic}()}
+\code{\link{select_topic}()},
+\code{\link{set_metadata}()}
 }
 \concept{data selection functions}
