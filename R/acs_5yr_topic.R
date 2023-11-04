@@ -133,13 +133,14 @@ select_topic.acs_5yr_topic<- function(act, topic = NULL) {
 
 
 
-#' Get topic (report groups)
+#' Get report names
 #'
-#' Get the selected topic.
+#' Get the names of the reports. The report code is included with the name. Each
+#' report can contain multiple subreports.
 #'
 #' @param act A `acs_5yr_topic` object.
 #'
-#' @return A vector, topic name.
+#' @return A vector, report names.
 #'
 #' @family data selection functions
 #'
@@ -168,11 +169,11 @@ get_report_names <- function(act)
 #' @export
 get_report_names.acs_5yr_topic<- function(act) {
   r <- act$data[act$data$subreport == '-', c('report', "subreport", "report_desc")]
-  sort(unique(paste0(r$report, r$subreport, r$report_desc)))
+  report <- sort(unique(paste0(r$report, r$subreport, r$report_desc)))
 }
 
 
-#' Get topic (report groups)
+#' Get
 #'
 #' Get the selected topic.
 #'
@@ -212,33 +213,94 @@ get_subreport_names.acs_5yr_topic<- function(act, report = NULL) {
     report <- substr(report, 1, 6)
     r <- act$data[act$data$report %in% report, c('report', "subreport", "report_desc")]
   }
-  sort(unique(paste0(r$report, '-', r$subreport, '-', r$report_desc)))
+  subreport <- sort(unique(paste0(r$report, '-', r$subreport, '-', r$report_desc)))
+}
+
+
+
+#' Select report
+#'
+#' Get the selected topic.
+#'
+#' @param act A `acs_5yr_topic` object.
+#'
+#' @return A vector, topic name.
+#'
+#' @family data selection functions
+#'
+#' @examples
+#'
+#' dir <- tempdir()
+#' source_dir <- system.file("extdata/acs_5yr", package = "geogenr")
+#' files <- list.files(source_dir, "*.zip", full.names = TRUE)
+#' file.copy(from = files, to = dir, overwrite = TRUE)
+#' ac <- acs_5yr(dir)
+#' files <- ac |>
+#'   unzip_files()
+#'
+#' act <- ac |>
+#'   as_acs_5yr_topic("Alaska Native Regional Corporation",
+#'                    topic = "X01 Age And Sex")
+#'
+#' reports <- act |>
+#'   select_report()
+#'
+#' @export
+select_report <- function(act, report)
+  UseMethod("select_report")
+
+#' @rdname select_report
+#' @export
+select_report.acs_5yr_topic<- function(act, report = NULL) {
+  stopifnot("The report must be defined." = !is.null(report))
+  report <- substr(report, 1, 6)
+  act$data <- act$data[act$data$report %in% report, ]
+}
+
+
+
+#' Get
+#'
+#' Get the selected topic.
+#'
+#' @param act A `acs_5yr_topic` object.
+#'
+#' @return A vector, topic name.
+#'
+#' @family data selection functions
+#'
+#' @examples
+#'
+#' dir <- tempdir()
+#' source_dir <- system.file("extdata/acs_5yr", package = "geogenr")
+#' files <- list.files(source_dir, "*.zip", full.names = TRUE)
+#' file.copy(from = files, to = dir, overwrite = TRUE)
+#' ac <- acs_5yr(dir)
+#' files <- ac |>
+#'   unzip_files()
+#'
+#' act <- ac |>
+#'   as_acs_5yr_topic("Alaska Native Regional Corporation",
+#'                    topic = "X01 Age And Sex")
+#'
+#' reports <- act |>
+#'   select_subreport()
+#'
+#' @export
+select_subreport <- function(act, subreport)
+  UseMethod("select_subreport")
+
+#' @rdname select_subreport
+#' @export
+select_subreport.acs_5yr_topic<- function(act, subreport = NULL) {
+  stopifnot("The subreport must be defined." = !is.null(subreport))
+  subreport <- substr(subreport, 1, 8)
+  sr <- paste0(act$data$report, '-', act$data$subreport)
+  act$data <- act$data[sr %in% subreport, ]
 }
 
 
 #-------------------------------------------------------------------------------
-
-#' Delete last parenthesis of a string (vectorial)
-#'
-#' @param name A string.
-#'
-#' @return A string
-#'
-#' @keywords internal
-delete_last_parenthesis <- function(name) {
-  name <- stringr::str_trim(name)
-  n <- nchar(name)
-  lc <- substr(name, n, n)
-  for (i in seq_along(lc)) {
-    if (lc[i] == ')') {
-      g <- regexpr("\\([^\\(]*$", name[i])
-      if (g[1] > 0) {
-        name[i] <- substr(name[i], 1, g[1] - 1)
-      }
-    }
-  }
-  stringr::str_trim(name)
-}
 
 
 #' Transform metadata layer
@@ -248,32 +310,10 @@ delete_last_parenthesis <- function(name) {
 #' @return A vector
 #'
 #' @keywords internal
-transform_metadata <- function(metadata) {
-  metadata <- tibble::as_tibble(metadata)
-
+transform_metadata_rest <- function(metadata) {
   metadata <- metadata |>
-    dplyr::mutate(measure = "estimate")
-
-  metadata$measure[lapply(metadata[, 'Full_Name'],
-                          grepl,
-                          pattern = ' -- (Margin of Error)',
-                          fixed = TRUE)[[1]]] <- 'margin_of_error'
-
-  metadata[, 'Full_Name'] <- lapply(
-    metadata[, 'Full_Name'],
-    gsub,
-    pattern = ' -- (Estimate)',
-    replacement = '',
-    fixed = TRUE
-  )
-
-  metadata[, 'Full_Name'] <- lapply(
-    metadata[, 'Full_Name'],
-    gsub,
-    pattern = ' -- (Margin of Error)',
-    replacement = '',
-    fixed = TRUE
-  )
+    dplyr::group_by_at(dplyr::vars(tidyselect::all_of(names(metadata)))) |>
+    dplyr::summarise(.groups = "drop")
 
   fn <- unique(metadata$Full_Name)
   fn2 <- name_to_title(fn)
@@ -296,20 +336,16 @@ transform_metadata <- function(metadata) {
   colnames(full_name) <- c('report_group', paste0('item', 1:(n_parts - 2)), 'group')
   full_name$Full_Name <- fn
   full_name <- tibble::as_tibble(full_name)
+  full_name <- full_name[, -1]
 
   metadata <- metadata |>
     dplyr::inner_join(full_name, by = "Full_Name")
 
-  metadata$report <- substr(metadata$Short_Name, 1, 6)
-  metadata$subreport <- substr(metadata$Short_Name, 7, 7)
-  metadata$subreport[is.na(metadata$subreport)] <- '-'
-  metadata$subreport[metadata$subreport == 'e' | metadata$subreport == 'm'] <- '-'
   v <- unique(metadata$subreport)
   if (length(v) == 1) {
     metadata$subreport <- NULL
   }
-  metadata$rep_var <- readr::parse_number(substr(metadata$Short_Name, 7, 12))
-  # metadata$report_desc <- delete_last_parenthesis(metadata$report_group)
+  metadata$report_var <- as.integer(readr::parse_number(substr(metadata$Short_Name, 7, 12)))
   metadata
 }
 
@@ -462,12 +498,12 @@ get_topic_data <-  function(act) {
       if (is.null(act$data)) {
         act$data <- get_layer_data(layer = t, file = act$files[i])
       } else {
-        act$data <- rbind(act$data, get_layer_data(t, act$files[i]))
+        act$data <- rbind(act$data, get_layer_data(layer = t, file = act$files[i]))
       }
     }
   }
   sel <- max(names(act$files))
-  act$geo <- get_geo_layer(act$files[sel])
+  act$geo <- get_geo_layer(file = act$files[sel])
 
   act
 }
