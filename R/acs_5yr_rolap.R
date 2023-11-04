@@ -80,6 +80,7 @@ as_flat_table.acs_5yr <- function(act, geo_attribute_names = NULL) {
 #'
 #'
 #' @param act A `acs_5yr_topic` object.
+#' @param geo_attribute_names A string vector.
 #'
 #' @return A `star_database` object.
 #'
@@ -106,11 +107,41 @@ as_flat_table.acs_5yr <- function(act, geo_attribute_names = NULL) {
 #'                    topic = "X01 Age And Sex")
 #'
 #' @export
-as_star_database <- function(act)
+as_star_database <- function(act, geo_attribute_names)
   UseMethod("as_star_database")
 
 #' @rdname as_star_database
 #' @export
-as_star_database.acs_5yr <- function(act) {
+as_star_database.acs_5yr <- function(act, geo_attribute_names = NULL) {
+  ft <- as_flat_table(act, geo_attribute_names)
+  ft <- ft |>
+    rolap::snake_case()
+  names <- names(ft$table)
+  l <- length(names)
+  i <- grep('year', names, fixed = TRUE)
+  geo_names <- names[1:(i - 1)]
+  var_names <- names[(i + 1):(l - 2)]
+  i <- grep('report_var', var_names, fixed = TRUE)
+  var_names <- var_names[-i]
+  i <- grep('subreport', var_names, fixed = TRUE)
+  var_names <- c(var_names[1:i], 'report_var', var_names[(i + 1):length(var_names)])
+  measure_names <- names[(l - 1):l]
+  when <- rolap::dimension_schema(name = "dim_when",
+                           attributes = 'year')
+  where <- rolap::dimension_schema(name = "dim_where",
+                            attributes = geo_names)
+  what <- rolap::dimension_schema(name = "dim_what",
+                            attributes = var_names)
+  facts <- rolap::fact_schema(name = ft$name,
+                           measures = measure_names)
+  schema <- rolap::star_schema() |>
+    rolap::define_facts(facts) |>
+    rolap::define_dimension(when) |>
+    rolap::define_dimension(where) |>
+    rolap::define_dimension(what)
+
+  db <- ft |>
+    rolap::as_star_database(schema)
+  db
 }
 

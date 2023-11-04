@@ -44,12 +44,15 @@ topics <- ac |>
 }
 \seealso{
 Other data selection functions: 
-\code{\link{as_acs_5yr_GeoPackage}()},
+\code{\link{as_GeoPackage}()},
+\code{\link{as_acs_5yr_geo}()},
 \code{\link{as_acs_5yr_topic}()},
 \code{\link{as_flat_table}()},
 \code{\link{as_star_database}()},
 \code{\link{get_available_area_years}()},
 \code{\link{get_available_areas}()},
+\code{\link{get_geo_attribute_names}()},
+\code{\link{get_geo_layer.acs_5yr_geo}()},
 \code{\link{get_names_of_other_topics}()},
 \code{\link{get_report_names}()},
 \code{\link{get_subreport_names}()},

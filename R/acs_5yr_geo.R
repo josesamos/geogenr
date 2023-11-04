@@ -115,3 +115,80 @@ as_acs_5yr_geo.acs_5yr <- function(act) {
   class = "acs_5yr_geo")
 }
 
+
+
+#' @rdname get_geo_layer
+#' @export
+get_geo_layer.acs_5yr_geo<- function(act) {
+  act$data
+}
+
+
+#' Save as GeoPackage
+#'
+#' Get the names of the geographic layer attributes (except for the geometry field).
+#'
+#' @param act A `acs_5yr_geo` object.
+#' @param dir A string.
+#' @param name A string, file name.
+#'
+#' @return A vector, geographical attribute names.
+#'
+#' @family data selection functions
+#'
+#' @examples
+#'
+#' dir <- tempdir()
+#' source_dir <- system.file("extdata/acs_5yr", package = "geogenr")
+#' files <- list.files(source_dir, "*.zip", full.names = TRUE)
+#' file.copy(from = files, to = dir, overwrite = TRUE)
+#' ac <- acs_5yr(dir)
+#' files <- ac |>
+#'   unzip_files()
+#'
+#' act <- ac |>
+#'   as_acs_5yr_topic("Alaska Native Regional Corporation",
+#'                    topic = "X01 Age And Sex")
+#'
+#' names <- act |>
+#'   as_GeoPackage()
+#'
+#' @export
+as_GeoPackage <- function(act, dir, name)
+  UseMethod("as_GeoPackage")
+
+#' @rdname as_GeoPackage
+#' @export
+as_GeoPackage.acs_5yr_geo<- function(act, dir = NULL, name = NULL) {
+  if (is.null(name)) {
+    name <- act$origin[1, "area_code"]
+  }
+  if (!is.null(dir)) {
+    dir <- name_with_nexus(dir)
+  }
+  name <- tools::file_path_sans_ext(name)
+  file <- paste0(dir, name, '.gpkg')
+
+  sf::st_write(
+    obj = act$data,
+    dsn = file,
+    layer = "data",
+    append = FALSE,
+    quiet = TRUE
+  )
+  sf::st_write(
+    obj = act$metadata,
+    dsn = file,
+    layer = "metadata",
+    append = FALSE,
+    quiet = TRUE
+  )
+  sf::st_write(
+    obj = act$origin,
+    dsn = file,
+    layer = "origin",
+    append = FALSE,
+    quiet = TRUE
+  )
+}
+
