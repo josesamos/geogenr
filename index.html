@@ -8,12 +8,11 @@
 <meta name="description" content="The American Community Survey (ACS)
     &lt;https://www.census.gov/programs-surveys/acs&gt; offers geodatabases with
     geographic information and associated data of interest to researchers
-    in the area. The goal of this package is to generate geomultistar
-    &lt;https://CRAN.R-project.org/package=geomultistar&gt; objects from those
-    geodatabases automatically, once the focus of attention is selected.
-    Multidimensional queries with geographic information can be easily
-    defined on these objects.">
-<title>geomultistar Object Generator from American Community Survey Geodatabases • geogenr</title>
+    in the area. The goal of this package is to generate objects that
+    allow us to access and consult the information available in various
+    formats, such as in GeoPackage format or in multidimensional ROLAP
+    star format.">
+<title>Generator from American Community Survey Geodatabases • geogenr</title>
 <!-- favicons --><link rel="icon" type="image/png" sizes="16x16" href="favicon-16x16.png">
 <link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png">
 <link rel="apple-touch-icon" type="image/png" sizes="180x180" href="apple-touch-icon.png">
@@ -24,15 +23,14 @@
 <link href="deps/bootstrap-5.2.2/bootstrap.min.css" rel="stylesheet">
 <script src="deps/bootstrap-5.2.2/bootstrap.bundle.min.js"></script><!-- Font Awesome icons --><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/all.min.css" integrity="sha256-mmgLkCYLUQbXn0B1SRqzHar6dCnv9oZFPEC1g1cwlkk=" crossorigin="anonymous">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/v4-shims.min.css" integrity="sha256-wZjR52fzng1pJHwx4aV2AO3yyTOXrcDW7jBpJtTwVxw=" crossorigin="anonymous">
-<!-- bootstrap-toc --><script src="https://cdn.jsdelivr.net/gh/afeld/bootstrap-toc@v1.0.1/dist/bootstrap-toc.min.js" integrity="sha256-4veVQbu7//Lk5TSmc7YV48MxtMy98e26cf5MrgZYnwo=" crossorigin="anonymous"></script><!-- headroom.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.11.0/headroom.min.js" integrity="sha256-AsUX4SJE1+yuDu5+mAVzJbuYNPHj/WroHuZ8Ir/CkE0=" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.11.0/jQuery.headroom.min.js" integrity="sha256-ZX/yNShbjqsohH1k95liqY9Gd8uOiE1S4vZc+9KQ1K4=" crossorigin="anonymous"></script><!-- clipboard.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.6/clipboard.min.js" integrity="sha256-inc5kl9MA1hkeYUt+EC3BhlIgyp/2jDIyBLS6k3UxPI=" crossorigin="anonymous"></script><!-- search --><script src="https://cdnjs.cloudflare.com/ajax/libs/fuse.js/6.4.6/fuse.js" integrity="sha512-zv6Ywkjyktsohkbp9bb45V6tEMoWhzFzXis+LrMehmJZZSys19Yxf1dopHx7WzIKxr5tK2dVcYmaCk2uqdjF4A==" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/autocomplete.js/0.38.0/autocomplete.jquery.min.js" integrity="sha512-GU9ayf+66Xx2TmpxqJpliWbT5PiGYxpaG8rfnBEk1LL8l1KGkRShhngwdXK1UgqhAzWpZHSiYPc09/NwDQIGyg==" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/mark.js/8.11.1/mark.min.js" integrity="sha512-5CYOlHXGh6QpOFA/TeTylKLWfB3ftPsde7AnmhuitiTX4K5SqCLBeKro6sPS8ilsz1Q4NRx3v8Ko2IBiszzdww==" crossorigin="anonymous"></script><!-- pkgdown --><script src="pkgdown.js"></script><meta property="og:title" content="geomultistar Object Generator from American Community Survey Geodatabases">
+<!-- bootstrap-toc --><script src="https://cdn.jsdelivr.net/gh/afeld/bootstrap-toc@v1.0.1/dist/bootstrap-toc.min.js" integrity="sha256-4veVQbu7//Lk5TSmc7YV48MxtMy98e26cf5MrgZYnwo=" crossorigin="anonymous"></script><!-- headroom.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.11.0/headroom.min.js" integrity="sha256-AsUX4SJE1+yuDu5+mAVzJbuYNPHj/WroHuZ8Ir/CkE0=" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.11.0/jQuery.headroom.min.js" integrity="sha256-ZX/yNShbjqsohH1k95liqY9Gd8uOiE1S4vZc+9KQ1K4=" crossorigin="anonymous"></script><!-- clipboard.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.6/clipboard.min.js" integrity="sha256-inc5kl9MA1hkeYUt+EC3BhlIgyp/2jDIyBLS6k3UxPI=" crossorigin="anonymous"></script><!-- search --><script src="https://cdnjs.cloudflare.com/ajax/libs/fuse.js/6.4.6/fuse.js" integrity="sha512-zv6Ywkjyktsohkbp9bb45V6tEMoWhzFzXis+LrMehmJZZSys19Yxf1dopHx7WzIKxr5tK2dVcYmaCk2uqdjF4A==" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/autocomplete.js/0.38.0/autocomplete.jquery.min.js" integrity="sha512-GU9ayf+66Xx2TmpxqJpliWbT5PiGYxpaG8rfnBEk1LL8l1KGkRShhngwdXK1UgqhAzWpZHSiYPc09/NwDQIGyg==" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/mark.js/8.11.1/mark.min.js" integrity="sha512-5CYOlHXGh6QpOFA/TeTylKLWfB3ftPsde7AnmhuitiTX4K5SqCLBeKro6sPS8ilsz1Q4NRx3v8Ko2IBiszzdww==" crossorigin="anonymous"></script><!-- pkgdown --><script src="pkgdown.js"></script><meta property="og:title" content="Generator from American Community Survey Geodatabases">
 <meta property="og:description" content="The American Community Survey (ACS)
     &lt;https://www.census.gov/programs-surveys/acs&gt; offers geodatabases with
     geographic information and associated data of interest to researchers
-    in the area. The goal of this package is to generate geomultistar
-    &lt;https://CRAN.R-project.org/package=geomultistar&gt; objects from those
-    geodatabases automatically, once the focus of attention is selected.
-    Multidimensional queries with geographic information can be easily
-    defined on these objects.">
+    in the area. The goal of this package is to generate objects that
+    allow us to access and consult the information available in various
+    formats, such as in GeoPackage format or in multidimensional ROLAP
+    star format.">
 <meta property="og:image" content="https://josesamos.github.io/geogenr/logo.png">
 <!-- mathjax --><script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js" integrity="sha256-nvJJv9wWKEm88qvoQl9ekL2J+k/RWIsaSScxxlsrv8k=" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/config/TeX-AMS-MML_HTMLorMML.js" integrity="sha256-84DKXVJXs0/F8OTMzX4UR909+jtl4G7SPypPavF+GfA=" crossorigin="anonymous"></script><!--[if lt IE 9]>
 <script src="https://oss.maxcdn.com/html5shiv/3.7.3/html5shiv.min.js"></script>
@@ -93,12 +91,11 @@
 <!-- badges: start -->
 
 <!-- [![Downloads](http://cranlogs.r-pkg.org/badges/geogenr?color=brightgreen)](https://www.r-pkg.org:443/pkg/geogenr) -->
-<!-- [![Codecov test coverage](https://codecov.io/gh/josesamos/geogenr/branch/master/graph/badge.svg)](https://app.codecov.io/gh/josesamos/geogenr?branch=master) -->
-<p>The <a href="https://www.census.gov/programs-surveys/acs" class="external-link">American Community Survey (ACS)</a> offers geodatabases with geographic information and associated data of interest to researchers in the area. The goal of <code>geogenr</code> is to generate <code>geomultistar</code> objects from those geodatabases automatically, once the focus of attention is selected.</p>
+<p>The <a href="https://www.census.gov/programs-surveys/acs" class="external-link">American Community Survey (ACS)</a> offers geodatabases with geographic information and associated data of interest to researchers in the area. The goal of <code>geogenr</code> is to facilitate access to this information through functions that allow us to select the geodatabases that interest us, download them, access the information they contain, filter it and export it in various formats so that we can process it with other tools if required.</p>
 <div class="section level2">
 <h2 id="installation">Installation<a class="anchor" aria-label="anchor" href="#installation"></a>
 </h2>
-<p>You can install the released version of geogenr from <a href="https://CRAN.R-project.org" class="external-link">CRAN</a> with:</p>
+<p>You can install the released version of <code>geogenr</code> from <a href="https://CRAN.R-project.org" class="external-link">CRAN</a> with:</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/install.packages.html" class="external-link">install.packages</a></span><span class="op">(</span><span class="st">"geogenr"</span><span class="op">)</span></span></code></pre></div>
 <p>And the development version from <a href="https://github.com/" class="external-link">GitHub</a> with:</p>
@@ -109,484 +106,151 @@
 <div class="section level2">
 <h2 id="example">Example<a class="anchor" aria-label="anchor" href="#example"></a>
 </h2>
-<p>Each ACS geodatabase is structured in layers: a geographic layer, a metadata layer, and the rest are data layers. The data layers have a matrix form, the rows are indexed by instances of the geographic layer, the columns by variables defined in the metadata layer, the cells are numeric values. Here we have an example:</p>
-<p><code>GEOID          B01001e1 B01001m1 B01001e2 B01001m2 B01001e3 B01001m3 B01001e4 B01001m4 ...</code></p>
-<p><code>16000US0100100      218      165       92      114       10       16       18       30</code></p>
-<p><code>16000US0100124     2582       24     1313       98       45       37       14       19</code></p>
-<p><code>16000US0100460     4374       24     1963      158      144       76      105       68</code></p>
-<p><code>16000US0100484      641      159      326       89       10       17       16       11</code></p>
-<p><code>16000US0100676      295      102      143       55        7       11       14       17</code></p>
-<p><code>16000US0100820    32878       57    16236      453     1159      257     1151      209</code></p>
-<p><code>...</code></p>
-<p>Some of the defined variables are shown below.</p>
-<p><code>Short Name Full Name</code></p>
-<p><code>B01001e1   SEX BY AGE: Total: Total Population -- (Estimate)</code></p>
-<p><code>B01001m1   SEX BY AGE: Total: Total Population -- (Margin of Error)</code></p>
-<p><code>B01001e2   SEX BY AGE: Male: Total Population -- (Estimate)</code></p>
-<p><code>B01001m2   SEX BY AGE: Male: Total Population -- (Margin of Error)</code></p>
-<p><code>B01001e3   SEX BY AGE: Male: Under 5 years: Total Population -- (Estimate)</code></p>
-<p><code>B01001m3   SEX BY AGE: Male: Under 5 years: Total Population -- (Margin of Error)</code></p>
-<p><code>B01001e4   SEX BY AGE: Male: 5 to 9 years: Total Population -- (Estimate)</code></p>
-<p><code>B01001m4   SEX BY AGE: Male: 5 to 9 years: Total Population -- (Margin of Error)</code></p>
-<p><code>...</code></p>
-<p>First, we select and download the ACS geodatabases using the functions offered by the package. Once we have them in a folder (in this case some examples are included in the package), this is a basic example which shows you how to solve a common problem:</p>
+<p>Each ACS geodatabase is structured in layers: a geographic layer, a metadata layer, and the rest are data layers. Accessing data with this structure is not trivial. The goal of the <code>geogenr</code> package is to make it easier.</p>
+<p>First, we select and download the ACS geodatabases that we need. We can use the functions offered by the package or download and decompress them by other means. We create an object of class <code>acs_5yr</code> indicating the work folder.</p>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://josesamos.github.io/geogenr/">geogenr</a></span><span class="op">)</span></span>
 <span></span>
-<span><span class="va">folder</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/system.file.html" class="external-link">system.file</a></span><span class="op">(</span><span class="st">"extdata"</span>, package <span class="op">=</span> <span class="st">"geogenr"</span><span class="op">)</span></span>
-<span><span class="va">folder</span> <span class="op">&lt;-</span> <span class="fu">stringr</span><span class="fu">::</span><span class="fu"><a href="https://stringr.tidyverse.org/reference/str_replace.html" class="external-link">str_replace_all</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste</a></span><span class="op">(</span><span class="va">folder</span>, <span class="st">"/"</span>, <span class="st">""</span><span class="op">)</span>, <span class="st">" "</span>, <span class="st">""</span><span class="op">)</span></span>
-<span><span class="va">ua</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/uscb_acs_5ye.html">uscb_acs_5ye</a></span><span class="op">(</span>folder <span class="op">=</span> <span class="va">folder</span><span class="op">)</span></span>
+<span><span class="va">dir</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/system.file.html" class="external-link">system.file</a></span><span class="op">(</span><span class="st">"extdata/acs_5yr"</span>, package <span class="op">=</span> <span class="st">"geogenr"</span><span class="op">)</span></span>
 <span></span>
-<span><span class="op">(</span><span class="va">sa</span> <span class="op">&lt;-</span> <span class="va">ua</span> <span class="op">|&gt;</span> <span class="fu"><a href="reference/get_statistical_areas.html">get_statistical_areas</a></span><span class="op">(</span><span class="op">)</span><span class="op">)</span></span>
-<span><span class="co">#&gt;  [1] "Combined New England City and Town Area"   </span></span>
-<span><span class="co">#&gt;  [2] "Combined Statistical Area"                 </span></span>
-<span><span class="co">#&gt;  [3] "Metropolitan Division"                     </span></span>
-<span><span class="co">#&gt;  [4] "Metropolitan/Micropolitan Statistical Area"</span></span>
-<span><span class="co">#&gt;  [5] "New England City and Town Area"            </span></span>
-<span><span class="co">#&gt;  [6] "New England City and Town Area Division"   </span></span>
-<span><span class="co">#&gt;  [7] "Public Use Microdata Area"                 </span></span>
-<span><span class="co">#&gt;  [8] "Tribal Block Group"                        </span></span>
-<span><span class="co">#&gt;  [9] "Tribal Census Tract"                       </span></span>
-<span><span class="co">#&gt; [10] "Urban Area"</span></span>
-<span></span>
-<span><span class="op">(</span><span class="va">y</span> <span class="op">&lt;-</span> <span class="va">ua</span> <span class="op">|&gt;</span> <span class="fu"><a href="reference/get_available_years_downloaded.html">get_available_years_downloaded</a></span><span class="op">(</span>geodatabase <span class="op">=</span> <span class="va">sa</span><span class="op">[</span><span class="fl">6</span><span class="op">]</span><span class="op">)</span><span class="op">)</span></span>
-<span><span class="co">#&gt; [1] 2014 2015</span></span>
-<span></span>
-<span><span class="va">ul</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/uscb_layer.html">uscb_layer</a></span><span class="op">(</span><span class="va">uscb_acs_metadata</span>, ua <span class="op">=</span> <span class="va">ua</span>, geodatabase <span class="op">=</span> <span class="va">sa</span><span class="op">[</span><span class="fl">6</span><span class="op">]</span>, year <span class="op">=</span> <span class="fl">2015</span><span class="op">)</span></span>
-<span><span class="op">(</span><span class="va">layers</span> <span class="op">&lt;-</span> <span class="va">ul</span> <span class="op">|&gt;</span> <span class="fu"><a href="reference/get_layer_names.html">get_layer_names</a></span><span class="op">(</span><span class="op">)</span><span class="op">)</span></span>
-<span><span class="co">#&gt; [1] "X00_COUNTS"      "X01_AGE_AND_SEX" "X02_RACE"</span></span>
-<span></span>
-<span><span class="va">ul</span> <span class="op">&lt;-</span> <span class="va">ul</span> <span class="op">|&gt;</span> <span class="fu"><a href="reference/get_layer.html">get_layer</a></span><span class="op">(</span><span class="va">layers</span><span class="op">[</span><span class="fl">2</span><span class="op">]</span><span class="op">)</span></span>
-<span><span class="op">(</span><span class="va">layer_groups</span> <span class="op">&lt;-</span> <span class="va">ul</span> <span class="op">|&gt;</span> <span class="fu"><a href="reference/get_layer_group_names.html">get_layer_group_names</a></span><span class="op">(</span><span class="op">)</span><span class="op">)</span></span>
-<span><span class="co">#&gt; [1] "001 - SEX BY AGE"        "002 - MEDIAN AGE BY SEX"</span></span>
-<span><span class="co">#&gt; [3] "003 - TOTAL POPULATION"</span></span>
-<span></span>
-<span><span class="va">ul</span> <span class="op">&lt;-</span> <span class="va">ul</span> <span class="op">|&gt;</span> <span class="fu"><a href="reference/get_layer_group.html">get_layer_group</a></span><span class="op">(</span><span class="va">layer_groups</span><span class="op">[</span><span class="fl">1</span><span class="op">]</span><span class="op">)</span></span>
-<span></span>
-<span><span class="va">gms</span> <span class="op">&lt;-</span> <span class="va">ul</span> <span class="op">|&gt;</span> <span class="fu"><a href="reference/get_geomultistar.html">get_geomultistar</a></span><span class="op">(</span><span class="op">)</span></span>
-<span><span class="co">#&gt; Warning in CPL_read_ogr(dsn, layer, query, as.character(options), quiet, : GDAL</span></span>
-<span><span class="co">#&gt; Message 6: driver OpenFileGDB does not support open option METHOD</span></span></code></pre></div>
-<p>For a folder, we get the years for which we have one area geodatabases downloaded. We select the geodatabase for a specific year (<code>uscb_layer</code>). From among the layers and groups of variables available, we select a layer (<code>get_layer</code>) and one of its groups (<code>get_layer_group</code>). From the selected variables we generate a <code>geomultistar</code> object (<code>get_geomultistar</code>).</p>
-<p>The first rows of the dimension and fact tables are shown below.</p>
-<table class="table">
-<thead><tr class="header">
-<th align="center">when_key</th>
-<th align="center">year</th>
-</tr></thead>
-<tbody><tr class="odd">
-<td align="center">1</td>
-<td align="center">2015</td>
-</tr></tbody>
-</table>
-<table class="table">
-<colgroup>
-<col width="4%">
-<col width="3%">
-<col width="3%">
-<col width="3%">
-<col width="4%">
-<col width="16%">
-<col width="22%">
-<col width="2%">
-<col width="2%">
-<col width="4%">
-<col width="3%">
-<col width="4%">
-<col width="5%">
-<col width="5%">
-<col width="4%">
-<col width="7%">
-</colgroup>
-<thead><tr class="header">
-<th align="center">where_key</th>
-<th align="center">cnectafp</th>
-<th align="center">nectafp</th>
-<th align="center">nctadvfp</th>
-<th align="center">geoid</th>
-<th align="center">name</th>
-<th align="center">namelsad</th>
-<th align="center">lsad</th>
-<th align="center">mtfcc</th>
-<th align="center">aland</th>
-<th align="center">awater</th>
-<th align="center">intptlat</th>
-<th align="center">intptlon</th>
-<th align="center">shape_length</th>
-<th align="center">shape_area</th>
-<th align="center">geoid_data</th>
-</tr></thead>
-<tbody>
-<tr class="odd">
-<td align="center">1</td>
-<td align="center">715</td>
-<td align="center">71650</td>
-<td align="center">71654</td>
-<td align="center">7165071654</td>
-<td align="center">Boston-Cambridge-Newton, MA</td>
-<td align="center">Boston-Cambridge-Newton, MA NECTA Division</td>
-<td align="center">M7</td>
-<td align="center">G3220</td>
-<td align="center">3.668e+09</td>
-<td align="center">7.13e+08</td>
-<td align="center">+42.2933266</td>
-<td align="center">-071.0181929</td>
-<td align="center">7.653</td>
-<td align="center">0.4783</td>
-<td align="center">35500US7165071654</td>
-</tr>
-<tr class="even">
-<td align="center">2</td>
-<td align="center">715</td>
-<td align="center">71650</td>
-<td align="center">72104</td>
-<td align="center">7165072104</td>
-<td align="center">Brockton-Bridgewater-Easton, MA</td>
-<td align="center">Brockton-Bridgewater-Easton, MA NECTA Division</td>
-<td align="center">M7</td>
-<td align="center">G3220</td>
-<td align="center">352799175</td>
-<td align="center">8831197</td>
-<td align="center">+42.0216172</td>
-<td align="center">-071.0267170</td>
-<td align="center">1.077</td>
-<td align="center">0.03932</td>
-<td align="center">35500US7165072104</td>
-</tr>
-<tr class="odd">
-<td align="center">3</td>
-<td align="center">715</td>
-<td align="center">71650</td>
-<td align="center">73104</td>
-<td align="center">7165073104</td>
-<td align="center">Framingham, MA</td>
-<td align="center">Framingham, MA NECTA Division</td>
-<td align="center">M7</td>
-<td align="center">G3220</td>
-<td align="center">532516314</td>
-<td align="center">24039093</td>
-<td align="center">+42.2761738</td>
-<td align="center">-071.4822008</td>
-<td align="center">1.738</td>
-<td align="center">0.06073</td>
-<td align="center">35500US7165073104</td>
-</tr>
-<tr class="even">
-<td align="center">4</td>
-<td align="center">715</td>
-<td align="center">71650</td>
-<td align="center">73604</td>
-<td align="center">7165073604</td>
-<td align="center">Haverhill-Newburyport-Amesbury Town, MA-NH</td>
-<td align="center">Haverhill-Newburyport-Amesbury Town, MA-NH NECTA Division</td>
-<td align="center">M7</td>
-<td align="center">G3220</td>
-<td align="center">702086333</td>
-<td align="center">40447613</td>
-<td align="center">+42.8671722</td>
-<td align="center">-071.0254982</td>
-<td align="center">1.416</td>
-<td align="center">0.08179</td>
-<td align="center">35500US7165073604</td>
-</tr>
-<tr class="odd">
-<td align="center">5</td>
-<td align="center">715</td>
-<td align="center">71650</td>
-<td align="center">74204</td>
-<td align="center">7165074204</td>
-<td align="center">Lawrence-Methuen Town-Salem, MA-NH</td>
-<td align="center">Lawrence-Methuen Town-Salem, MA-NH NECTA Division</td>
-<td align="center">M7</td>
-<td align="center">G3220</td>
-<td align="center">207735751</td>
-<td align="center">9917120</td>
-<td align="center">+42.7282758</td>
-<td align="center">-071.1630701</td>
-<td align="center">0.9094</td>
-<td align="center">0.02392</td>
-<td align="center">35500US7165074204</td>
-</tr>
-<tr class="even">
-<td align="center">6</td>
-<td align="center">715</td>
-<td align="center">71650</td>
-<td align="center">74804</td>
-<td align="center">7165074804</td>
-<td align="center">Lowell-Billerica-Chelmsford, MA-NH</td>
-<td align="center">Lowell-Billerica-Chelmsford, MA-NH NECTA Division</td>
-<td align="center">M7</td>
-<td align="center">G3220</td>
-<td align="center">863143106</td>
-<td align="center">27403003</td>
-<td align="center">+42.6141693</td>
-<td align="center">-071.4837821</td>
-<td align="center">2.441</td>
-<td align="center">0.09771</td>
-<td align="center">35500US7165074804</td>
-</tr>
-</tbody>
-</table>
-<table style="width:100%;" class="table">
-<colgroup>
-<col width="3%">
-<col width="3%">
-<col width="24%">
-<col width="3%">
-<col width="3%">
-<col width="4%">
-<col width="3%">
-<col width="4%">
-<col width="3%">
-<col width="4%">
-<col width="5%">
-<col width="5%">
-<col width="9%">
-<col width="9%">
-<col width="11%">
-</colgroup>
-<thead><tr class="header">
-<th align="center">what_key</th>
-<th align="center">short_name</th>
-<th align="center">full_name</th>
-<th align="center">inf_code</th>
-<th align="center">group_code</th>
-<th align="center">subgroup_code</th>
-<th align="center">spec_code</th>
-<th align="center">inf</th>
-<th align="center">group</th>
-<th align="center">subgroup</th>
-<th align="center">demographic_age</th>
-<th align="center">demographic_sex</th>
-<th align="center">demographic_race</th>
-<th align="center">demographic_total_population</th>
-<th align="center">demographic_total_population_spec</th>
-</tr></thead>
-<tbody>
-<tr class="odd">
-<td align="center">1</td>
-<td align="center">B01001A_01</td>
-<td align="center">SEX BY AGE (WHITE ALONE): Total: People Who Are White Alone</td>
-<td align="center">B01</td>
-<td align="center">001</td>
-<td align="center">A</td>
-<td align="center">1</td>
-<td align="center">AGE AND SEX</td>
-<td align="center">SEX BY AGE</td>
-<td align="center">WHITE ALONE</td>
-<td align="center"></td>
-<td align="center"></td>
-<td align="center">People Who Are White Alone</td>
-<td align="center">Total</td>
-<td align="center"></td>
-</tr>
-<tr class="even">
-<td align="center">2</td>
-<td align="center">B01001A_02</td>
-<td align="center">SEX BY AGE (WHITE ALONE): Male: People Who Are White Alone</td>
-<td align="center">B01</td>
-<td align="center">001</td>
-<td align="center">A</td>
-<td align="center">2</td>
-<td align="center">AGE AND SEX</td>
-<td align="center">SEX BY AGE</td>
-<td align="center">WHITE ALONE</td>
-<td align="center"></td>
-<td align="center">Male</td>
-<td align="center">People Who Are White Alone</td>
-<td align="center"></td>
-<td align="center"></td>
-</tr>
-<tr class="odd">
-<td align="center">3</td>
-<td align="center">B01001A_03</td>
-<td align="center">SEX BY AGE (WHITE ALONE): Male: Under 5 years: People Who Are White Alone</td>
-<td align="center">B01</td>
-<td align="center">001</td>
-<td align="center">A</td>
-<td align="center">3</td>
-<td align="center">AGE AND SEX</td>
-<td align="center">SEX BY AGE</td>
-<td align="center">WHITE ALONE</td>
-<td align="center">Under 5 years</td>
-<td align="center">Male</td>
-<td align="center">People Who Are White Alone</td>
-<td align="center"></td>
-<td align="center"></td>
-</tr>
-<tr class="even">
-<td align="center">4</td>
-<td align="center">B01001A_04</td>
-<td align="center">SEX BY AGE (WHITE ALONE): Male: 5 to 9 years: People Who Are White Alone</td>
-<td align="center">B01</td>
-<td align="center">001</td>
-<td align="center">A</td>
-<td align="center">4</td>
-<td align="center">AGE AND SEX</td>
-<td align="center">SEX BY AGE</td>
-<td align="center">WHITE ALONE</td>
-<td align="center">5 to 9 years</td>
-<td align="center">Male</td>
-<td align="center">People Who Are White Alone</td>
-<td align="center"></td>
-<td align="center"></td>
-</tr>
-<tr class="odd">
-<td align="center">5</td>
-<td align="center">B01001A_05</td>
-<td align="center">SEX BY AGE (WHITE ALONE): Male: 10 to 14 years: People Who Are White Alone</td>
-<td align="center">B01</td>
-<td align="center">001</td>
-<td align="center">A</td>
-<td align="center">5</td>
-<td align="center">AGE AND SEX</td>
-<td align="center">SEX BY AGE</td>
-<td align="center">WHITE ALONE</td>
-<td align="center">10 to 14 years</td>
-<td align="center">Male</td>
-<td align="center">People Who Are White Alone</td>
-<td align="center"></td>
-<td align="center"></td>
-</tr>
-<tr class="even">
-<td align="center">6</td>
-<td align="center">B01001A_06</td>
-<td align="center">SEX BY AGE (WHITE ALONE): Male: 15 to 17 years: People Who Are White Alone</td>
-<td align="center">B01</td>
-<td align="center">001</td>
-<td align="center">A</td>
-<td align="center">6</td>
-<td align="center">AGE AND SEX</td>
-<td align="center">SEX BY AGE</td>
-<td align="center">WHITE ALONE</td>
-<td align="center">15 to 17 years</td>
-<td align="center">Male</td>
-<td align="center">People Who Are White Alone</td>
-<td align="center"></td>
-<td align="center"></td>
-</tr>
-</tbody>
-</table>
-<table class="table">
-<colgroup>
-<col width="14%">
-<col width="16%">
-<col width="14%">
-<col width="14%">
-<col width="25%">
-<col width="14%">
-</colgroup>
-<thead><tr class="header">
-<th align="center">when_key</th>
-<th align="center">where_key</th>
-<th align="center">what_key</th>
-<th align="center">estimate</th>
-<th align="center">margin_of_error</th>
-<th align="center">nrow_agg</th>
-</tr></thead>
-<tbody>
-<tr class="odd">
-<td align="center">1</td>
-<td align="center">1</td>
-<td align="center">1</td>
-<td align="center">2134196</td>
-<td align="center">4429</td>
-<td align="center">1</td>
-</tr>
-<tr class="even">
-<td align="center">1</td>
-<td align="center">1</td>
-<td align="center">2</td>
-<td align="center">1033634</td>
-<td align="center">3014</td>
-<td align="center">1</td>
-</tr>
-<tr class="odd">
-<td align="center">1</td>
-<td align="center">1</td>
-<td align="center">3</td>
-<td align="center">51671</td>
-<td align="center">1007</td>
-<td align="center">1</td>
-</tr>
-<tr class="even">
-<td align="center">1</td>
-<td align="center">1</td>
-<td align="center">4</td>
-<td align="center">54932</td>
-<td align="center">1209</td>
-<td align="center">1</td>
-</tr>
-<tr class="odd">
-<td align="center">1</td>
-<td align="center">1</td>
-<td align="center">5</td>
-<td align="center">57585</td>
-<td align="center">1243</td>
-<td align="center">1</td>
-</tr>
-<tr class="even">
-<td align="center">1</td>
-<td align="center">1</td>
-<td align="center">6</td>
-<td align="center">36139</td>
-<td align="center">771</td>
-<td align="center">1</td>
-</tr>
-</tbody>
-</table>
-<p>Once we have a <code>geomultistar</code> object, we can use the functionality of <a href="https://CRAN.R-project.org/package=starschemar" class="external-link"><code>starschemar</code></a> and <a href="https://CRAN.R-project.org/package=geomultistar" class="external-link"><code>geomultistar</code></a> packages to define multidimensional queries with geographic information.</p>
+<span><span class="va">ac</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/acs_5yr.html">acs_5yr</a></span><span class="op">(</span><span class="va">dir</span><span class="op">)</span></span></code></pre></div>
+<p>We can query the available geodatabases by area, subject and year using the methods offered by the object. We also download the geodatabases of the areas and years that we need.</p>
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://josesamos.github.io/starschemar/" class="external-link">starschemar</a></span><span class="op">)</span></span>
-<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://josesamos.github.io/geomultistar/" class="external-link">geomultistar</a></span><span class="op">)</span></span>
+<code class="sourceCode R"><span><span class="va">ac</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu"><a href="reference/get_area_groups.html">get_area_groups</a></span><span class="op">(</span><span class="op">)</span></span>
+<span><span class="co">#&gt; [1] "Legal and Administrative Areas" "Statistical Areas"</span></span>
 <span></span>
-<span><span class="va">gms</span> <span class="op">&lt;-</span> <span class="va">gms</span>  <span class="op">|&gt;</span></span>
-<span>  <span class="fu"><a href="https://josesamos.github.io/geomultistar/reference/define_geoattribute.html" class="external-link">define_geoattribute</a></span><span class="op">(</span></span>
-<span>    attribute <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"name"</span><span class="op">)</span>,</span>
-<span>    from_attribute <span class="op">=</span> <span class="st">"geoid"</span></span>
+<span><span class="va">ac</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu"><a href="reference/get_areas.html">get_areas</a></span><span class="op">(</span>group <span class="op">=</span> <span class="st">"Legal and Administrative Areas"</span><span class="op">)</span></span>
+<span><span class="co">#&gt;  [1] "American Indian/Alaska Native/Native Hawaiian Area"</span></span>
+<span><span class="co">#&gt;  [2] "Alaska Native Regional Corporation"                </span></span>
+<span><span class="co">#&gt;  [3] "Congressional District (116th Congress)"           </span></span>
+<span><span class="co">#&gt;  [4] "County"                                            </span></span>
+<span><span class="co">#&gt;  [5] "Place"                                             </span></span>
+<span><span class="co">#&gt;  [6] "Elementary School District"                        </span></span>
+<span><span class="co">#&gt;  [7] "Secondary School District"                         </span></span>
+<span><span class="co">#&gt;  [8] "Unified School District"                           </span></span>
+<span><span class="co">#&gt;  [9] "State"                                             </span></span>
+<span><span class="co">#&gt; [10] "State Legislative Districts Upper Chamber"         </span></span>
+<span><span class="co">#&gt; [11] "State Legislative Districts Lower Chamber"         </span></span>
+<span><span class="co">#&gt; [12] "Code Tabulation Area"</span></span>
+<span></span>
+<span><span class="va">ac</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu"><a href="reference/get_area_years.html">get_area_years</a></span><span class="op">(</span>area <span class="op">=</span> <span class="st">"Alaska Native Regional Corporation"</span><span class="op">)</span></span>
+<span><span class="co">#&gt; [1] "2013" "2014" "2015" "2016" "2017" "2018" "2019" "2020" "2021"</span></span>
+<span></span>
+<span><span class="va">ac</span> <span class="op">&lt;-</span> <span class="va">ac</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu"><a href="reference/select_area_files.html">select_area_files</a></span><span class="op">(</span><span class="st">"Alaska Native Regional Corporation"</span>, <span class="fl">2020</span><span class="op">:</span><span class="fl">2021</span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">files</span> <span class="op">&lt;-</span> <span class="va">ac</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu"><a href="reference/download_selected_files.html">download_selected_files</a></span><span class="op">(</span>unzip <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></code></pre></div>
+<div class="sourceCode" id="cb5"><pre class="sourceCode R"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; [1] TRUE TRUE</span></span></code></pre></div>
+<p>We unzip the files and check that the data is available.</p>
+<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">files</span> <span class="op">&lt;-</span> <span class="va">ac</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu"><a href="reference/unzip_files.html">unzip_files</a></span><span class="op">(</span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">ac</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu"><a href="reference/get_available_areas.html">get_available_areas</a></span><span class="op">(</span><span class="op">)</span></span>
+<span><span class="co">#&gt; [1] "Alaska Native Regional Corporation"</span></span>
+<span></span>
+<span><span class="va">ac</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu"><a href="reference/get_available_area_years.html">get_available_area_years</a></span><span class="op">(</span>area <span class="op">=</span> <span class="st">"Alaska Native Regional Corporation"</span><span class="op">)</span></span>
+<span><span class="co">#&gt; [1] "2020" "2021"</span></span></code></pre></div>
+<p>We consult the themes available in the selected area and also select one or more themes by creating an object of class <code>acs_5yr_topic</code>.</p>
+<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">ac</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu"><a href="reference/get_available_area_topics.html">get_available_area_topics</a></span><span class="op">(</span><span class="st">"Alaska Native Regional Corporation"</span><span class="op">)</span></span>
+<span><span class="co">#&gt;  [1] "X01 Age And Sex"                     "X02 Race"                           </span></span>
+<span><span class="co">#&gt;  [3] "X03 Hispanic Or Latino Origin"       "X04 Ancestry"                       </span></span>
+<span><span class="co">#&gt;  [5] "X05 Foreign Born Citizenship"        "X06 Place Of Birth"                 </span></span>
+<span><span class="co">#&gt;  [7] "X07 Migration"                       "X08 Commuting"                      </span></span>
+<span><span class="co">#&gt;  [9] "X09 Children Household Relationship" "X10 Grandparents Grandchildren"     </span></span>
+<span><span class="co">#&gt; [11] "X11 Household Family Subfamilies"    "X12 Marital Status And History"     </span></span>
+<span><span class="co">#&gt; [13] "X13 Fertility"                       "X14 School Enrollment"              </span></span>
+<span><span class="co">#&gt; [15] "X15 Educational Attainment"          "X16 Language Spoken At Home"        </span></span>
+<span><span class="co">#&gt; [17] "X17 Poverty"                         "X18 Disability"                     </span></span>
+<span><span class="co">#&gt; [19] "X19 Income"                          "X20 Earnings"                       </span></span>
+<span><span class="co">#&gt; [21] "X21 Veteran Status"                  "X22 Food Stamps"                    </span></span>
+<span><span class="co">#&gt; [23] "X23 Employment Status"               "X24 Industry Occupation"            </span></span>
+<span><span class="co">#&gt; [25] "X25 Housing Characteristics"         "X26 Group Quarters"                 </span></span>
+<span><span class="co">#&gt; [27] "X27 Health Insurance"                "X28 Computer And Internet Use"      </span></span>
+<span><span class="co">#&gt; [29] "X99 Imputation"</span></span>
+<span></span>
+<span><span class="va">act</span> <span class="op">&lt;-</span> <span class="va">ac</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu"><a href="reference/as_acs_5yr_topic.html">as_acs_5yr_topic</a></span><span class="op">(</span><span class="st">"Alaska Native Regional Corporation"</span>,</span>
+<span>                   topic <span class="op">=</span> <span class="st">"X01 Age And Sex"</span><span class="op">)</span></span></code></pre></div>
+<p>Once a topic has been selected, we can consult the available reports or subreports. We can focus on a report or subreport, we can also work with all the reports of the topic.</p>
+<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">act</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu"><a href="reference/get_report_names.html">get_report_names</a></span><span class="op">(</span><span class="op">)</span></span>
+<span><span class="co">#&gt; [1] "B01001-Sex By Age"        "B01002-Median Age By Sex"</span></span>
+<span><span class="co">#&gt; [3] "B01003-Total Population"</span></span></code></pre></div>
+<p>We can export the reports of the selected topic to various formats such as <code>GeoPackage</code>, also <code>flat_table</code> or <code>star_schema</code> of the <code>rolap</code> package. In this case we are going to obtain a <code>GeoPackage</code>.</p>
+<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">geo</span> <span class="op">&lt;-</span> <span class="va">act</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu"><a href="reference/as_acs_5yr_geo.html">as_acs_5yr_geo</a></span><span class="op">(</span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">dir</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/tempfile.html" class="external-link">tempdir</a></span><span class="op">(</span><span class="op">)</span></span>
+<span><span class="va">file</span> <span class="op">&lt;-</span> <span class="va">geo</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu"><a href="reference/as_GeoPackage.html">as_GeoPackage</a></span><span class="op">(</span><span class="va">dir</span><span class="op">)</span></span>
+<span></span>
+<span><span class="fu">sf</span><span class="fu">::</span><span class="fu"><a href="https://r-spatial.github.io/sf/reference/st_layers.html" class="external-link">st_layers</a></span><span class="op">(</span><span class="va">file</span><span class="op">)</span></span>
+<span><span class="co">#&gt; Driver: GPKG </span></span>
+<span><span class="co">#&gt; Available layers:</span></span>
+<span><span class="co">#&gt;   layer_name geometry_type features fields crs_name</span></span>
+<span><span class="co">#&gt; 1       data Multi Polygon       12   1453    NAD83</span></span>
+<span><span class="co">#&gt; 2   metadata            NA     1436     12     &lt;NA&gt;</span></span>
+<span><span class="co">#&gt; 3     origin            NA        2      6     &lt;NA&gt;</span></span></code></pre></div>
+<p>This format also allows us to perform simple queries using the metadata and the geographic layer.</p>
+<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">metadata</span> <span class="op">&lt;-</span> <span class="va">geo</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu"><a href="reference/get_metadata.html">get_metadata</a></span><span class="op">(</span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">metadata</span></span>
+<span><span class="co">#&gt; # A tibble: 1,436 × 12</span></span>
+<span><span class="co">#&gt;    variable year  Short_Name Full_Name   report subreport report_var report_desc</span></span>
+<span><span class="co">#&gt;    &lt;chr&gt;    &lt;chr&gt; &lt;chr&gt;      &lt;chr&gt;       &lt;chr&gt;  &lt;chr&gt;          &lt;int&gt; &lt;chr&gt;      </span></span>
+<span><span class="co">#&gt;  1 V0001    2020  B01001Ae1  Sex By Age… B01001 A                  1 Sex By Age…</span></span>
+<span><span class="co">#&gt;  2 V0002    2020  B01001Ae10 Sex By Age… B01001 A                 10 Sex By Age…</span></span>
+<span><span class="co">#&gt;  3 V0003    2020  B01001Ae11 Sex By Age… B01001 A                 11 Sex By Age…</span></span>
+<span><span class="co">#&gt;  4 V0004    2020  B01001Ae12 Sex By Age… B01001 A                 12 Sex By Age…</span></span>
+<span><span class="co">#&gt;  5 V0005    2020  B01001Ae13 Sex By Age… B01001 A                 13 Sex By Age…</span></span>
+<span><span class="co">#&gt;  6 V0006    2020  B01001Ae14 Sex By Age… B01001 A                 14 Sex By Age…</span></span>
+<span><span class="co">#&gt;  7 V0007    2020  B01001Ae15 Sex By Age… B01001 A                 15 Sex By Age…</span></span>
+<span><span class="co">#&gt;  8 V0008    2020  B01001Ae16 Sex By Age… B01001 A                 16 Sex By Age…</span></span>
+<span><span class="co">#&gt;  9 V0009    2020  B01001Ae17 Sex By Age… B01001 A                 17 Sex By Age…</span></span>
+<span><span class="co">#&gt; 10 V0010    2020  B01001Ae18 Sex By Age… B01001 A                 18 Sex By Age…</span></span>
+<span><span class="co">#&gt; # ℹ 1,426 more rows</span></span>
+<span><span class="co">#&gt; # ℹ 4 more variables: measure &lt;chr&gt;, item1 &lt;chr&gt;, item2 &lt;chr&gt;, group &lt;chr&gt;</span></span>
+<span></span>
+<span><span class="va">metadata</span> <span class="op">&lt;-</span></span>
+<span>  <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span></span>
+<span>    <span class="va">metadata</span>,</span>
+<span>    <span class="va">item2</span> <span class="op">==</span> <span class="st">"Female"</span> <span class="op">&amp;</span></span>
+<span>      <span class="va">group</span> <span class="op">==</span> <span class="st">"People Who Are American Indian And Alaska Native Alone"</span> <span class="op">&amp;</span></span>
+<span>      <span class="va">measure</span> <span class="op">==</span> <span class="st">"estimate"</span></span>
 <span>  <span class="op">)</span></span>
 <span></span>
-<span><span class="va">gdqr</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://josesamos.github.io/starschemar/reference/dimensional_query.html" class="external-link">dimensional_query</a></span><span class="op">(</span><span class="va">gms</span><span class="op">)</span> <span class="op">|&gt;</span></span>
-<span>  <span class="fu"><a href="https://josesamos.github.io/starschemar/reference/select_dimension.html" class="external-link">select_dimension</a></span><span class="op">(</span>name <span class="op">=</span> <span class="st">"where"</span>,</span>
-<span>                   attributes <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"name"</span><span class="op">)</span><span class="op">)</span> <span class="op">|&gt;</span></span>
-<span>  <span class="fu"><a href="https://josesamos.github.io/starschemar/reference/select_dimension.html" class="external-link">select_dimension</a></span><span class="op">(</span></span>
-<span>    name <span class="op">=</span> <span class="st">"what"</span>,</span>
-<span>    attributes <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"short_name"</span><span class="op">)</span></span>
-<span>  <span class="op">)</span> <span class="op">|&gt;</span></span>
-<span>  <span class="fu"><a href="https://josesamos.github.io/starschemar/reference/select_fact.html" class="external-link">select_fact</a></span><span class="op">(</span>name <span class="op">=</span> <span class="st">"sex_by_age"</span>,</span>
-<span>              measures <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"estimate"</span><span class="op">)</span><span class="op">)</span> <span class="op">|&gt;</span></span>
-<span>  <span class="fu"><a href="https://josesamos.github.io/starschemar/reference/filter_dimension.html" class="external-link">filter_dimension</a></span><span class="op">(</span>name <span class="op">=</span> <span class="st">"when"</span>, <span class="va">year</span> <span class="op">==</span> <span class="st">"2015"</span><span class="op">)</span> <span class="op">|&gt;</span></span>
-<span>  <span class="fu"><a href="https://josesamos.github.io/starschemar/reference/filter_dimension.html" class="external-link">filter_dimension</a></span><span class="op">(</span>name <span class="op">=</span> <span class="st">"what"</span>,</span>
-<span>                   <span class="va">demographic_age</span> <span class="op">==</span> <span class="st">"Under 5 years"</span><span class="op">)</span> <span class="op">|&gt;</span></span>
-<span>  <span class="fu"><a href="https://josesamos.github.io/geomultistar/reference/run_geoquery.html" class="external-link">run_geoquery</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
-<p>The result is a vector layer that we can save, perform spatial analysis or queries on it, or we can see it as a map, using the functions associated with the <code>sf</code> class.</p>
-<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">gdqr</span><span class="op">[</span>,<span class="st">"estimate"</span><span class="op">]</span><span class="op">)</span></span></code></pre></div>
-<p><img src="reference/figures/README-unnamed-chunk-4-1.png" width="100%"></p>
-<p>Once we have verified that the data for the reference year is what we need, we can expand our database considering the rest of the years available in the folder. The only requirement to consider a year is that its variable structure be the same as that of the reference year.</p>
-<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">uf</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/uscb_folder.html">uscb_folder</a></span><span class="op">(</span><span class="va">ul</span><span class="op">)</span></span>
+<span><span class="va">geo2</span> <span class="op">&lt;-</span> <span class="va">geo</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu"><a href="reference/set_metadata.html">set_metadata</a></span><span class="op">(</span><span class="va">metadata</span><span class="op">)</span></span>
 <span></span>
-<span><span class="va">cgms</span> <span class="op">&lt;-</span> <span class="va">uf</span> <span class="op">|&gt;</span> <span class="fu"><a href="reference/get_common_geomultistar.html">get_common_geomultistar</a></span><span class="op">(</span><span class="op">)</span></span>
-<span><span class="co">#&gt; Warning in CPL_read_ogr(dsn, layer, query, as.character(options), quiet, : GDAL</span></span>
-<span><span class="co">#&gt; Message 6: driver OpenFileGDB does not support open option METHOD</span></span></code></pre></div>
-<p>Instead of displaying all the tables, we focus on the table in the <em>when</em> dimension.</p>
-<table class="table">
-<thead><tr class="header">
-<th align="center">when_key</th>
-<th align="center">year</th>
-</tr></thead>
-<tbody>
-<tr class="odd">
-<td align="center">1</td>
-<td align="center">2014</td>
-</tr>
-<tr class="even">
-<td align="center">2</td>
-<td align="center">2015</td>
-</tr>
-</tbody>
-</table>
-<p>Includes data for all available years.</p>
+<span><span class="va">geo2</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu"><a href="reference/get_metadata.html">get_metadata</a></span><span class="op">(</span><span class="op">)</span></span>
+<span><span class="co">#&gt; # A tibble: 2 × 12</span></span>
+<span><span class="co">#&gt;   variable year  Short_Name Full_Name    report subreport report_var report_desc</span></span>
+<span><span class="co">#&gt;   &lt;chr&gt;    &lt;chr&gt; &lt;chr&gt;      &lt;chr&gt;        &lt;chr&gt;  &lt;chr&gt;          &lt;int&gt; &lt;chr&gt;      </span></span>
+<span><span class="co">#&gt; 1 V0671    2020  B01002Ce3  Median Age … B01002 C                  3 Median Age…</span></span>
+<span><span class="co">#&gt; 2 V1389    2021  B01002Ce3  Median Age … B01002 C                  3 Median Age…</span></span>
+<span><span class="co">#&gt; # ℹ 4 more variables: measure &lt;chr&gt;, item1 &lt;chr&gt;, item2 &lt;chr&gt;, group &lt;chr&gt;</span></span>
+<span></span>
+<span><span class="va">geo_layer</span> <span class="op">&lt;-</span> <span class="va">geo2</span> <span class="op">|&gt;</span> </span>
+<span>  <span class="fu"><a href="reference/get_geo_layer.html">get_geo_layer</a></span><span class="op">(</span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">geo_layer</span><span class="op">$</span><span class="va">faiana21vs20</span> <span class="op">&lt;-</span> <span class="fl">100</span> <span class="op">*</span> <span class="op">(</span><span class="va">geo_layer</span><span class="op">$</span><span class="va">V1389</span> <span class="op">-</span> <span class="va">geo_layer</span><span class="op">$</span><span class="va">V0671</span><span class="op">)</span> <span class="op">/</span> <span class="va">geo_layer</span><span class="op">$</span><span class="va">V0671</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">geo_layer</span><span class="op">[</span>, <span class="st">"faiana21vs20"</span><span class="op">]</span><span class="op">)</span></span></code></pre></div>
+<p><img src="reference/figures/README-unnamed-chunk-9-1.png" width="100%"></p>
+<p>In <code>GeoPackage</code> format we can also easily perform queries with other tools such as <em>QGIS</em>.</p>
 </div>
 </div>
   </main><aside class="col-md-3"><div class="links">
@@ -626,6 +290,7 @@
 <ul class="list-unstyled">
 <li><a href="https://CRAN.R-project.org/package=geogenr" class="external-link"><img src="https://www.r-pkg.org/badges/version/geogenr" alt="CRAN status"></a></li>
 <li><a href="https://github.com/josesamos/geogenr/actions/workflows/R-CMD-check.yaml" class="external-link"><img src="https://github.com/josesamos/geogenr/actions/workflows/R-CMD-check.yaml/badge.svg" alt="R-CMD-check"></a></li>
+<li><a href="https://app.codecov.io/gh/josesamos/geogenr?branch=master" class="external-link"><img src="https://codecov.io/gh/josesamos/geogenr/branch/master/graph/badge.svg" alt="Codecov test coverage"></a></li>
 </ul>
 </div>
 
