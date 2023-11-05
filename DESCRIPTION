@@ -1,7 +1,7 @@
 Type: Package
 Package: geogenr
 Title: Generator from American Community Survey Geodatabases
-Version: 2.0.0
+Version: 2.0.0.9000
 Authors@R: 
     person("Jose", "Samos", , "jsamos@ugr.es", role = c("aut", "cre", "cph"),
            comment = c(ORCID = "0000-0002-4457-3439"))
@@ -10,8 +10,8 @@ Description: The American Community Survey (ACS)
     geographic information and associated data of interest to researchers
     in the area. The goal of this package is to generate objects that
     allow us to access and consult the information available in various
-    formats, such as in GeoPackage format or in multidimensional ROLAP
-    star format.
+    formats, such as in 'GeoPackage' format or in multidimensional 'ROLAP' 
+    (Relational On-Line Analytical Processing) star format.
 License: MIT + file LICENSE
 URL: https://josesamos.github.io/geogenr/,
     https://github.com/josesamos/geogenr
