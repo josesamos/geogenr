@@ -7,7 +7,7 @@
 get_gbd_files(dir)
 }
 \arguments{
-\item{name}{A string.}
+\item{dir}{A string.}
 }
 \value{
 A string vector.

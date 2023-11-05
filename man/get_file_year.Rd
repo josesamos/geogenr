@@ -7,7 +7,7 @@
 get_file_year(file)
 }
 \arguments{
-\item{name}{A string vector.}
+\item{file}{A string vector.}
 }
 \value{
 A string vector.

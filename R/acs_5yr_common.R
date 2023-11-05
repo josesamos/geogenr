@@ -55,7 +55,7 @@ name_with_nexus <- function(name) {
 #'
 #' Given a dir, we get the gbd files in it, at any level.
 #'
-#' @param name A string.
+#' @param dir A string.
 #'
 #' @return A string vector.
 #'
@@ -72,7 +72,7 @@ get_gbd_files <- function(dir) {
 #'
 #' Given a file, get the associated year (in the name).
 #'
-#' @param name A string vector.
+#' @param file A string vector.
 #'
 #' @return A string vector.
 #'
@@ -88,7 +88,7 @@ get_file_year <- function(file) {
 #' Given a file, get the associated code (in the name), includes the year as the
 #' name of the vector elements..
 #'
-#' @param name A string vector.
+#' @param file A string vector.
 #'
 #' @return A string vector.
 #'
