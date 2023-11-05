@@ -10,8 +10,8 @@
     geographic information and associated data of interest to researchers
     in the area. The goal of this package is to generate objects that
     allow us to access and consult the information available in various
-    formats, such as in GeoPackage format or in multidimensional ROLAP
-    star format.">
+    formats, such as in GeoPackage format or in multidimensional ROLAP 
+    (Relational On-Line Analytical Processing) star format.">
 <title>Generator from American Community Survey Geodatabases • geogenr</title>
 <!-- favicons --><link rel="icon" type="image/png" sizes="16x16" href="favicon-16x16.png">
 <link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png">
@@ -29,8 +29,8 @@
     geographic information and associated data of interest to researchers
     in the area. The goal of this package is to generate objects that
     allow us to access and consult the information available in various
-    formats, such as in GeoPackage format or in multidimensional ROLAP
-    star format.">
+    formats, such as in GeoPackage format or in multidimensional ROLAP 
+    (Relational On-Line Analytical Processing) star format.">
 <meta property="og:image" content="https://josesamos.github.io/geogenr/logo.png">
 <!-- mathjax --><script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js" integrity="sha256-nvJJv9wWKEm88qvoQl9ekL2J+k/RWIsaSScxxlsrv8k=" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/config/TeX-AMS-MML_HTMLorMML.js" integrity="sha256-84DKXVJXs0/F8OTMzX4UR909+jtl4G7SPypPavF+GfA=" crossorigin="anonymous"></script><!--[if lt IE 9]>
 <script src="https://oss.maxcdn.com/html5shiv/3.7.3/html5shiv.min.js"></script>
@@ -45,7 +45,7 @@
     
     <a class="navbar-brand me-2" href="index.html">geogenr</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.0.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.0.0.9000</small>
 
     
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -186,7 +186,7 @@
 <span>  <span class="fu"><a href="reference/get_report_names.html">get_report_names</a></span><span class="op">(</span><span class="op">)</span></span>
 <span><span class="co">#&gt; [1] "B01001-Sex By Age"        "B01002-Median Age By Sex"</span></span>
 <span><span class="co">#&gt; [3] "B01003-Total Population"</span></span></code></pre></div>
-<p>We can export the reports of the selected topic to various formats such as <code>GeoPackage</code>, also <code>flat_table</code> or <code>star_schema</code> of the <code>rolap</code> package. In this case we are going to obtain a <code>GeoPackage</code>.</p>
+<p>We can export the reports of the selected topic to various formats such as <code>GeoPackage</code>, also <code>flat_table</code> or <code>star_schema</code> of the <a href="https://cran.r-project.org/package=rolap" class="external-link"><code>rolap</code></a> package. In this case we are going to obtain a <code>GeoPackage</code>.</p>
 <div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">geo</span> <span class="op">&lt;-</span> <span class="va">act</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu"><a href="reference/as_acs_5yr_geo.html">as_acs_5yr_geo</a></span><span class="op">(</span><span class="op">)</span></span>
