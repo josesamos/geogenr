@@ -81,7 +81,7 @@ as_flat_table.acs_5yr_topic <- function(act, attributes = NULL) {
 #'
 #' @examples
 #'
-#' ft <- anrc_2021_x01 |>
+#' st <- anrc_2021_x01 |>
 #'   as_star_database()
 #'
 #' @export

@@ -1,8 +1,11 @@
 ---
-title: "geogenr"
+title: "Generator from American Community Survey (ACS) Geodatabases"
+author: "Jose Samos (jsamos@ugr.es)"
+date: "2023-11-05"
 output: rmarkdown::html_vignette
+bibliography: bibliography.bib
 vignette: >
-  %\VignetteIndexEntry{geogenr}
+  %\VignetteIndexEntry{Generator from American Community Survey (ACS) Geodatabases}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
@@ -14,6 +17,294 @@ knitr::opts_chunk$set(
 )
 ```
 
-```{r setup}
-library(geogenr)
+```{r setup, echo = FALSE}
+library(geomultistar)
 ```
+
+# Introduction
+
+The [American Community Survey (ACS)](https://www.census.gov/programs-surveys/acs) offers geodatabases with geographic information and associated data of interest to researchers in the area. The goal of `geogenr` is to facilitate access to this information through functions that allow us to select the geodatabases that interest us, download them, access the information they contain, filter it and export it in various formats so that we can process it with other tools if required.
+
+Other packages are available that are very useful to access the same data, such as [`tidycensus`](https://CRAN.R-project.org/package=tidycensus), which works in an integrated way with [`tigris`](https://CRAN.R-project.org/package=tigris). The main characteristics of `geogenr` that distinguish it from other proposals are the following: 
+
+- it works locally, once available geodatabases are downloaded (can be downloaded using the package); 
+
+- supports access at the level of group of variables integrated in a layer, instead of at the level of variable or vector of variables; 
+
+- decomposes ACS composite variables into structured fields;
+
+- allows to directly integrate variables of several years;
+
+- and It allows us to export the data to other formats.
+
+The rest of this document is structured as follows: First, the starting data are presented. Then, an illustrative example of how the package works is developed. Finally, the document ends with conclusions.
+
+# *American Community Survey 5-Year Estimates*
+
+The package is based on the geodatabases available on the [TIGER/Line with Selected Demographic and Economic Data](https://www.census.gov/geographies/mapping-files/time-series/geo/tiger-data.2021.html) web page. For each year (as of 2012) a list of geodatabases appears under two sections:
+
+- *Legal and Administrative Areas*;
+
+- *Statistical Areas*.
+
+These geodatabases bring together geography from the *TIGER/Line Shapefiles* and data from the *American Community Survey (ACS) 5-year estimates*.
+
+Each ACS geodatabase is structured in layers: a geographic layer, a metadata layer, and the rest are data layers. The data layers have a matrix form, the rows are indexed by instances of the geographic layer, the columns by variables defined in the metadata layer, the cells are numeric values. Here we have an example:
+
+
+`GEOID          B01001e1 B01001m1 B01001e2 B01001m2 B01001e3 B01001m3 B01001e4 B01001m4 ...`
+
+`16000US0100100      218      165       92      114       10       16       18       30`
+
+`16000US0100124     2582       24     1313       98       45       37       14       19`
+
+`16000US0100460     4374       24     1963      158      144       76      105       68`
+
+`16000US0100484      641      159      326       89       10       17       16       11`
+
+`16000US0100676      295      102      143       55        7       11       14       17`
+
+`16000US0100820    32878       57    16236      453     1159      257     1151      209`
+
+`...`
+
+
+Some of the defined variables are shown below.
+
+`Short_Name Full_Name`
+
+`B01001e1	SEX BY AGE: Total: Total Population -- (Estimate)`
+
+`B01001m1	SEX BY AGE: Total: Total Population -- (Margin of Error)`
+
+`B01001e2	SEX BY AGE: Male: Total Population -- (Estimate)`
+
+`B01001m2	SEX BY AGE: Male: Total Population -- (Margin of Error)`
+
+`B01001e3	SEX BY AGE: Male: Under 5 years: Total Population -- (Estimate)`
+
+`B01001m3	SEX BY AGE: Male: Under 5 years: Total Population -- (Margin of Error)`
+
+`B01001e4	SEX BY AGE: Male: 5 to 9 years: Total Population -- (Estimate)`
+
+`B01001m4	SEX BY AGE: Male: 5 to 9 years: Total Population -- (Margin of Error)`
+
+`...`
+
+Each variable (`Short_Name`) corresponds to combinations of various field values separated by a separator (`: `), forming a string (`Full_Name`). The field name of each value is not available but the topics included are detailed on the web page [Subjects Included in the Survey](https://www.census.gov/programs-surveys/acs/guidance/subjects.html). There are tens of thousands of variables of these characteristics that, in addition to the metadata layer, can be found on the [TIGER/Line with Selected Demographic and Economic Data Record Layouts](https://www.census.gov/programs-surveys/geography/technical-documentation/records-layout/tiger-line-demo-record-layouts.html) web page. For each combination of values, one variable associated with the *estimate* and another with the *margin of error* are defined. Within each layer, variables can be considered in groups, defined by the first part of the `Full Name` (for example `UNWEIGHTED SAMPLE HOUSING UNITS` and `SEX BY AGE`).
+
+A module of `geogenr` package analyses the components of `Full_name`, structuring them in fields; and it allows access to variables in groups.
+
+# An illustrative example
+
+To work with this data with the `geogenr` package we distinguish three phases:
+
+- obtaining the data,
+
+- data selection,
+
+- and generation of results,
+
+which are developed below.
+
+Once the result structure is generated, we can export it or define queries on it.
+
+## Obtaining the data
+
+The data is available in the form of a geodatabase. One geodatabase for each area in each of the two area sections.
+
+First, we select and download the ACS geodatabases using the functions offered by the package. When we have them in the same folder or subfolders of it, we can access the information they contain to select the one that interests us. 
+
+We create an object of class `acs_5yr`, indicating a folder where we will download the geodatabases.
+
+```{r}
+library(geogenr)
+
+dir <- system.file("extdata/acs_5yr", package = "geogenr")
+
+ac <- acs_5yr(dir)
+```
+
+We can query the available geodatabases by area, subject and year using the methods offered by the object.
+
+```{r}
+ac |>
+  get_area_groups()
+ac |>
+  get_areas(group = "Legal and Administrative Areas")
+
+ac |>
+  get_area_years(area = "Alaska Native Regional Corporation")
+```
+
+Once we decide the area to work with, we download the files if they are not already downloaded. There are also functions available to consult previously downloaded data.
+
+```{r}
+ac <- ac |>
+  select_area_files("Alaska Native Regional Corporation", 2020:2021)
+
+files <- ac |>
+  download_selected_files(unzip = FALSE)
+```
+
+```{r, echo=FALSE}
+dir <- tempdir()
+source_dir <- system.file("extdata/acs_5yr", package = "geogenr")
+files <- list.files(source_dir, "*.zip", full.names = TRUE)
+file.copy(from = files, to = dir, overwrite = TRUE)
+ac <- acs_5yr(dir)
+```
+
+The data is downloaded to the working folder associated with the object. We can indicate that they are classified by year or by area. We can also indicate that it will be automatically unzipped once downloaded. In this case they are explicitly unzipped.
+
+```{r}
+files <- ac |>
+  unzip_files()
+```
+
+With these operations we already have the data available locally.
+
+## Data selection
+
+Once unzipped, we can consult the available areas and years.
+
+```{r}
+ac |>
+  get_available_areas()
+
+ac |>
+  get_available_area_years(area = "Alaska Native Regional Corporation")
+```
+
+For each area we can query the topics of the available reports.
+
+```{r}
+ac |>
+  get_available_area_topics("Alaska Native Regional Corporation")
+```
+
+We can select one or more topics to obtain the reports they contain.To select them, we create an object of class `acs_5yr_topic`. We can also select the years for which reports are included; by default all available years are considered.
+
+```{r}
+act <- ac |>
+  as_acs_5yr_topic("Alaska Native Regional Corporation",
+                   topic = "X01 Age And Sex")
+```
+
+Once a topic has been selected, we can consult the available reports or subreports.
+
+```{r}
+act |>
+  get_report_names()
+```
+
+We can focus on a report or subreport, we can also work with all the reports contained in the topic.
+
+In this case we are going to select the entire topic.
+
+
+## Generation of results
+
+Once we have obtained a group of reports, we can obtain the associated data in various formats.
+
+### `acs_5yr_geo` class format
+
+In this format, three layers are defined: 
+
+  - `data` with geographical information and and the names and values of the variables for each instance,
+  - `metadata` with the description of the variables, 
+  - `origin` with the metadata about the origin of the data.
+
+```{r}
+geo <- act |>
+  as_acs_5yr_geo()
+```
+
+This format allows us to perform simple queries using the metadata and the geographic layer.
+
+We obtain and consult the content of the metadata: structured description of the variables.
+
+```{r}
+metadata <- geo |>
+  get_metadata()
+
+metadata
+```
+
+We filter the metadata using the functions of the `dplyr` package.
+
+```{r}
+metadata <-
+  dplyr::filter(
+    metadata,
+    item2 == "Female" &
+      group == "People Who Are American Indian And Alaska Native Alone" &
+      measure == "estimate"
+  )
+```
+
+We obtain a new object whose data corresponds to the metadata that we have obtained as a result of the selection operations.
+
+```{r}
+geo2 <- geo |>
+  set_metadata(metadata)
+
+geo2 |>
+  get_metadata()
+```
+
+We work with the new object, for example, by defining a new variable and graphing it using the associated geographic data.
+
+```{r}
+geo_layer <- geo2 |> 
+  get_geo_layer()
+
+geo_layer$faiana21vs20 <- 100 * (geo_layer$V1389 - geo_layer$V0671) / geo_layer$V0671
+plot(geo_layer[, "faiana21vs20"])
+```
+
+Additionally, we can export any of these objects in `GeoPackage` format to use other query tools, such as *QGIS*.
+
+```{r}
+dir <- tempdir()
+file <- geo |>
+  as_GeoPackage(dir)
+
+sf::st_layers(file)
+```
+
+### `rolap` package objects
+
+We can export reports from a theme as `rolap::flat_table` or `rolap::star_database` objects, which allow us to enrich them with additional information or work directly with OLAP tools.
+
+```{r}
+st <- act |>
+  as_star_database()
+```
+
+Below are the tables that make up the star ROLAP design obtained.
+
+```{r}
+st |>
+  rolap::draw_tables()
+```
+
+We can also export it to any RDBMS
+
+```{r}
+con <- DBI::dbConnect(RSQLite::SQLite())
+
+st |>
+  rolap::as_rdb(con)
+
+DBI::dbListTables(con)
+
+DBI::dbDisconnect(con)
+```
+
+
+# Conclusions
+
+The [American Community Survey (ACS)](https://www.census.gov/programs-surveys/acs) offers geodatabases with geographic information and associated data of interest to researchers in the area. These data can be accessed through various alternatives in which we must indicate the year and variable names. Due to the large number of variables and their structure, this operation is not easy.
+
+The `geogenr` package offers an alternative that allows us to download the geodatabases that are considered necessary and access the variables by selecting data layers and logical groups of variables. Additionally, it allows us to obtain data in various formats to consult them directly or use other tools.

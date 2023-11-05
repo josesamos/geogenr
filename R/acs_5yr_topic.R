@@ -130,6 +130,7 @@ get_report_names <- function(act)
 get_report_names.acs_5yr_topic<- function(act) {
   r <- act$data[act$data$subreport == '-', c('report', "subreport", "report_desc")]
   report <- sort(unique(paste0(r$report, r$subreport, r$report_desc)))
+  report
 }
 
 

@@ -28,7 +28,7 @@ attributes).
 }
 \examples{
 
-ft <- anrc_2021_x01 |>
+st <- anrc_2021_x01 |>
   as_star_database()
 
 }
