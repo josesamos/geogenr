@@ -150,8 +150,9 @@ act |>
 ```
 
 We can export the reports of the selected topic to various formats such
-as `GeoPackage`, also `flat_table` or `star_schema` of the `rolap`
-package. In this case we are going to obtain a `GeoPackage`.
+as `GeoPackage`, also `flat_table` or `star_schema` of the
+[`rolap`](https://cran.r-project.org/package=rolap) package. In this
+case we are going to obtain a `GeoPackage`.
 
 ``` r
 geo <- act |>
