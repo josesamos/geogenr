@@ -1,4 +1,4 @@
-# geogenr (development version)
+# geogenr 2.0.0
 * New data model.
 * Functions to consult, select and download the available information.
 * Functions to select the available information to work with. 
