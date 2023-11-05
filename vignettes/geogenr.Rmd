@@ -301,22 +301,7 @@ for (name in names){
 }
 ```
 
-We can also export it to any RDBMS, as we show below.
-
-```{r}
-con <- DBI::dbConnect(RSQLite::SQLite())
-
-st |>
-  rolap::as_rdb(con)
-
-tables <- DBI::dbListTables(con)
-for (t in tables) {
-  res <- DBI::dbGetQuery(con, sprintf('SELECT COUNT(*) FROM `%s`', t))
-  cat(sprintf("name: %s, %d rows\n", t, res[[1]]))
-}
-
-DBI::dbDisconnect(con)
-```
+We can also export it to any RDBMS.
 
 
 # Conclusions
