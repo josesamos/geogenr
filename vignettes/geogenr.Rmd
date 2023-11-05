@@ -3,7 +3,6 @@ title: "Generator from American Community Survey (ACS) Geodatabases"
 author: "Jose Samos (jsamos@ugr.es)"
 date: "2023-11-05"
 output: rmarkdown::html_vignette
-bibliography: bibliography.bib
 vignette: >
   %\VignetteIndexEntry{Generator from American Community Survey (ACS) Geodatabases}
   %\VignetteEngine{knitr::rmarkdown}
@@ -284,8 +283,22 @@ st <- act |>
 Below are the tables that make up the star ROLAP design obtained.
 
 ```{r}
-st |>
-  rolap::draw_tables()
+st_dm <- st |>
+  rolap::as_dm_class(pk_facts = FALSE)
+st_dm |> 
+  dm::dm_draw(rankdir = "LR", view_type = "all")
+```
+
+We also show the number of instances of each table.
+
+```{r}
+l_db <- st |>
+  rolap::as_tibble_list()
+
+names <- sort(names(l_db))
+for (name in names){
+  cat(sprintf("name: %s, %d rows\n", name, nrow(l_db[[name]])))
+}
 ```
 
 We can also export it to any RDBMS, as we show below.
@@ -296,7 +309,11 @@ con <- DBI::dbConnect(RSQLite::SQLite())
 st |>
   rolap::as_rdb(con)
 
-DBI::dbListTables(con)
+tables <- DBI::dbListTables(con)
+for (t in tables) {
+  res <- DBI::dbGetQuery(con, sprintf('SELECT COUNT(*) FROM `%s`', t))
+  cat(sprintf("name: %s, %d rows\n", t, res[[1]]))
+}
 
 DBI::dbDisconnect(con)
 ```
