@@ -17,9 +17,6 @@ knitr::opts_chunk$set(
 )
 ```
 
-```{r setup, echo = FALSE}
-library(geomultistar)
-```
 
 # Introduction
 
@@ -111,9 +108,9 @@ Once the result structure is generated, we can export it or define queries on it
 
 ## Obtaining the data
 
-The data is available in the form of a geodatabase. One geodatabase for each area in each of the two area sections.
+The data is available in the form of a geodatabase. One geodatabase for each area in each of the two area groups.
 
-First, we select and download the ACS geodatabases using the functions offered by the package. When we have them in the same folder or subfolders of it, we can access the information they contain to select the one that interests us. 
+In this example, first, we select and download the ACS geodatabases using the functions offered by the package. When we have them in the same folder (they can be distributed in subfolders), we can access the information they contain to select the one that interests us. 
 
 We create an object of class `acs_5yr`, indicating a folder where we will download the geodatabases.
 
@@ -125,7 +122,7 @@ dir <- system.file("extdata/acs_5yr", package = "geogenr")
 ac <- acs_5yr(dir)
 ```
 
-We can query the available geodatabases by area, subject and year using the methods offered by the object.
+We can query the available geodatabases by group, area, subject and year using the methods offered by the object.
 
 ```{r}
 ac |>
@@ -200,7 +197,7 @@ act |>
 
 We can focus on a report or subreport, we can also work with all the reports contained in the topic.
 
-In this case we are going to select the entire topic.
+In this case we are going to work with the entire topic.
 
 
 ## Generation of results
@@ -275,7 +272,9 @@ sf::st_layers(file)
 
 ### `rolap` package objects
 
-We can export reports from a theme as `rolap::flat_table` or `rolap::star_database` objects, which allow us to enrich them with additional information or work directly with OLAP tools.
+We can export reports from a theme as `flat_table` or `star_database` objects from the  [`rolap`](https://cran.r-project.org/package=rolap) package, which allow us to enrich them with additional information or work directly with OLAP tools.
+
+We are going to export them as an object of the `star_database` class.
 
 ```{r}
 st <- act |>
@@ -289,7 +288,7 @@ st |>
   rolap::draw_tables()
 ```
 
-We can also export it to any RDBMS
+We can also export it to any RDBMS, as we show below.
 
 ```{r}
 con <- DBI::dbConnect(RSQLite::SQLite())
