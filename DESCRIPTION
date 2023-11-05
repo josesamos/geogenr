@@ -1,6 +1,6 @@
 Type: Package
 Package: geogenr
-Title: 'geomultistar' Object Generator from American Community Survey Geodatabases
+Title: Generator from American Community Survey Geodatabases
 Version: 1.0.1.9000
 Authors@R: 
     person("Jose", "Samos", , "jsamos@ugr.es", role = c("aut", "cre", "cph"),
@@ -8,11 +8,10 @@ Authors@R:
 Description: The American Community Survey (ACS)
     <https://www.census.gov/programs-surveys/acs> offers geodatabases with
     geographic information and associated data of interest to researchers
-    in the area. The goal of this package is to generate 'geomultistar'
-    <https://CRAN.R-project.org/package=geomultistar> objects from those
-    geodatabases automatically, once the focus of attention is selected.
-    Multidimensional queries with geographic information can be easily
-    defined on these objects.
+    in the area. The goal of this package is to generate objects that
+    allow us to access and consult the information available in various
+    formats, such as in GeoPackage format or in multidimensional ROLAP
+    star format.
 License: MIT + file LICENSE
 URL: https://josesamos.github.io/geogenr/,
     https://github.com/josesamos/geogenr
@@ -20,26 +19,32 @@ BugReports: https://github.com/josesamos/geogenr/issues
 Depends: 
     R (>= 2.10)
 Imports: 
-    data.table,
     dplyr,
-    geomultistar,
     httr,
+    readr,
+    rolap,
     sf,
-    snakecase,
-    starschemar,
+    stats,
     stringr,
     tibble,
     tidyr,
     tidyselect,
-    tm,
     utils
 Suggests: 
+    DBI,
+    dbplyr,
+    DiagrammeR,
+    DiagrammeRsvg,
+    dm,
     knitr,
     pander,
     rmarkdown,
-    testthat
+    RSQLite,
+    snakecase,
+    testthat (>= 3.0.0)
 VignetteBuilder: 
     knitr
+Config/testthat/edition: 3
 Encoding: UTF-8
 Language: en-GB
 LazyData: true

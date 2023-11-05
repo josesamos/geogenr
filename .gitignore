@@ -2,3 +2,5 @@
 .RData
 .Rproj.user
 docs
+datos
+inst/doc
