@@ -201,11 +201,15 @@ set_metadata.acs_5yr_geo <- function(geo, metadata) {
 }
 
 
-#' Save as GeoPackage
+#' Save as `GeoPackage`
 #'
 #' Save the data layer (geographic information layer), the metadata layer and the
 #' data source description layer in a file in `GeoPackage` format to be able to
 #' work with other tools.
+#'
+#' The `GeoPackage` format only allows defining a maximum of 1998 columns. If the
+#' number of variables and columns in the geographic layer exceeds this number,
+#' it cannot be saved in this format.
 #'
 #' @param geo An `acs_5yr_geo` object.
 #' @param dir A string.

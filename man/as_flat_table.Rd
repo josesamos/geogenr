@@ -2,60 +2,42 @@
 % Please edit documentation in R/acs_5yr_rolap.R
 \name{as_flat_table}
 \alias{as_flat_table}
-\alias{as_flat_table.acs_5yr}
-\title{As flat_table}
+\alias{as_flat_table.acs_5yr_topic}
+\title{As \code{rolap::flat_table} object}
 \usage{
-as_flat_table(act, geo_attribute_names)
+as_flat_table(act, attributes)
 
-\method{as_flat_table}{acs_5yr}(act, geo_attribute_names = NULL)
+\method{as_flat_table}{acs_5yr_topic}(act, attributes = NULL)
 }
 \arguments{
 \item{act}{An \code{acs_5yr_topic} object.}
 
-\item{geo_attribute_names}{A string vector.}
+\item{attributes}{A string vector.}
 }
 \value{
 A \code{flat_table} object.
 }
 \description{
-Gets a flat_table
+Obtain an \code{rolap::flat_table} object to be able to modify the data or integrate
+it with other data.
+}
+\details{
+We can indicate the attributes of the geographic layer to include in the export.
+Otherwise, the default attributes are included (not area, perimeter or location
+attributes).
 }
 \examples{
 
-dir <- tempdir()
-source_dir <- system.file("extdata/acs_5yr", package = "geogenr")
-files <- list.files(source_dir, "*.zip", full.names = TRUE)
-file.copy(from = files, to = dir, overwrite = TRUE)
-ac <- acs_5yr(dir)
-
-files <- ac |>
-  unzip_files()
-
-act <- ac |>
-  as_acs_5yr_topic("Alaska Native Regional Corporation",
-                   2021,
-                   "X01 Age And Sex")
-
-act <- ac |>
-  as_acs_5yr_topic("Alaska Native Regional Corporation",
-                   topic = "X01 Age And Sex")
+ft <- anrc_2021_x01 |>
+  as_flat_table()
 
 }
 \seealso{
-Other data selection functions: 
-\code{\link{as_acs_5yr_topic}()},
+Other data exploitation and export functions: 
+\code{\link{as_GeoPackage}()},
+\code{\link{as_acs_5yr_geo}()},
 \code{\link{as_star_database}()},
-\code{\link{get_available_area_topics}()},
-\code{\link{get_available_area_years}()},
-\code{\link{get_available_areas}()},
-\code{\link{get_geo_attribute_names}()},
-\code{\link{get_geo_layer.acs_5yr_geo}()},
-\code{\link{get_names_of_other_topics}()},
-\code{\link{get_report_names}()},
-\code{\link{get_subreport_names}()},
-\code{\link{get_topic_name}()},
-\code{\link{select_report}()},
-\code{\link{select_subreport}()},
-\code{\link{select_topic}()}
+\code{\link{get_metadata}()},
+\code{\link{set_metadata}()}
 }
-\concept{data selection functions}
+\concept{data exploitation and export functions}

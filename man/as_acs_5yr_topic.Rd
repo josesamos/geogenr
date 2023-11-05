@@ -32,6 +32,7 @@ the first one that appears in the files is taken.
 }
 \examples{
 
+\donttest{
 dir <- tempdir()
 source_dir <- system.file("extdata/acs_5yr", package = "geogenr")
 files <- list.files(source_dir, "*.zip", full.names = TRUE)
@@ -49,12 +50,10 @@ anrc_2021_x01 <- ac |>
 anrc_2021_2022_x01_x07 <- ac |>
   as_acs_5yr_topic("Alaska Native Regional Corporation",
                    topic = c("X01 Age And Sex", "X07 Migration"))
-
+}
 }
 \seealso{
 Other data selection functions: 
-\code{\link{as_flat_table}()},
-\code{\link{as_star_database}()},
 \code{\link{get_available_area_topics}()},
 \code{\link{get_available_area_years}()},
 \code{\link{get_available_areas}()},

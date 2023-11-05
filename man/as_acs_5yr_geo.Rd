@@ -32,6 +32,8 @@ geo <- act |>
 \seealso{
 Other data exploitation and export functions: 
 \code{\link{as_GeoPackage}()},
+\code{\link{as_flat_table}()},
+\code{\link{as_star_database}()},
 \code{\link{get_metadata}()},
 \code{\link{set_metadata}()}
 }

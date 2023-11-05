@@ -150,6 +150,7 @@ get_available_area_topics.acs_5yr<- function(ac, area, years = NULL) {
 #'
 #' @examples
 #'
+#' \donttest{
 #' dir <- tempdir()
 #' source_dir <- system.file("extdata/acs_5yr", package = "geogenr")
 #' files <- list.files(source_dir, "*.zip", full.names = TRUE)
@@ -167,7 +168,7 @@ get_available_area_topics.acs_5yr<- function(ac, area, years = NULL) {
 #' anrc_2021_2022_x01_x07 <- ac |>
 #'   as_acs_5yr_topic("Alaska Native Regional Corporation",
 #'                    topic = c("X01 Age And Sex", "X07 Migration"))
-#'
+#' }
 #' @export
 as_acs_5yr_topic <- function(ac, area, years, topic)
   UseMethod("as_acs_5yr_topic")

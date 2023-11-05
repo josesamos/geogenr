@@ -3,7 +3,7 @@
 \name{as_GeoPackage}
 \alias{as_GeoPackage}
 \alias{as_GeoPackage.acs_5yr_geo}
-\title{Save as GeoPackage}
+\title{Save as \code{GeoPackage}}
 \usage{
 as_GeoPackage(geo, dir, name)
 
@@ -24,6 +24,11 @@ Save the data layer (geographic information layer), the metadata layer and the
 data source description layer in a file in \code{GeoPackage} format to be able to
 work with other tools.
 }
+\details{
+The \code{GeoPackage} format only allows defining a maximum of 1998 columns. If the
+number of variables and columns in the geographic layer exceeds this number,
+it cannot be saved in this format.
+}
 \examples{
 
 act <- anrc_2021_x01 |>
@@ -40,6 +45,8 @@ file <- geo |>
 \seealso{
 Other data exploitation and export functions: 
 \code{\link{as_acs_5yr_geo}()},
+\code{\link{as_flat_table}()},
+\code{\link{as_star_database}()},
 \code{\link{get_metadata}()},
 \code{\link{set_metadata}()}
 }

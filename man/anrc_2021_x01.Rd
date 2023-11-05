@@ -31,9 +31,5 @@ anrc_2021_x01 <- ac |>
                    "X01 Age And Sex")
 
 }
-\seealso{
-Other selection data: 
-\code{\link{anrc_2021_2022_x01_x07}}
-}
 \concept{selection data}
 \keyword{datasets}

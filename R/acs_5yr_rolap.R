@@ -1,53 +1,42 @@
 
 
-#' As flat_table
+#' As `rolap::flat_table` object
 #'
-#' Gets a flat_table
+#' Obtain an `rolap::flat_table` object to be able to modify the data or integrate
+#' it with other data.
 #'
+#' We can indicate the attributes of the geographic layer to include in the export.
+#' Otherwise, the default attributes are included (not area, perimeter or location
+#' attributes).
 #'
 #' @param act An `acs_5yr_topic` object.
-#' @param geo_attribute_names A string vector.
+#' @param attributes A string vector.
 #'
 #' @return A `flat_table` object.
 #'
-#' @family data selection functions
+#' @family data exploitation and export functions
 #'
 #' @examples
 #'
-#' dir <- tempdir()
-#' source_dir <- system.file("extdata/acs_5yr", package = "geogenr")
-#' files <- list.files(source_dir, "*.zip", full.names = TRUE)
-#' file.copy(from = files, to = dir, overwrite = TRUE)
-#' ac <- acs_5yr(dir)
-#'
-#' files <- ac |>
-#'   unzip_files()
-#'
-#' act <- ac |>
-#'   as_acs_5yr_topic("Alaska Native Regional Corporation",
-#'                    2021,
-#'                    "X01 Age And Sex")
-#'
-#' act <- ac |>
-#'   as_acs_5yr_topic("Alaska Native Regional Corporation",
-#'                    topic = "X01 Age And Sex")
+#' ft <- anrc_2021_x01 |>
+#'   as_flat_table()
 #'
 #' @export
-as_flat_table <- function(act, geo_attribute_names)
+as_flat_table <- function(act, attributes)
   UseMethod("as_flat_table")
 
 #' @rdname as_flat_table
 #' @export
-as_flat_table.acs_5yr <- function(act, geo_attribute_names = NULL) {
+as_flat_table.acs_5yr_topic <- function(act, attributes = NULL) {
   geo <- sf::st_drop_geometry(act$geo)
   names <- names(geo)
-  if (is.null(geo_attribute_names)) {
+  if (is.null(attributes)) {
     i <- grep('ALAND|AWATER|INTPTLAT|INTPTLON|FUNCSTAT|Shape', names, ignore.case = TRUE)
-    geo_attribute_names <- names[-i]
+    attributes <- names[-i]
   } else {
-    geo_attribute_names <- validate_names(names, geo_attribute_names, 'attribute')
+    attributes <- validate_names(names, attributes, 'attribute')
   }
-  geo <- tibble::as_tibble(geo[, geo_attribute_names])
+  geo <- tibble::as_tibble(geo[, attributes])
 
   data <- act$data
   data <- transform_metadata_rest(data)
@@ -74,46 +63,35 @@ as_flat_table.acs_5yr <- function(act, geo_attribute_names = NULL) {
 
 
 
-#' As star_database
+#' As `rolap::star_database` object
 #'
-#' Gets a star_database
+#' Obtain an `rolap::star_database` object to be able to export it to a RDBMS and
+#' make queries with other tools.
 #'
+#' We can indicate the attributes of the geographic layer to include in the export.
+#' Otherwise, the default attributes are included (not area, perimeter or location
+#' attributes).
 #'
 #' @param act An `acs_5yr_topic` object.
-#' @param geo_attribute_names A string vector.
+#' @param attributes A string vector.
 #'
 #' @return A `star_database` object.
 #'
-#' @family data selection functions
+#' @family data exploitation and export functions
 #'
 #' @examples
 #'
-#' dir <- tempdir()
-#' source_dir <- system.file("extdata/acs_5yr", package = "geogenr")
-#' files <- list.files(source_dir, "*.zip", full.names = TRUE)
-#' file.copy(from = files, to = dir, overwrite = TRUE)
-#' ac <- acs_5yr(dir)
-#'
-#' files <- ac |>
-#'   unzip_files()
-#'
-#' act <- ac |>
-#'   as_acs_5yr_topic("Alaska Native Regional Corporation",
-#'                    2021,
-#'                    "X01 Age And Sex")
-#'
-#' act <- ac |>
-#'   as_acs_5yr_topic("Alaska Native Regional Corporation",
-#'                    topic = "X01 Age And Sex")
+#' ft <- anrc_2021_x01 |>
+#'   as_star_database()
 #'
 #' @export
-as_star_database <- function(act, geo_attribute_names)
+as_star_database <- function(act, attributes)
   UseMethod("as_star_database")
 
 #' @rdname as_star_database
 #' @export
-as_star_database.acs_5yr <- function(act, geo_attribute_names = NULL) {
-  ft <- as_flat_table(act, geo_attribute_names)
+as_star_database.acs_5yr_topic <- function(act, attributes = NULL) {
+  ft <- as_flat_table(act, attributes)
   ft <- ft |>
     rolap::snake_case()
   names <- names(ft$table)
@@ -144,4 +122,3 @@ as_star_database.acs_5yr <- function(act, geo_attribute_names = NULL) {
     rolap::as_star_database(schema)
   db
 }
-

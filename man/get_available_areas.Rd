@@ -37,8 +37,6 @@ areas <- ac |>
 \seealso{
 Other data selection functions: 
 \code{\link{as_acs_5yr_topic}()},
-\code{\link{as_flat_table}()},
-\code{\link{as_star_database}()},
 \code{\link{get_available_area_topics}()},
 \code{\link{get_available_area_years}()},
 \code{\link{get_geo_attribute_names}()},
