@@ -10,10 +10,10 @@ acs_5yr(dir = "")
 \item{dir}{A string.}
 }
 \value{
-A \code{acs_5yr} object.
+An \code{acs_5yr} object.
 }
 \description{
-A \code{acs_5yr} object is created from a given local dir. This dir will contain
+An \code{acs_5yr} object is created from a given local dir. This dir will contain
 the geodatabase files that we download.
 }
 \examples{

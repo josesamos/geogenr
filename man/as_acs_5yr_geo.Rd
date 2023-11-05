@@ -3,61 +3,36 @@
 \name{as_acs_5yr_geo}
 \alias{as_acs_5yr_geo}
 \alias{as_acs_5yr_geo.acs_5yr_topic}
-\title{As ACS census geo}
+\title{Get an \code{acs_5yr_geo} object}
 \usage{
 as_acs_5yr_geo(act)
 
 \method{as_acs_5yr_geo}{acs_5yr_topic}(act)
 }
 \arguments{
-\item{act}{A \code{acs_5yr_topic} object.}
+\item{act}{An \code{acs_5yr_topic} object.}
 }
 \value{
-A \code{acs_5yr_geo} object.
+An \code{acs_5yr_geo} object.
 }
 \description{
-Gets an ACS census
+Once we have selected the topics that interest us and, possibly also the reports
+or subreports, we obtain an \code{acs_5yr_geo} object with which we can represent
+or export the geographic layer along with the data of interest more easily.
 }
 \examples{
 
-dir <- tempdir()
-source_dir <- system.file("extdata/acs_5yr", package = "geogenr")
-files <- list.files(source_dir, "*.zip", full.names = TRUE)
-file.copy(from = files, to = dir, overwrite = TRUE)
-ac <- acs_5yr(dir)
+act <- anrc_2021_x01 |>
+  select_report(report = "B01002-Median Age By Sex")
 
-files <- ac |>
-  unzip_files()
-
-act <- ac |>
-  as_acs_5yr_topic("Alaska Native Regional Corporation",
-                   2021,
-                   "X01 Age And Sex")
-
-act <- ac |>
-  as_acs_5yr_topic("Alaska Native Regional Corporation",
-                   topic = "X01 Age And Sex")
+geo <- act |>
+  as_acs_5yr_geo()
 
 }
 \seealso{
-Other data selection functions: 
+Other data exploitation and export functions: 
 \code{\link{as_GeoPackage}()},
-\code{\link{as_acs_5yr_topic}()},
-\code{\link{as_flat_table}()},
-\code{\link{as_star_database}()},
-\code{\link{get_available_area_topics}()},
-\code{\link{get_available_area_years}()},
-\code{\link{get_available_areas}()},
-\code{\link{get_geo_attribute_names}()},
-\code{\link{get_geo_layer.acs_5yr_geo}()},
 \code{\link{get_metadata}()},
-\code{\link{get_names_of_other_topics}()},
-\code{\link{get_report_names}()},
-\code{\link{get_subreport_names}()},
-\code{\link{get_topic_name}()},
-\code{\link{select_report}()},
-\code{\link{select_subreport}()},
-\code{\link{select_topic}()},
 \code{\link{set_metadata}()}
 }
-\concept{data selection functions}
+\concept{data exploitation and export functions}

@@ -10,7 +10,7 @@ get_geo_attribute_names(act)
 \method{get_geo_attribute_names}{acs_5yr_topic}(act)
 }
 \arguments{
-\item{act}{A \code{acs_5yr_topic} object.}
+\item{act}{An \code{acs_5yr_topic} object.}
 }
 \value{
 A vector, geographical attribute names.
@@ -26,8 +26,6 @@ names <- anrc_2021_x01 |>
 }
 \seealso{
 Other data selection functions: 
-\code{\link{as_GeoPackage}()},
-\code{\link{as_acs_5yr_geo}()},
 \code{\link{as_acs_5yr_topic}()},
 \code{\link{as_flat_table}()},
 \code{\link{as_star_database}()},
@@ -35,14 +33,12 @@ Other data selection functions:
 \code{\link{get_available_area_years}()},
 \code{\link{get_available_areas}()},
 \code{\link{get_geo_layer.acs_5yr_geo}()},
-\code{\link{get_metadata}()},
 \code{\link{get_names_of_other_topics}()},
 \code{\link{get_report_names}()},
 \code{\link{get_subreport_names}()},
 \code{\link{get_topic_name}()},
 \code{\link{select_report}()},
 \code{\link{select_subreport}()},
-\code{\link{select_topic}()},
-\code{\link{set_metadata}()}
+\code{\link{select_topic}()}
 }
 \concept{data selection functions}

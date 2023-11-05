@@ -10,14 +10,14 @@ select_area_files(ac, area, years)
 \method{select_area_files}{acs_5yr}(ac, area, years = NULL)
 }
 \arguments{
-\item{ac}{A \code{acs_5yr} object.}
+\item{ac}{An \code{acs_5yr} object.}
 
 \item{area}{A string, area name.}
 
 \item{years}{A vector, year number.}
 }
 \value{
-A \code{acs_5yr} object.
+An \code{acs_5yr} object.
 }
 \description{
 Select area files for the given years. If no year is indicated, all available

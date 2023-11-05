@@ -5,7 +5,7 @@
 \alias{anrc_2021_x01}
 \title{"Alaska Native Regional Corporation", 2021, "X01 Age And Sex"}
 \format{
-A \code{acs_5yr_topic} object.
+An \code{acs_5yr_topic} object.
 }
 \usage{
 anrc_2021_x01

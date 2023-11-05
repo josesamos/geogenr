@@ -10,16 +10,16 @@ select_topic(act, topic)
 \method{select_topic}{acs_5yr_topic}(act, topic = NULL)
 }
 \arguments{
-\item{act}{A \code{acs_5yr_topic} object.}
+\item{act}{An \code{acs_5yr_topic} object.}
 
 \item{topic}{A string, topic name.}
 }
 \value{
-A \code{acs_5yr_topic} object.
+An \code{acs_5yr_topic} object.
 }
 \description{
-Select the given topic. If no topic is given, the first one that appears
-in the area is taken.
+Select a topic. If no topic is given, the first one that appears in the area
+is taken.
 }
 \examples{
 
@@ -43,8 +43,6 @@ act <- act |>
 }
 \seealso{
 Other data selection functions: 
-\code{\link{as_GeoPackage}()},
-\code{\link{as_acs_5yr_geo}()},
 \code{\link{as_acs_5yr_topic}()},
 \code{\link{as_flat_table}()},
 \code{\link{as_star_database}()},
@@ -53,13 +51,11 @@ Other data selection functions:
 \code{\link{get_available_areas}()},
 \code{\link{get_geo_attribute_names}()},
 \code{\link{get_geo_layer.acs_5yr_geo}()},
-\code{\link{get_metadata}()},
 \code{\link{get_names_of_other_topics}()},
 \code{\link{get_report_names}()},
 \code{\link{get_subreport_names}()},
 \code{\link{get_topic_name}()},
 \code{\link{select_report}()},
-\code{\link{select_subreport}()},
-\code{\link{set_metadata}()}
+\code{\link{select_subreport}()}
 }
 \concept{data selection functions}

@@ -4,7 +4,7 @@
 #' Gets the names of the Demographic and Economic Areas that are downloaded and
 #' unzipped, available to be queried.
 #'
-#' @param ac A `acs_5yr` object.
+#' @param ac An `acs_5yr` object.
 #'
 #' @return A vector, area names.
 #'
@@ -49,7 +49,7 @@ get_available_areas.acs_5yr<- function(ac) {
 #' Gets the years of the Demographic and Economic Areas that are downloaded and
 #' unzipped, available to be queried.
 #'
-#' @param ac A `acs_5yr` object.
+#' @param ac An `acs_5yr` object.
 #' @param area A string, area name.
 #'
 #' @return A vector, area years.
@@ -93,7 +93,7 @@ get_available_area_years.acs_5yr<- function(ac, area) {
 #' Gets the topics (report groups) for the given years of the Demographic and
 #' Economic Areas that are downloaded and unzipped, available to be queried.
 #'
-#' @param ac A `acs_5yr` object.
+#' @param ac An `acs_5yr` object.
 #' @param area A string, area name.
 #' @param years A vector, year number.
 #'
@@ -139,12 +139,12 @@ get_available_area_topics.acs_5yr<- function(ac, area, years = NULL) {
 #' If no year is indicated, all available years are taken. If no topic is given,
 #' the first one that appears in the files is taken.
 #'
-#' @param ac A `acs_5yr` object.
+#' @param ac An `acs_5yr` object.
 #' @param area A string, area name.
 #' @param years A vector, year number.
 #' @param topic A vector, topic name.
 #'
-#' @return A `acs_5yr_topic` object.
+#' @return An `acs_5yr_topic` object.
 #'
 #' @family data selection functions
 #'
@@ -182,12 +182,12 @@ as_acs_5yr_topic.acs_5yr <- function(ac, area, years = NULL, topic = NULL) {
 
 #' New acs_5yr_topic object
 #'
-#' @param ac A `acs_5yr` object.
+#' @param ac An `acs_5yr` object.
 #' @param area A string, area name.
 #' @param years A vector, year number.
 #' @param topic A string, topic name.
 #'
-#' @return A `acs_5yr_topic` object.
+#' @return An `acs_5yr_topic` object.
 #'
 #' @keywords internal
 new_acs_5yr_topic <- function(ac, area, years = NULL, topic = NULL) {

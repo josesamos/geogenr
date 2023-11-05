@@ -10,7 +10,7 @@ as_GeoPackage(geo, dir, name)
 \method{as_GeoPackage}{acs_5yr_geo}(geo, dir = NULL, name = NULL)
 }
 \arguments{
-\item{geo}{A \code{acs_5yr_geo} object.}
+\item{geo}{An \code{acs_5yr_geo} object.}
 
 \item{dir}{A string.}
 
@@ -20,45 +20,27 @@ as_GeoPackage(geo, dir, name)
 A string, file name.
 }
 \description{
-Get the names of the geographic layer attributes (except for the geometry field).
+Save the data layer (geographic information layer), the metadata layer and the
+data source description layer in a file in \code{GeoPackage} format to be able to
+work with other tools.
 }
 \examples{
 
+act <- anrc_2021_x01 |>
+  select_report(report = "B01002-Median Age By Sex")
+
+geo <- act |>
+  as_acs_5yr_geo()
+
 dir <- tempdir()
-source_dir <- system.file("extdata/acs_5yr", package = "geogenr")
-files <- list.files(source_dir, "*.zip", full.names = TRUE)
-file.copy(from = files, to = dir, overwrite = TRUE)
-ac <- acs_5yr(dir)
-files <- ac |>
-  unzip_files()
-
-act <- ac |>
-  as_acs_5yr_topic("Alaska Native Regional Corporation",
-                   topic = "X01 Age And Sex")
-
-names <- act |>
-  as_GeoPackage()
+file <- geo |>
+  as_GeoPackage(dir)
 
 }
 \seealso{
-Other data selection functions: 
+Other data exploitation and export functions: 
 \code{\link{as_acs_5yr_geo}()},
-\code{\link{as_acs_5yr_topic}()},
-\code{\link{as_flat_table}()},
-\code{\link{as_star_database}()},
-\code{\link{get_available_area_topics}()},
-\code{\link{get_available_area_years}()},
-\code{\link{get_available_areas}()},
-\code{\link{get_geo_attribute_names}()},
-\code{\link{get_geo_layer.acs_5yr_geo}()},
 \code{\link{get_metadata}()},
-\code{\link{get_names_of_other_topics}()},
-\code{\link{get_report_names}()},
-\code{\link{get_subreport_names}()},
-\code{\link{get_topic_name}()},
-\code{\link{select_report}()},
-\code{\link{select_subreport}()},
-\code{\link{select_topic}()},
 \code{\link{set_metadata}()}
 }
-\concept{data selection functions}
+\concept{data exploitation and export functions}

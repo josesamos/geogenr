@@ -32,7 +32,7 @@
 #'                    2021,
 #'                    "X01 Age And Sex")
 #'
-#' @format A `acs_5yr_topic` object.
+#' @format An `acs_5yr_topic` object.
 "anrc_2021_x01"
 
 
@@ -59,6 +59,6 @@
 #'   as_acs_5yr_topic(area = "Alaska Native Regional Corporation",
 #'                    topic = c("X01 Age And Sex", "X07 Migration"))
 #'
-#' @format A `acs_5yr_topic` object.
+#' @format An `acs_5yr_topic` object.
 "anrc_2021_2022_x01_x07"
 

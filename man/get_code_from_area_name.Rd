@@ -10,7 +10,7 @@ get_code_from_area_name(ac, area)
 \method{get_code_from_area_name}{acs_5yr}(ac, area)
 }
 \arguments{
-\item{ac}{A \code{acs_5yr} object.}
+\item{ac}{An \code{acs_5yr} object.}
 
 \item{area}{A string, area name.}
 }

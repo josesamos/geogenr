@@ -10,7 +10,7 @@ get_area_groups(ac)
 \method{get_area_groups}{acs_5yr}(ac)
 }
 \arguments{
-\item{ac}{A \code{acs_5yr} object.}
+\item{ac}{An \code{acs_5yr} object.}
 }
 \value{
 A vector, area group names.

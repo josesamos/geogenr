@@ -5,7 +5,7 @@
 #'
 #' A topic is made up of a set of reports.
 #'
-#' @param act A `acs_5yr_topic` object.
+#' @param act An `acs_5yr_topic` object.
 #'
 #' @return A vector, topic name.
 #'
@@ -33,7 +33,7 @@ get_topic_name.acs_5yr_topic<- function(act) {
 #' one of them, this function shows us the rest of the available topics in the
 #' area.
 #'
-#' @param act A `acs_5yr_topic` object.
+#' @param act An `acs_5yr_topic` object.
 #'
 #' @return A vector, available topics.
 #'
@@ -57,13 +57,13 @@ get_names_of_other_topics.acs_5yr_topic<- function(act) {
 
 #' Select topic (report group)
 #'
-#' Select the given topic. If no topic is given, the first one that appears
-#' in the area is taken.
+#' Select a topic. If no topic is given, the first one that appears in the area
+#' is taken.
 #'
-#' @param act A `acs_5yr_topic` object.
+#' @param act An `acs_5yr_topic` object.
 #' @param topic A string, topic name.
 #'
-#' @return A `acs_5yr_topic` object.
+#' @return An `acs_5yr_topic` object.
 #'
 #' @family data selection functions
 #'
@@ -110,7 +110,7 @@ select_topic.acs_5yr_topic<- function(act, topic = NULL) {
 #' function we obtain the name of the available reports. The report code is
 #' included with the name. Each report can contain multiple subreports.
 #'
-#' @param act A `acs_5yr_topic` object.
+#' @param act An `acs_5yr_topic` object.
 #'
 #' @return A vector, report names.
 #'
@@ -133,20 +133,24 @@ get_report_names.acs_5yr_topic<- function(act) {
 }
 
 
-#' Get
+#' Get subreport names
 #'
-#' Get the selected topic.
+#' Each topic includes several reports and subreports. Once a topic has been
+#' selected, using this function we obtain the name of the available subreports
+#' of a report. If no report is indicated, all subreports of the topic are
+#' obtained.
 #'
-#' @param act A `acs_5yr_topic` object.
+#' @param act An `acs_5yr_topic` object.
+#' @param report A string, report name.
 #'
-#' @return A vector, topic name.
+#' @return A vector, subreport names.
 #'
 #' @family data selection functions
 #'
 #' @examples
 #'
 #' reports <- anrc_2021_x01 |>
-#'   get_subreport_names()
+#'   get_subreport_names(report = "B01002-Median Age By Sex")
 #'
 #' @export
 get_subreport_names <- function(act, report)
@@ -165,21 +169,22 @@ get_subreport_names.acs_5yr_topic<- function(act, report = NULL) {
 }
 
 
-
 #' Select report
 #'
-#' Get the selected topic.
+#' Select the reports whose names are indicated. We reduce the available reports
+#' and variables to those of the selected reports.
 #'
-#' @param act A `acs_5yr_topic` object.
+#' @param act An `acs_5yr_topic` object.
+#' @param report A string vector, report names.
 #'
-#' @return A vector, topic name.
+#' @return An `acs_5yr_topic` object.
 #'
 #' @family data selection functions
 #'
 #' @examples
 #'
-#' reports <- anrc_2021_x01 |>
-#'   select_report()
+#' act <- anrc_2021_x01 |>
+#'   select_report(report = "B01002-Median Age By Sex")
 #'
 #' @export
 select_report <- function(act, report)
@@ -191,15 +196,18 @@ select_report.acs_5yr_topic<- function(act, report = NULL) {
   stopifnot("The report must be defined." = !is.null(report))
   report <- substr(report, 1, 6)
   act$data <- act$data[act$data$report %in% report, ]
+  act
 }
 
 
 
-#' Get
+#' Select subreport
 #'
-#' Get the selected topic.
+#' Select the subreports whose names are indicated. We reduce the available
+#' subreports and variables to those of the selected subreports.
 #'
-#' @param act A `acs_5yr_topic` object.
+#' @param act An `acs_5yr_topic` object.
+#' @param subreport A string vector, subreport names.
 #'
 #' @return A vector, topic name.
 #'
@@ -207,8 +215,13 @@ select_report.acs_5yr_topic<- function(act, report = NULL) {
 #'
 #' @examples
 #'
-#' reports <- anrc_2021_x01 |>
-#'   select_subreport()
+#' act2 <- anrc_2021_x01 |>
+#'   select_subreport(
+#'     c(
+#'       "B01002-B-Median Age By Sex (Black Or African American Alone)",
+#'       "B01002-C-Median Age By Sex (American Indian And Alaska Native Alone)"
+#'     )
+#'   )
 #'
 #' @export
 select_subreport <- function(act, subreport)
@@ -221,13 +234,14 @@ select_subreport.acs_5yr_topic<- function(act, subreport = NULL) {
   subreport <- substr(subreport, 1, 8)
   sr <- paste0(act$data$report, '-', act$data$subreport)
   act$data <- act$data[sr %in% subreport, ]
+  act
 }
 
 #' Get geographical attributes
 #'
 #' Get the names of the geographic layer attributes (except for the geometry field).
 #'
-#' @param act A `acs_5yr_topic` object.
+#' @param act An `acs_5yr_topic` object.
 #'
 #' @return A vector, geographical attribute names.
 #'
@@ -254,7 +268,7 @@ get_geo_attribute_names.acs_5yr_topic<- function(act) {
 #'
 #' Get the geographic layer.
 #'
-#' @param glc A `acs_5yr_topic` or `acs_5yr_geo` object.
+#' @param glc An `acs_5yr_topic` or `acs_5yr_geo` object.
 #'
 #' @return A `sf` object.
 #'
@@ -262,7 +276,7 @@ get_geo_attribute_names.acs_5yr_topic<- function(act) {
 #'
 #' @examples
 #'
-#' names <- anrc_2021_x01 |>
+#' layer <- anrc_2021_x01 |>
 #'   get_geo_layer()
 #'
 #' @export
@@ -272,7 +286,7 @@ get_geo_layer <- function(glc)
 #' @rdname get_geo_layer
 #' @export
 get_geo_layer.acs_5yr_topic <- function(glc) {
-  glc$data
+  glc$geo
 }
 
 
@@ -470,9 +484,9 @@ get_geo_layer_from_file <- function(file) {
 #' Select the given topic with. If no topic is given, the first one that appears
 #' in the files is taken.
 #'
-#' @param act A `acs_5yr_topic` object.
+#' @param act An `acs_5yr_topic` object.
 #'
-#' @return A `acs_5yr_topic` object.
+#' @return An `acs_5yr_topic` object.
 #'
 #' @keywords internal
 get_topic_data <-  function(act) {

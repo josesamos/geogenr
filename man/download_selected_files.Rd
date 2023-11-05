@@ -7,7 +7,7 @@
 download_selected_files(ac, subdir = NULL, unzip = TRUE, delete_zip = FALSE)
 }
 \arguments{
-\item{ac}{A \code{acs_5yr} object.}
+\item{ac}{An \code{acs_5yr} object.}
 
 \item{subdir}{NULL/'year'/'area', output subdir.}
 

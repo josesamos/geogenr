@@ -11,12 +11,12 @@
 
 #' `acs_5yr` S3 class
 #'
-#' A `acs_5yr` object is created from a given local dir. This dir will contain
+#' An `acs_5yr` object is created from a given local dir. This dir will contain
 #' the geodatabase files that we download.
 #'
 #' @param dir A string.
 #'
-#' @return A `acs_5yr` object.
+#' @return An `acs_5yr` object.
 #'
 #' @family data download functions
 #'
@@ -43,7 +43,7 @@ acs_5yr <- function(dir = "") {
 #'
 #' Gets the names of the Demographic and Economic Area Groups where data is available.
 #'
-#' @param ac A `acs_5yr` object.
+#' @param ac An `acs_5yr` object.
 #'
 #' @return A vector, area group names.
 #'
@@ -74,7 +74,7 @@ get_area_groups.acs_5yr<- function(ac) {
 #'
 #' If no group is indicated, all available areas are obtained.
 #'
-#' @param ac A `acs_5yr` object.
+#' @param ac An `acs_5yr` object.
 #' @param group A string, area group name.
 #'
 #' @return A vector, area names.
@@ -110,7 +110,7 @@ get_areas.acs_5yr<- function(ac, group = NULL) {
 #'
 #' Get the years for which data has been found to be available for an area.
 #'
-#' @param ac A `acs_5yr` object.
+#' @param ac An `acs_5yr` object.
 #' @param area A string, area name.
 #'
 #' @return A vector, area years.
@@ -157,7 +157,7 @@ get_area_years.acs_5yr<- function(ac, area) {
 #' Get area url file names for the given years. If no year is indicated, all
 #' available ones are obtained.
 #'
-#' @param ac A `acs_5yr` object.
+#' @param ac An `acs_5yr` object.
 #' @param area A string, area name.
 #' @param years A vector, year number.
 #'
@@ -201,11 +201,11 @@ get_area_file_names.acs_5yr<- function(ac, area, years = NULL) {
 #' Select area files for the given years. If no year is indicated, all available
 #' ones are selected.
 #'
-#' @param ac A `acs_5yr` object.
+#' @param ac An `acs_5yr` object.
 #' @param area A string, area name.
 #' @param years A vector, year number.
 #'
-#' @return  A `acs_5yr` object.
+#' @return An `acs_5yr` object.
 #'
 #' @family data download functions
 #'
@@ -249,7 +249,7 @@ select_area_files.acs_5yr<- function(ac, area, years = NULL) {
 #'
 #' Gets the names of the files selected to be downloaded.
 #'
-#' @param ac A `acs_5yr` object.
+#' @param ac An `acs_5yr` object.
 #'
 #' @return A vector, file names.
 #'
@@ -279,7 +279,7 @@ get_selected_file_names.acs_5yr<- function(ac) {
 #' Gets the names of the files that are too heavy to be download with the available
 #' function. We have downloaded them directly with the web browser.
 #'
-#' @param ac A `acs_5yr` object.
+#' @param ac An `acs_5yr` object.
 #'
 #' @return A vector, too heavy file names.
 #'
@@ -320,7 +320,7 @@ get_too_heavy_file_names.acs_5yr<- function(ac) {
 #' With NULL it does not create any subdirs, with 'year' it creates them by years
 #' of downloaded files and with 'area' it creates them by areas.
 #'
-#' @param ac A `acs_5yr` object.
+#' @param ac An `acs_5yr` object.
 #' @param subdir NULL/'year'/'area', output subdir.
 #' @param unzip A boolean, unzip files.
 #' @param delete_zip A boolean, delete zip files if correctly unzipped.
@@ -406,7 +406,7 @@ download_selected_files <-
 #' With NULL it does not create any subdirs, with 'year' it creates them by years
 #' of files and with 'area' it creates them by areas.
 #'
-#' @param ac A `acs_5yr` object.
+#' @param ac An `acs_5yr` object.
 #' @param subdir NULL/'year'/'area', output subdir.
 #' @param delete_zip A boolean, delete zip files if correctly unzipped.
 #'
@@ -481,7 +481,7 @@ unzip_files <- function(ac, subdir = NULL, delete_zip = FALSE) {
 #'
 #' Obtain the code that appears in the name of the file associated with the area.
 #'
-#' @param ac A `acs_5yr` object.
+#' @param ac An `acs_5yr` object.
 #' @param area A string, area name.
 #'
 #' @return A vector, area code.
@@ -514,7 +514,7 @@ get_code_from_area_name.acs_5yr<- function(ac, area) {
 #' Get the name of the area from the code that appears in the name of the area
 #' files.
 #'
-#' @param ac A `acs_5yr` object.
+#' @param ac An `acs_5yr` object.
 #' @param area A string, area name.
 #'
 #' @return A vector, area code.

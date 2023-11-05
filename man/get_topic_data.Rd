@@ -7,10 +7,10 @@
 get_topic_data(act)
 }
 \arguments{
-\item{act}{A \code{acs_5yr_topic} object.}
+\item{act}{An \code{acs_5yr_topic} object.}
 }
 \value{
-A \code{acs_5yr_topic} object.
+An \code{acs_5yr_topic} object.
 }
 \description{
 Select the given topic with. If no topic is given, the first one that appears

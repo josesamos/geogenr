@@ -3,31 +3,34 @@
 \name{get_subreport_names}
 \alias{get_subreport_names}
 \alias{get_subreport_names.acs_5yr_topic}
-\title{Get}
+\title{Get subreport names}
 \usage{
 get_subreport_names(act, report)
 
 \method{get_subreport_names}{acs_5yr_topic}(act, report = NULL)
 }
 \arguments{
-\item{act}{A \code{acs_5yr_topic} object.}
+\item{act}{An \code{acs_5yr_topic} object.}
+
+\item{report}{A string, report name.}
 }
 \value{
-A vector, topic name.
+A vector, subreport names.
 }
 \description{
-Get the selected topic.
+Each topic includes several reports and subreports. Once a topic has been
+selected, using this function we obtain the name of the available subreports
+of a report. If no report is indicated, all subreports of the topic are
+obtained.
 }
 \examples{
 
 reports <- anrc_2021_x01 |>
-  get_subreport_names()
+  get_subreport_names(report = "B01002-Median Age By Sex")
 
 }
 \seealso{
 Other data selection functions: 
-\code{\link{as_GeoPackage}()},
-\code{\link{as_acs_5yr_geo}()},
 \code{\link{as_acs_5yr_topic}()},
 \code{\link{as_flat_table}()},
 \code{\link{as_star_database}()},
@@ -36,13 +39,11 @@ Other data selection functions:
 \code{\link{get_available_areas}()},
 \code{\link{get_geo_attribute_names}()},
 \code{\link{get_geo_layer.acs_5yr_geo}()},
-\code{\link{get_metadata}()},
 \code{\link{get_names_of_other_topics}()},
 \code{\link{get_report_names}()},
 \code{\link{get_topic_name}()},
 \code{\link{select_report}()},
 \code{\link{select_subreport}()},
-\code{\link{select_topic}()},
-\code{\link{set_metadata}()}
+\code{\link{select_topic}()}
 }
 \concept{data selection functions}

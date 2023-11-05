@@ -7,7 +7,7 @@
 new_acs_5yr_topic(ac, area, years = NULL, topic = NULL)
 }
 \arguments{
-\item{ac}{A \code{acs_5yr} object.}
+\item{ac}{An \code{acs_5yr} object.}
 
 \item{area}{A string, area name.}
 
@@ -16,7 +16,7 @@ new_acs_5yr_topic(ac, area, years = NULL, topic = NULL)
 \item{topic}{A string, topic name.}
 }
 \value{
-A \code{acs_5yr_topic} object.
+An \code{acs_5yr_topic} object.
 }
 \description{
 New acs_5yr_topic object

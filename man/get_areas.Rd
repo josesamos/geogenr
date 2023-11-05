@@ -10,7 +10,7 @@ get_areas(ac, group)
 \method{get_areas}{acs_5yr}(ac, group = NULL)
 }
 \arguments{
-\item{ac}{A \code{acs_5yr} object.}
+\item{ac}{An \code{acs_5yr} object.}
 
 \item{group}{A string, area group name.}
 }

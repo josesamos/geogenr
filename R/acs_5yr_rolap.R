@@ -5,7 +5,7 @@
 #' Gets a flat_table
 #'
 #'
-#' @param act A `acs_5yr_topic` object.
+#' @param act An `acs_5yr_topic` object.
 #' @param geo_attribute_names A string vector.
 #'
 #' @return A `flat_table` object.
@@ -79,7 +79,7 @@ as_flat_table.acs_5yr <- function(act, geo_attribute_names = NULL) {
 #' Gets a star_database
 #'
 #'
-#' @param act A `acs_5yr_topic` object.
+#' @param act An `acs_5yr_topic` object.
 #' @param geo_attribute_names A string vector.
 #'
 #' @return A `star_database` object.

@@ -10,7 +10,7 @@ get_selected_file_names(ac)
 \method{get_selected_file_names}{acs_5yr}(ac)
 }
 \arguments{
-\item{ac}{A \code{acs_5yr} object.}
+\item{ac}{An \code{acs_5yr} object.}
 }
 \value{
 A vector, file names.

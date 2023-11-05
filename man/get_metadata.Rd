@@ -3,58 +3,43 @@
 \name{get_metadata}
 \alias{get_metadata}
 \alias{get_metadata.acs_5yr_geo}
-\title{Get metadata layer}
+\title{Get the metadata layer}
 \usage{
 get_metadata(geo)
 
 \method{get_metadata}{acs_5yr_geo}(geo)
 }
 \arguments{
-\item{geo}{A acs_5yr_geo` object.}
+\item{geo}{An \code{acs_5yr_geo} object.}
 }
 \value{
-A \code{sf} object.
+A \code{tibble} object.
 }
 \description{
-Get the metadata layer.
+The metadata layer includes the names and description through various fields
+of the variables contained in the reports.
+}
+\details{
+The way to select the variables we want to work with is to filter this layer
+and subsequently set it as the object's metadata layer using the \code{set_metadata()}
+function.
 }
 \examples{
 
-dir <- tempdir()
-source_dir <- system.file("extdata/acs_5yr", package = "geogenr")
-files <- list.files(source_dir, "*.zip", full.names = TRUE)
-file.copy(from = files, to = dir, overwrite = TRUE)
-ac <- acs_5yr(dir)
-files <- ac |>
-  unzip_files()
+act <- anrc_2021_x01 |>
+  select_report(report = "B01002-Median Age By Sex")
 
-act <- ac |>
-  as_acs_5yr_topic("Alaska Native Regional Corporation",
-                   topic = "X01 Age And Sex")
+geo <- act |>
+  as_acs_5yr_geo()
 
-names <- act |>
+metadata <- geo |>
   get_metadata()
 
 }
 \seealso{
-Other data selection functions: 
+Other data exploitation and export functions: 
 \code{\link{as_GeoPackage}()},
 \code{\link{as_acs_5yr_geo}()},
-\code{\link{as_acs_5yr_topic}()},
-\code{\link{as_flat_table}()},
-\code{\link{as_star_database}()},
-\code{\link{get_available_area_topics}()},
-\code{\link{get_available_area_years}()},
-\code{\link{get_available_areas}()},
-\code{\link{get_geo_attribute_names}()},
-\code{\link{get_geo_layer.acs_5yr_geo}()},
-\code{\link{get_names_of_other_topics}()},
-\code{\link{get_report_names}()},
-\code{\link{get_subreport_names}()},
-\code{\link{get_topic_name}()},
-\code{\link{select_report}()},
-\code{\link{select_subreport}()},
-\code{\link{select_topic}()},
 \code{\link{set_metadata}()}
 }
-\concept{data selection functions}
+\concept{data exploitation and export functions}

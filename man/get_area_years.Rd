@@ -10,7 +10,7 @@ get_area_years(ac, area)
 \method{get_area_years}{acs_5yr}(ac, area)
 }
 \arguments{
-\item{ac}{A \code{acs_5yr} object.}
+\item{ac}{An \code{acs_5yr} object.}
 
 \item{area}{A string, area name.}
 }

@@ -10,7 +10,7 @@ get_available_area_topics(ac, area, years)
 \method{get_available_area_topics}{acs_5yr}(ac, area, years = NULL)
 }
 \arguments{
-\item{ac}{A \code{acs_5yr} object.}
+\item{ac}{An \code{acs_5yr} object.}
 
 \item{area}{A string, area name.}
 
@@ -44,8 +44,6 @@ topics <- ac |>
 }
 \seealso{
 Other data selection functions: 
-\code{\link{as_GeoPackage}()},
-\code{\link{as_acs_5yr_geo}()},
 \code{\link{as_acs_5yr_topic}()},
 \code{\link{as_flat_table}()},
 \code{\link{as_star_database}()},
@@ -53,14 +51,12 @@ Other data selection functions:
 \code{\link{get_available_areas}()},
 \code{\link{get_geo_attribute_names}()},
 \code{\link{get_geo_layer.acs_5yr_geo}()},
-\code{\link{get_metadata}()},
 \code{\link{get_names_of_other_topics}()},
 \code{\link{get_report_names}()},
 \code{\link{get_subreport_names}()},
 \code{\link{get_topic_name}()},
 \code{\link{select_report}()},
 \code{\link{select_subreport}()},
-\code{\link{select_topic}()},
-\code{\link{set_metadata}()}
+\code{\link{select_topic}()}
 }
 \concept{data selection functions}

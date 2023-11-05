@@ -10,24 +10,25 @@ select_report(act, report)
 \method{select_report}{acs_5yr_topic}(act, report = NULL)
 }
 \arguments{
-\item{act}{A \code{acs_5yr_topic} object.}
+\item{act}{An \code{acs_5yr_topic} object.}
+
+\item{report}{A string vector, report names.}
 }
 \value{
-A vector, topic name.
+An \code{acs_5yr_topic} object.
 }
 \description{
-Get the selected topic.
+Select the reports whose names are indicated. We reduce the available reports
+and variables to those of the selected reports.
 }
 \examples{
 
-reports <- anrc_2021_x01 |>
-  select_report()
+act <- anrc_2021_x01 |>
+  select_report(report = "B01002-Median Age By Sex")
 
 }
 \seealso{
 Other data selection functions: 
-\code{\link{as_GeoPackage}()},
-\code{\link{as_acs_5yr_geo}()},
 \code{\link{as_acs_5yr_topic}()},
 \code{\link{as_flat_table}()},
 \code{\link{as_star_database}()},
@@ -36,13 +37,11 @@ Other data selection functions:
 \code{\link{get_available_areas}()},
 \code{\link{get_geo_attribute_names}()},
 \code{\link{get_geo_layer.acs_5yr_geo}()},
-\code{\link{get_metadata}()},
 \code{\link{get_names_of_other_topics}()},
 \code{\link{get_report_names}()},
 \code{\link{get_subreport_names}()},
 \code{\link{get_topic_name}()},
 \code{\link{select_subreport}()},
-\code{\link{select_topic}()},
-\code{\link{set_metadata}()}
+\code{\link{select_topic}()}
 }
 \concept{data selection functions}

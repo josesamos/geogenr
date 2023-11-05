@@ -1,35 +1,24 @@
 
 
-#' As ACS census geo
+#' Get an `acs_5yr_geo` object
 #'
-#' Gets an ACS census
+#' Once we have selected the topics that interest us and, possibly also the reports
+#' or subreports, we obtain an `acs_5yr_geo` object with which we can represent
+#' or export the geographic layer along with the data of interest more easily.
 #'
+#' @param act An `acs_5yr_topic` object.
 #'
-#' @param act A `acs_5yr_topic` object.
+#' @return An `acs_5yr_geo` object.
 #'
-#' @return A `acs_5yr_geo` object.
-#'
-#' @family data selection functions
+#' @family data exploitation and export functions
 #'
 #' @examples
 #'
-#' dir <- tempdir()
-#' source_dir <- system.file("extdata/acs_5yr", package = "geogenr")
-#' files <- list.files(source_dir, "*.zip", full.names = TRUE)
-#' file.copy(from = files, to = dir, overwrite = TRUE)
-#' ac <- acs_5yr(dir)
+#' act <- anrc_2021_x01 |>
+#'   select_report(report = "B01002-Median Age By Sex")
 #'
-#' files <- ac |>
-#'   unzip_files()
-#'
-#' act <- ac |>
-#'   as_acs_5yr_topic("Alaska Native Regional Corporation",
-#'                    2021,
-#'                    "X01 Age And Sex")
-#'
-#' act <- ac |>
-#'   as_acs_5yr_topic("Alaska Native Regional Corporation",
-#'                    topic = "X01 Age And Sex")
+#' geo <- act |>
+#'   as_acs_5yr_geo()
 #'
 #' @export
 as_acs_5yr_geo <- function(act)
@@ -128,31 +117,30 @@ get_geo_layer.acs_5yr_geo <- function(glc) {
 }
 
 
-#' Get metadata layer
+#' Get the metadata layer
 #'
-#' Get the metadata layer.
+#' The metadata layer includes the names and description through various fields
+#' of the variables contained in the reports.
 #'
-#' @param geo A acs_5yr_geo` object.
+#' The way to select the variables we want to work with is to filter this layer
+#' and subsequently set it as the object's metadata layer using the `set_metadata()`
+#' function.
 #'
-#' @return A `sf` object.
+#' @param geo An `acs_5yr_geo` object.
 #'
-#' @family data selection functions
+#' @return A `tibble` object.
+#'
+#' @family data exploitation and export functions
 #'
 #' @examples
 #'
-#' dir <- tempdir()
-#' source_dir <- system.file("extdata/acs_5yr", package = "geogenr")
-#' files <- list.files(source_dir, "*.zip", full.names = TRUE)
-#' file.copy(from = files, to = dir, overwrite = TRUE)
-#' ac <- acs_5yr(dir)
-#' files <- ac |>
-#'   unzip_files()
+#' act <- anrc_2021_x01 |>
+#'   select_report(report = "B01002-Median Age By Sex")
 #'
-#' act <- ac |>
-#'   as_acs_5yr_topic("Alaska Native Regional Corporation",
-#'                    topic = "X01 Age And Sex")
+#' geo <- act |>
+#'   as_acs_5yr_geo()
 #'
-#' names <- act |>
+#' metadata <- geo |>
 #'   get_metadata()
 #'
 #' @export
@@ -167,33 +155,33 @@ get_metadata.acs_5yr_geo <- function(geo) {
 
 #' Set metadata layer
 #'
-#' Set the metadata layer.
+#' The metadata layer includes the names and description through various fields
+#' of the variables contained in the reports.
 #'
-#' @param geo A `acs_5yr_geo` object.
+#' When we set the metadata layer, after filtering it, the data layer is also
+#' filtered keeping only the variables from the metadata layer.
+#'
+#' @param geo An `acs_5yr_geo` object.
 #' @param metadata A `tibble` object.
 #'
 #' @return A `sf` object.
 #'
-#' @family data selection functions
+#' @family data exploitation and export functions
 #'
 #' @examples
 #'
-#' dir <- tempdir()
-#' source_dir <- system.file("extdata/acs_5yr", package = "geogenr")
-#' files <- list.files(source_dir, "*.zip", full.names = TRUE)
-#' file.copy(from = files, to = dir, overwrite = TRUE)
-#' ac <- acs_5yr(dir)
-#' files <- ac |>
-#'   unzip_files()
+#' act <- anrc_2021_x01 |>
+#'   select_report(report = "B01002-Median Age By Sex")
 #'
-#' act <- ac |>
-#'   as_acs_5yr_topic("Alaska Native Regional Corporation",
-#'                    topic = "X01 Age And Sex")
+#' geo <- act |>
+#'   as_acs_5yr_geo()
 #'
-#' metadata <- act |>
+#' metadata <- geo |>
 #'   get_metadata()
 #'
-#' act2 <- act |>
+#' metadata <- dplyr::filter(metadata, item2 == "Female")
+#'
+#' geo2 <- geo |>
 #'   set_metadata(metadata)
 #'
 #' @export
@@ -213,35 +201,31 @@ set_metadata.acs_5yr_geo <- function(geo, metadata) {
 }
 
 
-
 #' Save as GeoPackage
 #'
-#' Get the names of the geographic layer attributes (except for the geometry field).
+#' Save the data layer (geographic information layer), the metadata layer and the
+#' data source description layer in a file in `GeoPackage` format to be able to
+#' work with other tools.
 #'
-#' @param geo A `acs_5yr_geo` object.
+#' @param geo An `acs_5yr_geo` object.
 #' @param dir A string.
 #' @param name A string, file name.
 #'
 #' @return A string, file name.
 #'
-#' @family data selection functions
+#' @family data exploitation and export functions
 #'
 #' @examples
 #'
+#' act <- anrc_2021_x01 |>
+#'   select_report(report = "B01002-Median Age By Sex")
+#'
+#' geo <- act |>
+#'   as_acs_5yr_geo()
+#'
 #' dir <- tempdir()
-#' source_dir <- system.file("extdata/acs_5yr", package = "geogenr")
-#' files <- list.files(source_dir, "*.zip", full.names = TRUE)
-#' file.copy(from = files, to = dir, overwrite = TRUE)
-#' ac <- acs_5yr(dir)
-#' files <- ac |>
-#'   unzip_files()
-#'
-#' act <- ac |>
-#'   as_acs_5yr_topic("Alaska Native Regional Corporation",
-#'                    topic = "X01 Age And Sex")
-#'
-#' names <- act |>
-#'   as_GeoPackage()
+#' file <- geo |>
+#'   as_GeoPackage(dir)
 #'
 #' @export
 as_GeoPackage <- function(geo, dir, name)

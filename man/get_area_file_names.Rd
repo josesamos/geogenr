@@ -10,7 +10,7 @@ get_area_file_names(ac, area, years)
 \method{get_area_file_names}{acs_5yr}(ac, area, years = NULL)
 }
 \arguments{
-\item{ac}{A \code{acs_5yr} object.}
+\item{ac}{An \code{acs_5yr} object.}
 
 \item{area}{A string, area name.}
 

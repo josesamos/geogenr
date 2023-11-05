@@ -59,9 +59,160 @@ test_that("as_acs_5yr_topic()", {
   names(res[-1]))
 
   expect_equal({
-    act <- act |>
+    act2 <- act |>
       select_topic(topic = "X03 Hispanic Or Latino Origin")
-    act$topic
+    act2$topic
   },
   c(`X03 Hispanic Or Latino Origin` = "X03_HISPANIC_OR_LATINO_ORIGIN"))
+
+  expect_equal({
+    act |>
+      get_report_names()
+  },
+  c(
+    "B01001-Sex By Age",
+    "B01002-Median Age By Sex",
+    "B01003-Total Population"
+  ))
+
+  expect_equal({
+    act |>
+      get_subreport_names()
+  },
+  c(
+    "B01001---Sex By Age",
+    "B01001-A-Sex By Age (White Alone)",
+    "B01001-B-Sex By Age (Black Or African American Alone)",
+    "B01001-C-Sex By Age (American Indian And Alaska Native Alone)",
+    "B01001-D-Sex By Age (Asian Alone)",
+    "B01001-E-Sex By Age (Native Hawaiian And Other Pacific Islander Alone)",
+    "B01001-F-Sex By Age (Some Other Race Alone)",
+    "B01001-G-Sex By Age (Two Or More Races)",
+    "B01001-H-Sex By Age (White Alone, Not Hispanic Or Latino)",
+    "B01001-I-Sex By Age (Hispanic Or Latino)",
+    "B01002---Median Age By Sex",
+    "B01002-A-Median Age By Sex (White Alone)",
+    "B01002-B-Median Age By Sex (Black Or African American Alone)",
+    "B01002-C-Median Age By Sex (American Indian And Alaska Native Alone)",
+    "B01002-D-Median Age By Sex (Asian Alone)",
+    "B01002-E-Median Age By Sex (Native Hawaiian And Other Pacific Islander Alone)",
+    "B01002-F-Median Age By Sex (Some Other Race Alone)",
+    "B01002-G-Median Age By Sex (Two Or More Races)",
+    "B01002-H-Median Age By Sex (White Alone, Not Hispanic Or Latino)",
+    "B01002-I-Median Age By Sex (Hispanic Or Latino)",
+    "B01003---Total Population"
+  ))
+
+  expect_equal({
+    act |>
+      get_subreport_names()
+  },
+  c(
+    "B01001---Sex By Age",
+    "B01001-A-Sex By Age (White Alone)",
+    "B01001-B-Sex By Age (Black Or African American Alone)",
+    "B01001-C-Sex By Age (American Indian And Alaska Native Alone)",
+    "B01001-D-Sex By Age (Asian Alone)",
+    "B01001-E-Sex By Age (Native Hawaiian And Other Pacific Islander Alone)",
+    "B01001-F-Sex By Age (Some Other Race Alone)",
+    "B01001-G-Sex By Age (Two Or More Races)",
+    "B01001-H-Sex By Age (White Alone, Not Hispanic Or Latino)",
+    "B01001-I-Sex By Age (Hispanic Or Latino)",
+    "B01002---Median Age By Sex",
+    "B01002-A-Median Age By Sex (White Alone)",
+    "B01002-B-Median Age By Sex (Black Or African American Alone)",
+    "B01002-C-Median Age By Sex (American Indian And Alaska Native Alone)",
+    "B01002-D-Median Age By Sex (Asian Alone)",
+    "B01002-E-Median Age By Sex (Native Hawaiian And Other Pacific Islander Alone)",
+    "B01002-F-Median Age By Sex (Some Other Race Alone)",
+    "B01002-G-Median Age By Sex (Two Or More Races)",
+    "B01002-H-Median Age By Sex (White Alone, Not Hispanic Or Latino)",
+    "B01002-I-Median Age By Sex (Hispanic Or Latino)",
+    "B01003---Total Population"
+  ))
+
+  expect_equal({
+    act |>
+      get_subreport_names(report = "B01002-Median Age By Sex")
+  },
+  c(
+    "B01002---Median Age By Sex",
+    "B01002-A-Median Age By Sex (White Alone)",
+    "B01002-B-Median Age By Sex (Black Or African American Alone)",
+    "B01002-C-Median Age By Sex (American Indian And Alaska Native Alone)",
+    "B01002-D-Median Age By Sex (Asian Alone)",
+    "B01002-E-Median Age By Sex (Native Hawaiian And Other Pacific Islander Alone)",
+    "B01002-F-Median Age By Sex (Some Other Race Alone)",
+    "B01002-G-Median Age By Sex (Two Or More Races)",
+    "B01002-H-Median Age By Sex (White Alone, Not Hispanic Or Latino)",
+    "B01002-I-Median Age By Sex (Hispanic Or Latino)"
+  ))
+
+  expect_equal({
+    act2 <- anrc_2021_x01 |>
+      select_report(report = "B01002-Median Age By Sex")
+    reports <- act2 |>
+      get_report_names()
+  },
+  "B01002-Median Age By Sex")
+
+  expect_equal({
+    act2 <- anrc_2021_x01 |>
+      select_subreport(
+        c(
+          "B01002-B-Median Age By Sex (Black Or African American Alone)",
+          "B01002-C-Median Age By Sex (American Indian And Alaska Native Alone)"
+        )
+      )
+    reports <- act2 |>
+      get_report_names()
+  },
+  character(0))
+
+  expect_equal({
+    act2 <- anrc_2021_x01 |>
+      select_subreport(
+        c(
+          "B01002-B-Median Age By Sex (Black Or African American Alone)",
+          "B01002-C-Median Age By Sex (American Indian And Alaska Native Alone)"
+        )
+      )
+    reports <- act2 |>
+      get_subreport_names()
+  },
+  c(
+    "B01002-B-Median Age By Sex (Black Or African American Alone)",
+    "B01002-C-Median Age By Sex (American Indian And Alaska Native Alone)"
+  ))
+
+  expect_equal({
+    act2 |>
+      get_geo_attribute_names()
+  },
+  c(
+    "STATEFP",
+    "ANRCFP",
+    "ANRCNS",
+    "GEOID",
+    "NAME",
+    "NAMELSAD",
+    "LSAD",
+    "CLASSFP",
+    "MTFCC",
+    "FUNCSTAT",
+    "ALAND",
+    "AWATER",
+    "INTPTLAT",
+    "INTPTLON",
+    "Shape_Length",
+    "Shape_Area",
+    "GEOID_Data"
+  ))
+
+  expect_equal({
+    layer <- act2 |>
+      get_geo_layer()
+    class(layer)
+  },
+  c("sf", "data.frame"))
 })
