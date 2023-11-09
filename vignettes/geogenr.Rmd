@@ -256,7 +256,7 @@ geo_layer <- geo2 |>
   get_geo_layer()
 
 geo_layer$faiana21vs20 <- 100 * (geo_layer$V1389 - geo_layer$V0671) / geo_layer$V0671
-plot(geo_layer[, "faiana21vs20"])
+plot(sf::st_shift_longitude(geo_layer[, "faiana21vs20"]))
 ```
 
 Additionally, we can export any of these objects in `GeoPackage` format to use other query tools, such as *QGIS*.

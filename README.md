@@ -53,6 +53,7 @@ work folder.
 
 ``` r
 library(geogenr)
+#> Warning: package 'geogenr' was built under R version 4.3.2
 
 dir <- system.file("extdata/acs_5yr", package = "geogenr")
 
@@ -219,7 +220,7 @@ geo_layer <- geo2 |>
   get_geo_layer()
 
 geo_layer$faiana21vs20 <- 100 * (geo_layer$V1389 - geo_layer$V0671) / geo_layer$V0671
-plot(geo_layer[, "faiana21vs20"])
+plot(sf::st_shift_longitude(geo_layer[, "faiana21vs20"]))
 ```
 
 <img src="man/figures/README-unnamed-chunk-9-1.png" width="100%" />
