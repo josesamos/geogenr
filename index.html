@@ -110,6 +110,7 @@
 <p>First, we select and download the ACS geodatabases that we need. We can use the functions offered by the package or download and decompress them by other means. We create an object of class <code>acs_5yr</code> indicating the work folder.</p>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://josesamos.github.io/geogenr/">geogenr</a></span><span class="op">)</span></span>
+<span><span class="co">#&gt; Warning: package 'geogenr' was built under R version 4.3.2</span></span>
 <span></span>
 <span><span class="va">dir</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/system.file.html" class="external-link">system.file</a></span><span class="op">(</span><span class="st">"extdata/acs_5yr"</span>, package <span class="op">=</span> <span class="st">"geogenr"</span><span class="op">)</span></span>
 <span></span>
@@ -248,7 +249,7 @@
 <span>  <span class="fu"><a href="reference/get_geo_layer.html">get_geo_layer</a></span><span class="op">(</span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">geo_layer</span><span class="op">$</span><span class="va">faiana21vs20</span> <span class="op">&lt;-</span> <span class="fl">100</span> <span class="op">*</span> <span class="op">(</span><span class="va">geo_layer</span><span class="op">$</span><span class="va">V1389</span> <span class="op">-</span> <span class="va">geo_layer</span><span class="op">$</span><span class="va">V0671</span><span class="op">)</span> <span class="op">/</span> <span class="va">geo_layer</span><span class="op">$</span><span class="va">V0671</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">geo_layer</span><span class="op">[</span>, <span class="st">"faiana21vs20"</span><span class="op">]</span><span class="op">)</span></span></code></pre></div>
+<span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="fu">sf</span><span class="fu">::</span><span class="fu"><a href="https://r-spatial.github.io/sf/reference/st_shift_longitude.html" class="external-link">st_shift_longitude</a></span><span class="op">(</span><span class="va">geo_layer</span><span class="op">[</span>, <span class="st">"faiana21vs20"</span><span class="op">]</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 <p><img src="reference/figures/README-unnamed-chunk-9-1.png" width="100%"></p>
 <p>In <code>GeoPackage</code> format we can also easily perform queries with other tools such as <em>QGIS</em>.</p>
 </div>
