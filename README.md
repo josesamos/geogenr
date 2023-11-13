@@ -10,9 +10,8 @@ status](https://www.r-pkg.org/badges/version/geogenr)](https://CRAN.R-project.or
 [![R-CMD-check](https://github.com/josesamos/geogenr/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/josesamos/geogenr/actions/workflows/R-CMD-check.yaml)
 [![Codecov test
 coverage](https://codecov.io/gh/josesamos/geogenr/branch/master/graph/badge.svg)](https://app.codecov.io/gh/josesamos/geogenr?branch=master)
+[![Downloads](http://cranlogs.r-pkg.org/badges/geogenr?color=brightgreen)](https://www.r-pkg.org:443/pkg/geogenr)
 <!-- badges: end -->
-
-<!-- [![Downloads](http://cranlogs.r-pkg.org/badges/geogenr?color=brightgreen)](https://www.r-pkg.org:443/pkg/geogenr) -->
 
 The [American Community Survey
 (ACS)](https://www.census.gov/programs-surveys/acs) offers geodatabases
@@ -53,7 +52,6 @@ work folder.
 
 ``` r
 library(geogenr)
-#> Warning: package 'geogenr' was built under R version 4.3.2
 
 dir <- system.file("extdata/acs_5yr", package = "geogenr")
 

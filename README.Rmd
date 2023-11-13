@@ -20,9 +20,8 @@ knitr::opts_chunk$set(
 [![CRAN status](https://www.r-pkg.org/badges/version/geogenr)](https://CRAN.R-project.org/package=geogenr)
 [![R-CMD-check](https://github.com/josesamos/geogenr/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/josesamos/geogenr/actions/workflows/R-CMD-check.yaml)
 [![Codecov test coverage](https://codecov.io/gh/josesamos/geogenr/branch/master/graph/badge.svg)](https://app.codecov.io/gh/josesamos/geogenr?branch=master)
+[![Downloads](http://cranlogs.r-pkg.org/badges/geogenr?color=brightgreen)](https://www.r-pkg.org:443/pkg/geogenr)
 <!-- badges: end -->
-
-<!-- [![Downloads](http://cranlogs.r-pkg.org/badges/geogenr?color=brightgreen)](https://www.r-pkg.org:443/pkg/geogenr) -->
 
 
 The [American Community Survey (ACS)](https://www.census.gov/programs-surveys/acs) offers geodatabases with geographic information and associated data of interest to researchers in the area. The goal of `geogenr` is to facilitate access to this information through functions that allow us to select the geodatabases that interest us, download them, access the information they contain, filter it and export it in various formats so that we can process it with other tools if required.
