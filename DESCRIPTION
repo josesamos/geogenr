@@ -2,9 +2,11 @@ Type: Package
 Package: geogenr
 Title: Generator from American Community Survey Geodatabases
 Version: 2.0.0.9000
-Authors@R: 
-    person("Jose", "Samos", , "jsamos@ugr.es", role = c("aut", "cre", "cph"),
-           comment = c(ORCID = "0000-0002-4457-3439"))
+Authors@R: c(
+    person("Jose", "Samos", , "jsamos@ugr.es", role = c("aut", "cre"),
+           comment = c(ORCID = "0000-0002-4457-3439")),
+    person("Universidad de Granada", role = "cph")
+  )
 Description: The American Community Survey (ACS)
     <https://www.census.gov/programs-surveys/acs> offers geodatabases with
     geographic information and associated data of interest to researchers

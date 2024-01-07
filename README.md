@@ -11,6 +11,7 @@ status](https://www.r-pkg.org/badges/version/geogenr)](https://CRAN.R-project.or
 [![Codecov test
 coverage](https://codecov.io/gh/josesamos/geogenr/branch/master/graph/badge.svg)](https://app.codecov.io/gh/josesamos/geogenr?branch=master)
 [![Downloads](http://cranlogs.r-pkg.org/badges/geogenr?color=brightgreen)](https://www.r-pkg.org:443/pkg/geogenr)
+[![Downloads](http://cranlogs.r-pkg.org/badges/grand-total/geogenr?color=brightgreen)](https://www.r-pkg.org:443/pkg/geogenr)
 <!-- badges: end -->
 
 The [American Community Survey
@@ -149,7 +150,7 @@ act |>
 ```
 
 We can export the reports of the selected topic to various formats such
-as `GeoPackage`, also `flat_table` or `star_schema` of the
+as `GeoPackage`, also `flat_table` or `star_database` of the
 [`rolap`](https://cran.r-project.org/package=rolap) package. In this
 case we are going to obtain a `GeoPackage`.
 
