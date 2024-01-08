@@ -46,6 +46,7 @@ file <- geo |>
 Other data exploitation and export functions: 
 \code{\link{as_acs_5yr_geo}()},
 \code{\link{as_flat_table}()},
+\code{\link{as_geomultistar}()},
 \code{\link{as_star_database}()},
 \code{\link{get_metadata}()},
 \code{\link{set_metadata}()}

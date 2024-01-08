@@ -122,3 +122,43 @@ as_star_database.acs_5yr_topic <- function(act, attributes = NULL) {
     rolap::as_star_database(schema)
   db
 }
+
+
+
+
+#' As `geomultistar::geomultistar` object
+#'
+#' Obtain an `geomultistar::geomultistar` object to be able to enrich multidimensional
+#' queries with geographic data.
+#'
+#' We can indicate the attributes of the geographic layer to include in the export.
+#' Otherwise, the default attributes are included (not area, perimeter or location
+#' attributes).
+#'
+#' @param act An `acs_5yr_topic` object.
+#' @param attributes A string vector.
+#'
+#' @return A `geomultistar` object.
+#'
+#' @family data exploitation and export functions
+#'
+#' @examples
+#'
+#' gms <- anrc_2021_x01 |>
+#'   as_geomultistar()
+#'
+#' @export
+as_geomultistar <- function(act, attributes)
+  UseMethod("as_geomultistar")
+
+#' @rdname as_geomultistar
+#' @export
+as_geomultistar.acs_5yr_topic <- function(act, attributes = NULL) {
+  ms <- as_star_database(act, attributes) |>
+        rolap::as_multistar()
+
+  gms <-
+    geomultistar::geomultistar(ms, geodimension = "dim_where")
+
+  gms
+}

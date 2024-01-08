@@ -41,6 +41,7 @@ Other data exploitation and export functions:
 \code{\link{as_GeoPackage}()},
 \code{\link{as_acs_5yr_geo}()},
 \code{\link{as_flat_table}()},
+\code{\link{as_geomultistar}()},
 \code{\link{as_star_database}()},
 \code{\link{set_metadata}()}
 }

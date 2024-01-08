@@ -80,4 +80,24 @@ test_that("rolap works", {
     names(st$facts)
   },
   "anrc")
+
+  expect_equal({
+    gms <- anrc_2021_x01 |>
+      as_geomultistar()
+    names(gms$geodimension$dim_where)
+  },
+  c(
+    "all_dim_where",
+    "statefp",
+    "anrcfp",
+    "anrcns",
+    "geoid",
+    "name",
+    "namelsad",
+    "lsad",
+    "classfp",
+    "mtfcc",
+    "geoid_data"
+  ))
+
 })
