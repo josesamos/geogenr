@@ -1,4 +1,6 @@
 # geogenr (development version)
+* Modify the cph field of the description.
+* Include logo on website.
 
 # geogenr 2.0.0
 * New data model.
