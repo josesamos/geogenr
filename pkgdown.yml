@@ -3,7 +3,7 @@ pkgdown: 2.0.7
 pkgdown_sha: ~
 articles:
   geogenr: geogenr.html
-last_built: 2024-01-08T12:48Z
+last_built: 2024-01-08T12:55Z
 urls:
   reference: https://josesamos.github.io/geogenr/reference
   article: https://josesamos.github.io/geogenr/articles
