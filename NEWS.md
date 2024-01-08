@@ -1,4 +1,4 @@
-# geogenr (development version)
+# geogenr 2.0.1
 * Modify the cph field of the description.
 * Include logo on website.
 
