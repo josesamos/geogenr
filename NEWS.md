@@ -1,4 +1,5 @@
 # geogenr (development version)
+* Update cph information.
 
 # geogenr 2.0.1
 * Data export function in `geomultistar` format: `as_geomultistar()`.
